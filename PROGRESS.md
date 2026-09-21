@@ -1,13 +1,15 @@
 # 📊 FityatulHaq Public Website (Web 1) - Progress Tracking
 
-> **Last Updated:** 2026-09-21 · **Current Phase:** Phase 1 Complete — Awaiting Phase 2 Approval
+> **Last Updated:** 2026-09-21 · **Current Phase:** Phase 0 Complete · Phase 1 in progress (schema done, migration pending DB URL)
+
+> **Environment strategy:** Dev Supabase project now → real project later. All Supabase/Postgres config lives in `.env` files (backend `.env`, frontend `.env.local`); no code references a project ID, so the swap is a pure config change. Frontend SSR helpers (`src/utils/supabase/*`) + session-refresh middleware are already wired.
 
 This document outlines the detailed development plan, architecture requirements, and progress tracking for the FityatulHaq Public Website, based on SRS Version 1.0.
 
 ## 🛠 1. Technology Stack (Section 10)
 - [x] **Frontend:** Next.js **15.5.25** (React) + TailwindCSS — installed & package-configured
 - [x] **Backend/API:** Express.js **4.21.2** + TypeScript + Prisma ORM **7.10.0** — installed & package-configured
-- [ ] **Database:** PostgreSQL (Independent from Web 2) — *awaiting Phase 2: schema + migration*
+- [~] **Database:** PostgreSQL (Independent from Web 2) — *Prisma 7 schema drafted & validated (`User`, `RefreshToken`, `OtpCode`); initial migration SQL generated offline; first `migrate dev` pending dev Supabase DB URL*
 - [x] **Authentication:** NextAuth.js **4.24.11** + JWT (`jsonwebtoken`) + bcrypt (`bcryptjs`) — packages installed
 - [x] **File Storage:** Supabase Storage — `@supabase/supabase-js` installed on both frontend & backend
 - [ ] **Deployment:** Cloudflare Workers (Frontend) + Docker (Backend) — *Phase 5*
@@ -77,7 +79,7 @@ npm run dev           # http://localhost:3000 + http://localhost:4000
   - [ ] Bottom Bar: Copyright text, Arabic quote + translation, Circular Social Media Icons.
 
 **Authentication System (Sections 5.4 & 6)**
-- [ ] **Database & API:** Setup JWT (7-day expiry + Refresh token), bcrypt hashing, OTP generation.
+- [~] **Database & API:** JWT (7-day refresh) + bcrypt + OTP models in Prisma schema — *schema done; Express auth endpoints next*
 - [ ] **`/register`:** Form (Name, Email/Username, Password, Confirm, Phone [opt], DOB [opt], Terms checkbox). OTP/Email verification flow.
 - [ ] **`/login`:** Form (Username/Email, Password), links to Forgot Password and Register.
 - [ ] **`/forgot-password`:** Email/Phone input -> OTP/Link (15 min expiry) -> New Password form.
