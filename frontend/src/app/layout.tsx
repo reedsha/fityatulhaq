@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
-import type { ReactNode } from "react";
+import type { ReactElement, ReactNode } from "react";
+import { Toaster } from "react-hot-toast";
+
+import { AuthProvider } from "@/context/AuthContext";
+
+import "../globals.css";
 
 export const metadata: Metadata = {
   title: {
@@ -10,13 +15,24 @@ export const metadata: Metadata = {
 };
 
 /**
- * Root layout — minimal placeholder. Phase 1 will expand this with the
- * sticky Header + Footer shell per SRS Sections 3 & 4.
+ * Root layout.
+ *
+ * `AuthProvider` is a client component, so mounting it here makes the session
+ * available to every client component in the tree while the page shells below it
+ * stay server-rendered. `Toaster` renders the toast host used by the auth forms.
+ *
+ * Phase 1 will expand this with the sticky Header + Footer shell per SRS
+ * Sections 3 & 4.
  */
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default function RootLayout({ children }: { children: ReactNode }): ReactElement {
   return (
     <html lang="th">
-      <body>{children}</body>
+      <body className="min-h-screen bg-slate-50 text-slate-900 antialiased">
+        <AuthProvider>
+          {children}
+          <Toaster position="top-center" toastOptions={{ duration: 5000 }} />
+        </AuthProvider>
+      </body>
     </html>
   );
 }
