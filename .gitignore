@@ -45,3 +45,9 @@ coverage/
 
 # --- Misc ---
 *.tsbuildinfo
+
+# --- Prisma CLI scaffolding noise (agent skill docs, skill lock) ---
+backend/.claude/
+backend/.windsurf/
+backend/.agents/
+backend/skills-lock.json

@@ -1,0 +1,100 @@
+// ============================================================
+//  FityatulHaq Web 1 — Data Model (Phase 1: Auth)
+//  SRS v1.0 · Sections 5.4, 6 (Authentication) + 8.2 (Web 2 prep)
+// ============================================================
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ------------------------------------------------------------
+// Enums
+// ------------------------------------------------------------
+
+enum UserRole {
+  MEMBER
+  ADMIN
+  SUPERADMIN
+}
+
+enum OtpPurpose {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+}
+
+/// Web 2 sync prep (SRS 8.2): tracks whether a row has been
+/// pushed to / pulled from the internal admin portal (Web 2).
+enum SyncStatus {
+  SYNCED
+  PENDING
+  FAILED
+}
+
+// ------------------------------------------------------------
+//  User — SRS 5.4 / 6
+// ------------------------------------------------------------
+
+model User {
+  id              String     @id @default(cuid(2))
+  email           String     @unique
+  username        String     @unique
+  passwordHash    String
+  fullName        String
+  phone           String?
+  birthDate       DateTime?
+  role            UserRole   @default(MEMBER)
+  avatarUrl       String?
+  emailVerifiedAt DateTime?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  // Web 2 sync prep (SRS 8.2) — null sourceId = created locally in Web 1
+  sourceId        String?
+  syncStatus      SyncStatus @default(SYNCED)
+
+  refreshTokens   RefreshToken[]
+
+  @@index([syncStatus])
+}
+
+// ------------------------------------------------------------
+//  RefreshToken — 7-day lifetime (SRS 6), stored hashed
+// ------------------------------------------------------------
+
+model RefreshToken {
+  id        String    @id @default(cuid(2))
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique // SHA-256 of the raw refresh JWT
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+// ------------------------------------------------------------
+//  OtpCode — registration & password-reset codes
+//  Standalone (keyed by email) so it works both before a
+//  User row exists (register verify-then-create) and for
+//  existing users (forgot-password). 15-min expiry (SRS 6).
+// ------------------------------------------------------------
+
+model OtpCode {
+  id         String     @id @default(cuid(2))
+  identifier String // email (or later: phone) the code was sent to
+  purpose    OtpPurpose
+  codeHash   String // SHA-256 of the 6-digit code
+  expiresAt  DateTime // 15 minutes
+  consumedAt DateTime?
+  attempts   Int        @default(0)
+  createdAt  DateTime   @default(now())
+
+  @@unique([identifier, purpose])
+  @@index([identifier])
+}
