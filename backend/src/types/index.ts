@@ -5,9 +5,9 @@ import type { Request } from "express";
  * layer never have to reach into the generated client just for literals.
  */
 export const ROLES = {
+  GUEST: "GUEST",
   MEMBER: "MEMBER",
-  ADMIN: "ADMIN",
-  SUPERADMIN: "SUPERADMIN",
+  CONTENT_MODERATOR: "CONTENT_MODERATOR",
 } as const;
 
 export type Role = (typeof ROLES)[keyof typeof ROLES];

@@ -16,10 +16,13 @@ datasource db {
 // Enums
 // ------------------------------------------------------------
 
+// Must mirror the live database enum, which was renamed by migration
+// `20260923012900_change_roles_enum` (PRD §6.2). Regenerating the client from a
+// stale list here would hand the API enum values the database does not have.
 enum UserRole {
+  GUEST
   MEMBER
-  ADMIN
-  SUPERADMIN
+  CONTENT_MODERATOR
 }
 
 enum OtpPurpose {
@@ -47,7 +50,7 @@ model User {
   fullName        String
   phone           String?
   birthDate       DateTime?
-  role            UserRole   @default(MEMBER)
+  role            UserRole   @default(GUEST)
   avatarUrl       String?
   emailVerifiedAt DateTime?
   createdAt       DateTime   @default(now())

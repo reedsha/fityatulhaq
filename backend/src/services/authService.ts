@@ -1,14 +1,14 @@
 import { prisma } from "../config/database";
 import { OtpPurpose, Prisma, SyncStatus, UserRole } from "../generated/prisma/client";
-import {
-  createAppError,
-  isApplicationError,
-  toErrorMessage,
-  toHttpError,
-} from "../middleware/errorFormatter";
+import { createAppError, toErrorMessage } from "../middleware/errorFormatter";
 import { logger } from "../middleware/logger";
 import type { OtpPurposeValue } from "../types";
 import { OTP_TTL_MS, compareOtp, generateOtp, hashOtp } from "../utils/otp";
+import { parseBirthDate } from "../utils/profile";
+import { canResend } from "../utils/smtpRateLimiter";
+import { toServiceError } from "./serviceError";
+import { PUBLIC_USER_SELECT, type PublicUserProfile } from "./userProjection";
+import { deliverOtpEmail } from "./smtpDelivery";
 import {
   REFRESH_TOKEN_EXPIRY_SECONDS,
   hashPassword,
@@ -54,6 +54,19 @@ export interface ResetPasswordInput {
   newPassword: string;
 }
 
+export interface VerifyEmailInput {
+  identifier: string;
+  code: string;
+}
+
+export interface LogoutInput {
+  refreshToken: string;
+}
+
+export interface LogoutResult {
+  message: string;
+}
+
 /** Token pair handed back to the client. */
 export interface AuthTokens {
   accessToken: string;
@@ -85,30 +98,16 @@ export interface ResetPasswordResult {
   message: string;
 }
 
-/** Safe projection of a user row — never carries `passwordHash`. */
-export interface PublicUserProfile {
-  id: string;
+/**
+ * Deliberately not `PublicUserProfile`: that projection is a shared contract and
+ * has no verification column, and widening it would change what `/auth/me` and
+ * the profile endpoints return.
+ */
+export interface VerifyEmailResult {
+  message: string;
   email: string;
-  username: string;
-  fullName: string;
-  phone: string | null;
-  birthDate: Date | null;
-  role: UserRole;
-  avatarUrl: string | null;
-  createdAt: Date;
+  verifiedAt: Date;
 }
-
-const PUBLIC_USER_SELECT = {
-  id: true,
-  email: true,
-  username: true,
-  fullName: true,
-  phone: true,
-  birthDate: true,
-  role: true,
-  avatarUrl: true,
-  createdAt: true,
-} as const;
 
 const LOGIN_USER_SELECT = {
   id: true,
@@ -130,64 +129,91 @@ function refreshTokenExpiry(): Date {
   return new Date(Date.now() + REFRESH_TOKEN_TTL_MS);
 }
 
-function parseBirthDate(rawBirthDate: string | undefined): Date | null {
-  if (rawBirthDate === undefined || rawBirthDate.trim() === "") {
-    return null;
-  }
-
-  const parsed = new Date(rawBirthDate);
-
-  if (Number.isNaN(parsed.getTime())) {
-    throw createAppError(
-      "INVALID_BIRTH_DATE",
-      "birthDate must be a valid ISO 8601 date",
-      400,
-    );
-  }
-
-  return parsed;
-}
-
-/**
- * Maps a write failure onto the API's error contract: unique-constraint races
- * become the same conflict codes the pre-flight checks raise, and anything else
- * is logged and wrapped.
- */
-function toServiceError(error: unknown, code: string, message: string): Error {
-  if (isApplicationError(error)) {
-    return error;
-  }
-
-  if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
-    const target = error.meta?.["target"];
-    const fields: string[] = Array.isArray(target)
-      ? target.map((field: unknown): string => String(field))
-      : [];
-
-    if (fields.includes("username")) {
-      return createAppError("USERNAME_ALREADY_EXISTS", "This username is already taken", 409);
-    }
-
-    if (fields.includes("email")) {
-      return createAppError(
-        "EMAIL_ALREADY_EXISTS",
-        "An account with this email already exists",
-        409,
-      );
-    }
-
-    return createAppError("DUPLICATE_RECORD", "A record with these details already exists", 409);
-  }
-
-  logger.error(`[${code}] ${toErrorMessage(error)}`);
-
-  return toHttpError(error, { code, message });
-}
-
 /**
  * Registers a member and returns a usable token pair straight away; the account
  * stays unverified until the emailed code is confirmed.
  */
+/**
+ * Development-only echo of a freshly issued code. Local mail delivery is usually
+ * unconfigured, so without this the verification screens are untestable. The
+ * guard is deliberate: an OTP written to a production log is a live credential.
+ */
+function logOtpForLocalDevelopment(
+  identifier: string,
+  code: string,
+  purpose: OtpPurposeValue,
+): void {
+  if (process.env.NODE_ENV === "production") {
+    return;
+  }
+
+  logger.info(`[OTP_DEV_ONLY] ${purpose} code for ${identifier}: ${code}`);
+}
+
+/**
+ * Issues and dispatches a fresh email-verification code on a best-effort basis.
+ *
+ * The login path uses this so the verification screen shown to an unverified
+ * member is telling the truth when it claims a code was sent. Nothing here may
+ * propagate: a mail failure must never turn a valid sign-in into an error, so
+ * every problem is reported through the log and swallowed.
+ */
+async function issueEmailVerificationCode(identifier: string): Promise<void> {
+  // Checked before the stored code is rotated. Replacing the hash while the
+  // quota forbids sending would invalidate a code the member already holds and
+  // leave them with nothing to enter.
+  if (!canResend(identifier, "EMAIL_VERIFICATION")) {
+    logger.warn(`[EMAIL_VERIFICATION_NOT_SENT] Resend quota exhausted for ${identifier}`);
+
+    return;
+  }
+
+  try {
+    const otp = generateOtp();
+    const codeHash = hashOtp(otp);
+    const expiresAt = new Date(Date.now() + OTP_TTL_MS);
+
+    await prisma.otpCode.upsert({
+      where: {
+        identifier_purpose: {
+          identifier,
+          purpose: OtpPurpose.EMAIL_VERIFICATION,
+        },
+      },
+      create: {
+        identifier,
+        purpose: OtpPurpose.EMAIL_VERIFICATION,
+        codeHash,
+        expiresAt,
+      },
+      update: {
+        codeHash,
+        expiresAt,
+        consumedAt: null,
+        attempts: 0,
+      },
+    });
+
+    const delivery = await deliverOtpEmail(identifier, otp, "EMAIL_VERIFICATION");
+
+    if (!delivery.sent) {
+      logger.warn(
+        `[EMAIL_DELIVERY_FAILED] EMAIL_VERIFICATION code for ${identifier}: ${
+          delivery.error ?? "unknown error"
+        }`,
+      );
+    }
+
+    logOtpForLocalDevelopment(identifier, otp, "EMAIL_VERIFICATION");
+  } catch (error) {
+    logger.warn(
+      `[EMAIL_VERIFICATION_ISSUE_FAILED] Could not queue a code for ${identifier}: ${toErrorMessage(
+        error,
+      )}`,
+    );
+  }
+}
+
 export async function register(input: RegisterInput): Promise<RegisterResult> {
   const email = normaliseEmail(input.email);
   const username = input.username.trim();
@@ -287,9 +313,21 @@ export async function register(input: RegisterInput): Promise<RegisterResult> {
       role: created.user.role,
     });
 
-    // Logged only after the transaction commits, so a rolled-back code is never
-    // announced. TODO: Implement email delivery when SMTP provider is configured
-    logger.info(`[OTP_DISPATCH] EMAIL_VERIFICATION code for ${email}: ${otp}`);
+    // Dispatched only after the transaction commits, so a code belonging to a
+    // rolled-back registration is never emailed. Delivery failures are recorded
+    // but never surfaced: the account exists either way, and the member can
+    // request a fresh code from the verification screen.
+    const delivery = await deliverOtpEmail(email, otp, "EMAIL_VERIFICATION");
+
+    if (!delivery.sent) {
+      logger.warn(
+        `[EMAIL_DELIVERY_FAILED] EMAIL_VERIFICATION code for ${email}: ${
+          delivery.error ?? "unknown error"
+        }`,
+      );
+    }
+
+    logOtpForLocalDevelopment(email, otp, "EMAIL_VERIFICATION");
 
     return { accessToken, refreshToken: created.refreshToken };
   } catch (error) {
@@ -338,6 +376,13 @@ export async function login(input: LoginInput): Promise<LoginResult> {
         expiresAt: refreshTokenExpiry(),
       },
     });
+
+    // `isNew` sends the member to the verification screen, which asserts that a
+    // code is on its way. Issue one so that assertion holds; the helper is
+    // best-effort and cannot fail the sign-in.
+    if (user.emailVerifiedAt === null) {
+      await issueEmailVerificationCode(user.email);
+    }
 
     return {
       user: {
@@ -418,6 +463,26 @@ export async function refreshToken(input: RefreshTokenInput): Promise<AuthTokens
 }
 
 /**
+ * Revokes the presented refresh token so the session cannot be resumed.
+ *
+ * Deliberately idempotent: an unknown, already-rotated or already-revoked token
+ * is not an error. Signing out is the caller's exit path — it must succeed even
+ * when the stored row is long gone, otherwise the browser would sit on a cookie
+ * the server will never accept again.
+ */
+export async function logout(input: LogoutInput): Promise<LogoutResult> {
+  try {
+    await prisma.refreshToken.deleteMany({
+      where: { tokenHash: await hashRefreshToken(input.refreshToken) },
+    });
+
+    return { message: "Signed out" };
+  } catch (error) {
+    throw toServiceError(error, "LOGOUT_FAILED", "Unable to sign out");
+  }
+}
+
+/**
  * Issues a fresh OTP for the given purpose. The response is intentionally
  * identical whether or not the account exists.
  */
@@ -447,20 +512,20 @@ export async function forgotPassword(
       },
     });
 
-    if (input.purpose === OtpPurpose.PASSWORD_RESET) {
-      const user = await prisma.user.findUnique({
-        where: { email: identifier },
-        select: { id: true },
-      });
+    // Dispatched only once the code is durably stored. The response below stays
+    // identical whether or not the account exists, and a delivery failure is
+    // recorded without changing that answer, so neither branch leaks membership.
+    const delivery = await deliverOtpEmail(identifier, otp, input.purpose);
 
-      logger.info(
-        `[OTP_DISPATCH] PASSWORD_RESET code for ${identifier}: ${otp} (account found: ${user !== null})`,
+    if (!delivery.sent) {
+      logger.warn(
+        `[EMAIL_DELIVERY_FAILED] ${input.purpose} code for ${identifier}: ${
+          delivery.error ?? "unknown error"
+        }`,
       );
-    } else {
-      logger.info(`[OTP_DISPATCH] EMAIL_VERIFICATION code for ${identifier}: ${otp}`);
     }
 
-    // TODO: Implement email delivery when SMTP provider is configured
+    logOtpForLocalDevelopment(identifier, otp, input.purpose);
 
     return { message: "OTP sent to email" };
   } catch (error) {
@@ -554,6 +619,87 @@ export async function resetPassword(
     return { message: "Password reset successful" };
   } catch (error) {
     throw toServiceError(error, "PASSWORD_RESET_FAILED", "Unable to reset the password");
+  }
+}
+
+/**
+ * Redeems an EMAIL_VERIFICATION code and stamps the account as verified.
+ *
+ * Unauthenticated by design — the emailed code is the proof, exactly as with
+ * `resetPassword`. The row is consumed in the same transaction that flips
+ * `emailVerifiedAt`, so a code can never verify twice.
+ */
+export async function verifyEmail(input: VerifyEmailInput): Promise<VerifyEmailResult> {
+  const identifier = normaliseEmail(input.identifier);
+
+  try {
+    const otpRecord = await prisma.otpCode.findUnique({
+      where: {
+        identifier_purpose: {
+          identifier,
+          purpose: OtpPurpose.EMAIL_VERIFICATION,
+        },
+      },
+    });
+
+    if (otpRecord === null) {
+      throw createAppError(
+        "OTP_NOT_FOUND",
+        "No email verification request was found for this email",
+        404,
+      );
+    }
+
+    if (otpRecord.consumedAt !== null) {
+      throw createAppError("OTP_ALREADY_CONSUMED", "This code has already been used", 400);
+    }
+
+    if (otpRecord.expiresAt.getTime() <= Date.now()) {
+      throw createAppError("OTP_EXPIRED", "This code has expired", 400);
+    }
+
+    if (otpRecord.attempts >= MAX_OTP_ATTEMPTS) {
+      throw createAppError(
+        "OTP_ATTEMPTS_EXCEEDED",
+        "Too many incorrect attempts; request a new code",
+        429,
+      );
+    }
+
+    if (!compareOtp(otpRecord.codeHash, input.code)) {
+      await prisma.otpCode.update({
+        where: { id: otpRecord.id },
+        data: { attempts: { increment: 1 } },
+      });
+
+      throw createAppError("INVALID_OTP", "The verification code is incorrect", 400);
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email: identifier },
+      select: { id: true },
+    });
+
+    if (user === null) {
+      throw createAppError("USER_NOT_FOUND", "No account was found for this email", 404);
+    }
+
+    const verifiedAt = new Date();
+
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: user.id },
+        data: { emailVerifiedAt: verifiedAt },
+      }),
+      prisma.otpCode.update({
+        where: { id: otpRecord.id },
+        data: { consumedAt: verifiedAt },
+      }),
+    ]);
+
+    return { message: "Email verified", email: identifier, verifiedAt };
+  } catch (error) {
+    throw toServiceError(error, "EMAIL_VERIFICATION_FAILED", "Unable to verify the email");
   }
 }
 
