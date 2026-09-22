@@ -1,0 +1,20 @@
+{
+  "metadata": {
+    "w": 4000,
+    "h": 9105
+  },
+  "uniqueColorsByCategory": {
+    "dark-footer": [
+      "#232834"
+    ]
+  },
+  "cssVariables": {
+    "--bg-primary": "#FFFFFF",
+    "--surface-secondary": "#F5F5F5",
+    "--text-primary-heading": "#1A1A1A",
+    "--text-body": "#6B7280",
+    "--bg-footer": "#232834",
+    "--color-brand": null
+  },
+  "totalSamples": 1
+}

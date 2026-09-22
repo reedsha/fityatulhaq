@@ -1,0 +1,53 @@
+{
+  "metadata": {
+    "width": 4000,
+    "height": 9105,
+    "format": "jpeg"
+  },
+  "palette": {
+    "background": [],
+    "text": [],
+    "accent": [],
+    "surface": [
+      {
+        "hex": "#232834",
+        "count": 1,
+        "sections": [
+          "header"
+        ]
+      }
+    ]
+  },
+  "colorFrequency": [
+    {
+      "hex": "#232834",
+      "count": 1,
+      "sections": [
+        "header"
+      ]
+    }
+  ],
+  "perSection": {
+    "header": [
+      "#232834"
+    ],
+    "hero-top": [],
+    "hero-mid": [],
+    "hero-bottom": [],
+    "mid-section-1": [],
+    "mid-section-2": [],
+    "mid-section-3": [],
+    "mid-section-4": [],
+    "mid-section-5": [],
+    "mid-section-6": [],
+    "mid-section-7": [],
+    "mid-section-8": [],
+    "mid-section-9": [],
+    "mid-section-10": [],
+    "footer-top": [],
+    "footer-bottom": []
+  },
+  "cssVariables": {
+    "--surface-card0": "#232834"
+  }
+}
