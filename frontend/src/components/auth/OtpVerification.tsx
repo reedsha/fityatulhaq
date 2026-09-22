@@ -84,14 +84,14 @@ export function OtpVerification(props: OtpVerificationProps): ReactElement {
         disabled={disabled}
       />
 
-      <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
-        <span className="text-slate-600">Didn&apos;t receive the code?</span>
+      <div className="flex flex-wrap items-center justify-between gap-2 text-body-sm">
+        <span className="text-ink-600">Didn&apos;t receive the code?</span>
 
         <button
           type="button"
           onClick={handleResend}
           disabled={!canResend}
-          className="font-medium text-emerald-700 underline-offset-4 hover:underline focus:outline-none focus:ring-2 focus:ring-emerald-300 disabled:cursor-not-allowed disabled:text-slate-400 disabled:no-underline"
+          className="font-medium text-brand-700 underline-offset-4 hover:underline focus:outline-none focus:ring-2 focus:ring-brand-300 disabled:cursor-not-allowed disabled:text-ink-400 disabled:no-underline"
         >
           {isResending
             ? "Sending a new code..."

@@ -1,6 +1,6 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState, type ReactElement } from "react";
 import toast from "react-hot-toast";
 
@@ -8,6 +8,7 @@ import { AuthCard, AuthLink, FormBanner, FormSuccess } from "@/components/auth/A
 import { OtpVerification } from "@/components/auth/OtpVerification";
 import { SubmitButton } from "@/components/auth/SubmitButton";
 import {
+  FORM_ERROR_KEY,
   useAuthForm,
   type AuthFormErrors,
   type AuthFormValues,
@@ -16,13 +17,16 @@ import { request } from "@/lib/api";
 import { resolveUnknownError } from "@/lib/errorMessages";
 import { readValue, sanitizeText, validateEmail, validateOtpCode } from "@/lib/validation";
 
+/** How long the success message stays up before the dashboard redirect. */
+const REDIRECT_DELAY_MS = 1200;
+
 /**
  * The account already exists at this point and its tokens are stored, but
  * `emailVerifiedAt` is still null until the emailed code is redeemed.
  *
- * TODO: wire this form to a `POST /auth/verify-email` endpoint. The backend
- * currently issues the EMAIL_VERIFICATION code but has no route that consumes
- * it, so redeeming is unavailable and the screen offers the dashboard instead.
+ * Redemption goes through `POST /auth/verify-email`, which consumes the code in
+ * the same transaction that stamps the account. A code is single-use, so this
+ * screen can only ever succeed once per emailed code.
  */
 function validateCodeField(name: string, value: string): string {
   return name === "code" ? validateOtpCode(value).error : "";
@@ -41,12 +45,13 @@ function validateCodeForm(values: AuthFormValues): AuthFormErrors {
 }
 
 export function VerifyEmailForm(): ReactElement {
+  const router = useRouter();
   const searchParams = useSearchParams();
 
   const identifier = sanitizeText(searchParams.get("identifier") ?? "").toLowerCase();
   const identifierIsValid = validateEmail(identifier).valid;
 
-  const [notice, setNotice] = useState<string | null>(null);
+  const [isVerified, setIsVerified] = useState(false);
 
   const form = useAuthForm({
     initialValues: { code: "" },
@@ -67,13 +72,24 @@ export function VerifyEmailForm(): ReactElement {
     }
   };
 
-  const handleValid = (): Promise<void> => {
-    setNotice(
-      "Code entry is ready, but email verification is not switched on yet in this phase. You can continue to your dashboard and verify later.",
-    );
+  const handleValid = async (values: AuthFormValues): Promise<void> => {
+    const code = sanitizeText(readValue(values, "code"));
 
-    return Promise.resolve();
+    await request<{ message: string }>("/auth/verify-email", {
+      method: "POST",
+      body: JSON.stringify({ identifier, code }),
+    });
+
+    setIsVerified(true);
+    toast.success("Email verified.");
+
+    window.setTimeout((): void => {
+      router.push("/dashboard");
+    }, REDIRECT_DELAY_MS);
   };
+
+  const formError = form.errors[FORM_ERROR_KEY];
+  const isBusy = form.isSubmitting || isVerified;
 
   return (
     <AuthCard
@@ -83,22 +99,18 @@ export function VerifyEmailForm(): ReactElement {
           ? `Enter the code we sent to ${identifier}.`
           : "Enter the code we sent to your email address."
       }
+      banner={formError !== undefined ? <FormBanner message={formError} /> : undefined}
       footer={
         <>
           Wrong account? <AuthLink href="/login">Back to log in</AuthLink>
         </>
       }
     >
-      <FormSuccess message="Account created. One last step to unlock everything." />
-
-      {notice !== null ? (
-        <div
-          role="status"
-          className="mb-5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800"
-        >
-          {notice}
-        </div>
-      ) : null}
+      {isVerified ? (
+        <FormSuccess message="Email verified. Taking you to your dashboard..." />
+      ) : (
+        <FormSuccess message="Account created. One last step to unlock everything." />
+      )}
 
       {identifierIsValid ? null : (
         <FormBanner message="We could not read the email address for this account. Please register again or log in." />
@@ -111,17 +123,17 @@ export function VerifyEmailForm(): ReactElement {
           onChange={form.setField}
           onBlur={form.handleBlur}
           onResend={handleResend}
-          disabled={form.isSubmitting}
+          disabled={isBusy}
         />
 
         <SubmitButton
           label="Verify Code"
           loadingLabel="Verifying code"
-          isSubmitting={form.isSubmitting}
+          isSubmitting={isBusy}
         />
       </form>
 
-      <p className="mt-5 text-center text-sm text-slate-600">
+      <p className="mt-5 text-center text-body-sm text-ink-600">
         <AuthLink href="/dashboard">Continue to your dashboard</AuthLink>
       </p>
     </AuthCard>

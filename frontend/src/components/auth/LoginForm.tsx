@@ -112,11 +112,11 @@ export function LoginForm(): ReactElement {
       >
         <FormSuccess message="Sign in succeeded. Verify your email to unlock the dashboard." />
 
-        <p className="text-sm text-slate-600">
+        <p className="text-body-sm text-ink-600">
           We sent a verification code to <span className="font-medium">{unverifiedEmail}</span>.
         </p>
 
-        <p className="mt-4 text-sm">
+        <p className="mt-4 text-body-sm">
           <AuthLink
             href={`/register/success?identifier=${encodeURIComponent(unverifiedEmail)}`}
           >
@@ -170,8 +170,8 @@ export function LoginForm(): ReactElement {
           disabled={isBusy}
         />
 
-        <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
-          <label htmlFor={REMEMBER_FIELD} className="flex items-center gap-2 text-slate-700">
+        <div className="flex flex-wrap items-center justify-between gap-2 text-body-sm">
+          <label htmlFor={REMEMBER_FIELD} className="flex items-center gap-2 text-ink-700">
             <input
               id={REMEMBER_FIELD}
               name={REMEMBER_FIELD}
@@ -179,7 +179,7 @@ export function LoginForm(): ReactElement {
               checked={readValue(form.fields, REMEMBER_FIELD) === "true"}
               onChange={handleRememberChange}
               disabled={isBusy}
-              className="h-4 w-4 rounded border-slate-300 text-emerald-700 focus:ring-2 focus:ring-emerald-300"
+              className="h-4 w-4 rounded border-ink-300 text-brand-700 focus:ring-2 focus:ring-brand-300"
             />
             Remember me
           </label>

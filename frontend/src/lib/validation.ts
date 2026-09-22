@@ -257,3 +257,128 @@ export function buildResetPasswordPayload(
     newPassword: sanitizePassword(readValue(values, "newPassword")),
   };
 }
+
+// ------------------------------------------------------------
+// Avatar upload — mirrors backend/src/utils/imageValidator.ts
+// ------------------------------------------------------------
+
+/** Matches `MAX_AVATAR_BYTES` on the backend (multer's own limit). */
+export const MAX_AVATAR_BYTES = 5 * 1024 * 1024;
+
+/** Matches `SUPPORTED_IMAGE_MIME_TYPES` on the backend. */
+export const ALLOWED_AVATAR_MIME_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/gif",
+  "image/webp",
+] as const;
+
+export const AVATAR_ACCEPT_ATTRIBUTE = ".jpg,.jpeg,.png,.gif,.webp";
+
+/**
+ * Cheap client-side gate for a selected avatar.
+ *
+ * This is a UX affordance, not a security control: the browser's `type` and
+ * `size` are trivially forged, and the backend re-derives the real format from
+ * the file's magic number. Catching the obvious cases here just avoids a round
+ * trip that would fail anyway.
+ */
+export function validateAvatarFile(file: File): ValidationResult {
+  const mimeType = file.type.toLowerCase();
+
+  if (!(ALLOWED_AVATAR_MIME_TYPES as readonly string[]).includes(mimeType)) {
+    return invalid("Choose a JPEG, PNG, GIF or WebP image");
+  }
+
+  if (file.size === 0) {
+    return invalid("That file is empty");
+  }
+
+  if (file.size > MAX_AVATAR_BYTES) {
+    return invalid(`Image must be ${Math.round(MAX_AVATAR_BYTES / (1024 * 1024))} MB or smaller`);
+  }
+
+  return VALID;
+}
+
+// ------------------------------------------------------------
+// Date formatting — shared by the home page sections
+// ------------------------------------------------------------
+
+/**
+ * Pinned to `en-US` rather than derived from the runtime locale: the site copy
+ * is English, and a formatter that depends on the visitor's locale would format
+ * differently on the server and the client, breaking hydration.
+ */
+const DATE_FORMATTER = new Intl.DateTimeFormat("en-US", {
+  month: "long",
+  day: "numeric",
+  year: "numeric",
+});
+
+const SECONDS_PER_MINUTE = 60;
+const SECONDS_PER_HOUR = 60 * SECONDS_PER_MINUTE;
+const SECONDS_PER_DAY = 24 * SECONDS_PER_HOUR;
+const SECONDS_PER_WEEK = 7 * SECONDS_PER_DAY;
+const SECONDS_PER_MONTH = 30 * SECONDS_PER_DAY;
+const SECONDS_PER_YEAR = 365 * SECONDS_PER_DAY;
+
+/** Formats an ISO timestamp as `"January 15, 2026"`. Unparseable input yields `""`. */
+export function formatDate(dateString: string): string {
+  const parsed = new Date(dateString);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return "";
+  }
+
+  return DATE_FORMATTER.format(parsed);
+}
+
+function elapsedAgo(count: number, unit: string): string {
+  return `${count} ${unit}${count === 1 ? "" : "s"} ago`;
+}
+
+/**
+ * Relative time such as `"2 hours ago"`.
+ *
+ * Reads the clock, so it must only be rendered after mount on a statically
+ * prerendered page — otherwise the server's answer is baked into the HTML and
+ * disagrees with the client's. Unparseable input yields `""`, and a future
+ * timestamp (clock skew, scheduled posts) reads as `"just now"` rather than a
+ * negative count.
+ */
+export function timeAgo(dateString: string): string {
+  const parsed = new Date(dateString);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return "";
+  }
+
+  const elapsedSeconds = Math.floor((Date.now() - parsed.getTime()) / 1000);
+
+  if (elapsedSeconds < SECONDS_PER_MINUTE) {
+    return "just now";
+  }
+
+  if (elapsedSeconds < SECONDS_PER_HOUR) {
+    return elapsedAgo(Math.floor(elapsedSeconds / SECONDS_PER_MINUTE), "minute");
+  }
+
+  if (elapsedSeconds < SECONDS_PER_DAY) {
+    return elapsedAgo(Math.floor(elapsedSeconds / SECONDS_PER_HOUR), "hour");
+  }
+
+  if (elapsedSeconds < SECONDS_PER_WEEK) {
+    return elapsedAgo(Math.floor(elapsedSeconds / SECONDS_PER_DAY), "day");
+  }
+
+  if (elapsedSeconds < SECONDS_PER_MONTH) {
+    return elapsedAgo(Math.floor(elapsedSeconds / SECONDS_PER_WEEK), "week");
+  }
+
+  if (elapsedSeconds < SECONDS_PER_YEAR) {
+    return elapsedAgo(Math.floor(elapsedSeconds / SECONDS_PER_MONTH), "month");
+  }
+
+  return elapsedAgo(Math.floor(elapsedSeconds / SECONDS_PER_YEAR), "year");
+}

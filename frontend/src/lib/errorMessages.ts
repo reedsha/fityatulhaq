@@ -128,16 +128,54 @@ const FIELD_ERRORS: Record<string, FieldError> = {
     message: "Your session could not be renewed. Please sign in again.",
     field: "form",
   },
+  // Phase 3 — profile & avatar.
+  FORBIDDEN: {
+    message: "You may only manage your own profile.",
+    field: "form",
+  },
+  NO_UPDATE_FIELDS: {
+    message: "Change at least one field before saving.",
+    field: "form",
+  },
+  PROFILE_UPDATE_FAILED: {
+    message: "We could not save your profile just now. Please try again.",
+    field: "form",
+  },
+  AVATAR_REQUIRED: {
+    message: "Choose an image to upload.",
+    field: "form",
+  },
+  UNSUPPORTED_FILE_TYPE: {
+    message: "Choose a JPEG, PNG, GIF or WebP image.",
+    field: "form",
+  },
+  INVALID_IMAGE: {
+    message:
+      "That image could not be used. Choose a JPEG, PNG, GIF or WebP image between 100x100 and 2048x2048 pixels.",
+    field: "form",
+  },
+  INVALID_UPLOAD: {
+    message: "The upload was rejected. Please try again.",
+    field: "form",
+  },
+  AVATAR_TOO_LARGE: {
+    message: "Image must be 5 MB or smaller.",
+    field: "form",
+  },
+  AVATAR_UPLOAD_FAILED: {
+    message: "We could not update your photo just now. Please try again.",
+    field: "form",
+  },
+  UPLOAD_FAILED: {
+    message: "We could not store your photo just now. Please try again.",
+    field: "form",
+  },
   [CLIENT_ERROR.AUTHENTICATION_EXPIRED]: {
     message: "Your session has expired. Please sign in again.",
     field: "form",
   },
   [CLIENT_ERROR.TOO_MANY_REQUESTS]: {
     message: "Too many attempts. Please wait a few minutes and try again.",
-    field: "form",
-  },
-  [CLIENT_ERROR.STORAGE_UNAVAILABLE]: {
-    message: "Your browser is blocking local storage, so the session cannot be saved.",
     field: "form",
   },
   [CLIENT_ERROR.UNEXPECTED_ERROR]: {

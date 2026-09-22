@@ -95,7 +95,7 @@ export function VerifyResetCodeForm(): ReactElement {
           </>
         }
       >
-        <p className="text-sm text-slate-600">
+        <p className="text-body-sm text-ink-600">
           Request a new verification code and we will take you straight to the next step.
         </p>
       </AuthCard>

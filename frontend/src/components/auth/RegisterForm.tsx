@@ -305,16 +305,16 @@ export function RegisterForm(): ReactElement {
               disabled={isBusy}
               aria-invalid={termsError !== undefined}
               aria-describedby={termsError !== undefined ? `${TERMS_FIELD}-error` : undefined}
-              className="mt-0.5 h-4 w-4 rounded border-slate-300 text-emerald-700 focus:ring-2 focus:ring-emerald-300"
+              className="mt-0.5 h-4 w-4 rounded border-ink-300 text-brand-700 focus:ring-2 focus:ring-brand-300"
             />
-            <label htmlFor={TERMS_FIELD} className="text-sm text-slate-700">
+            <label htmlFor={TERMS_FIELD} className="text-body-sm text-ink-700">
               I agree to the <AuthLink href="/terms">Terms of Service</AuthLink> and the privacy
               policy.
             </label>
           </div>
 
           {termsError !== undefined ? (
-            <p id={`${TERMS_FIELD}-error`} className="mt-1 text-sm text-red-600">
+            <p id={`${TERMS_FIELD}-error`} className="mt-1 text-body-sm text-state-error-600">
               {termsError}
             </p>
           ) : null}

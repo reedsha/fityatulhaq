@@ -24,12 +24,12 @@ export interface FormFieldProps {
 }
 
 const BASE_INPUT_CLASSES =
-  "mt-1 block w-full rounded-lg border px-3 py-2 text-sm shadow-sm transition focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:bg-slate-50";
+  "mt-1 block w-full rounded-lg border px-3 py-2 text-body-sm shadow-card transition focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:bg-ink-50";
 
 const NORMAL_INPUT_CLASSES =
-  "border-slate-300 focus:border-emerald-500 focus:ring-emerald-200";
+  "border-ink-300 focus:border-brand-600 focus:ring-brand-200";
 
-const ERROR_INPUT_CLASSES = "border-red-300 focus:border-red-500 focus:ring-red-200";
+const ERROR_INPUT_CLASSES = "border-state-error-300 focus:border-state-error-600 focus:ring-state-error-200";
 
 /**
  * Labelled input that renders its validation message directly above the input
@@ -81,15 +81,15 @@ export function FormField(props: FormFieldProps): ReactElement {
 
   return (
     <div>
-      <label htmlFor={id} className="block text-sm font-medium text-slate-700">
+      <label htmlFor={id} className="block text-body-sm font-medium text-ink-700">
         {label}
         {optional ? (
-          <span className="ml-1 font-normal text-slate-500">(optional)</span>
+          <span className="ml-1 font-normal text-ink-500">(optional)</span>
         ) : null}
       </label>
 
       {hasError ? (
-        <p id={errorId} className="mt-1 text-sm text-red-600">
+        <p id={errorId} className="mt-1 text-body-sm text-state-error-600">
           {error}
         </p>
       ) : null}
@@ -113,7 +113,7 @@ export function FormField(props: FormFieldProps): ReactElement {
       />
 
       {hint !== undefined ? (
-        <p id={hintId} className="mt-1 text-xs text-slate-500">
+        <p id={hintId} className="mt-1 text-caption text-ink-500">
           {hint}
         </p>
       ) : null}

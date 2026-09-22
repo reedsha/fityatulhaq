@@ -1,22 +1,23 @@
 /**
  * HTTP client for the Express backend.
  *
- * Phase 1 keeps the access token in `localStorage` for simplicity.
- * TODO(security): replace with httpOnly cookie storage before production.
+ * The session lives in httpOnly cookies owned by the server, so this module
+ * never reads or writes a token: `credentials: "include"` on every request is
+ * what makes the browser attach them. Cookies managed by server-side Set-Cookie
+ * headers; `request()` always includes credentials.
  */
 
 const DEFAULT_API_BASE_URL = "http://localhost:4000/api/v1";
-
-export const AUTH_TOKEN_KEY = "auth_token";
-export const REFRESH_TOKEN_KEY = "auth_refresh_token";
 
 /** Client-side error codes raised by this module. */
 export const CLIENT_ERROR = {
   AUTHENTICATION_EXPIRED: "AUTHENTICATION_EXPIRED",
   UNEXPECTED_ERROR: "UNEXPECTED_ERROR",
-  STORAGE_UNAVAILABLE: "STORAGE_UNAVAILABLE",
   TOO_MANY_REQUESTS: "TOO_MANY_REQUESTS",
 } as const;
+
+/** Backend codes that mean "the session is over" rather than "the input was wrong". */
+const SESSION_ENDED_CODES = ["UNAUTHORIZED", "TOKEN_EXPIRED", "TOKEN_REVOKED"];
 
 export interface ApiErrorEnvelope {
   code: string;
@@ -34,9 +35,13 @@ export interface ApiEnvelope<T> {
   };
 }
 
-export interface AuthTokens {
+/**
+ * What the auth endpoints return now that the session is cookie-based: the
+ * refresh token only ever exists as an httpOnly cookie, and the access token is
+ * echoed in the body for server-to-server callers.
+ */
+export interface AccessTokenResponse {
   accessToken: string;
-  refreshToken: string;
 }
 
 /** Error carrying the backend's machine-readable code and HTTP status. */
@@ -71,67 +76,6 @@ export const API_BASE_URL = stripTrailingSlashes(
     process.env.BACKEND_API_URL ??
     DEFAULT_API_BASE_URL,
 );
-
-function readStorage(key: string): string | null {
-  if (typeof window === "undefined") {
-    return null;
-  }
-
-  try {
-    return window.localStorage.getItem(key);
-  } catch {
-    // Blocked storage reads as "signed out" instead of crashing the page.
-    return null;
-  }
-}
-
-function writeStorage(key: string, value: string): boolean {
-  if (typeof window === "undefined") {
-    return false;
-  }
-
-  try {
-    window.localStorage.setItem(key, value);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-function removeStorage(key: string): boolean {
-  if (typeof window === "undefined") {
-    return false;
-  }
-
-  try {
-    window.localStorage.removeItem(key);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-/** Token helpers — SSR-safe: `localStorage` does not exist on the server. */
-export function getAuthToken(): string | null {
-  return readStorage(AUTH_TOKEN_KEY);
-}
-
-export function getRefreshToken(): string | null {
-  return readStorage(REFRESH_TOKEN_KEY);
-}
-
-/** Returns false when the browser refuses to persist (private mode, blocked storage). */
-export function setAuthTokens(tokens: AuthTokens): boolean {
-  const accessStored = writeStorage(AUTH_TOKEN_KEY, tokens.accessToken);
-  const refreshStored = writeStorage(REFRESH_TOKEN_KEY, tokens.refreshToken);
-
-  return accessStored && refreshStored;
-}
-
-export function clearAuthTokens(): void {
-  removeStorage(AUTH_TOKEN_KEY);
-  removeStorage(REFRESH_TOKEN_KEY);
-}
 
 function defaultMessageForStatus(status: number): string {
   if (status === 429) {
@@ -172,27 +116,15 @@ async function readEnvelope(response: Response): Promise<ApiEnvelope<unknown> | 
   }
 }
 
-/**
- * Performs a request against the backend and unwraps the success envelope.
- *
- * - 401 clears the stored tokens and raises `AUTHENTICATION_EXPIRED`.
- * - Other 4xx/5xx responses raise `ApiError` carrying the backend's `error.code`.
- * - Transport failures raise `ApiError` with `UNEXPECTED_ERROR`.
- */
-export async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-  const headers = new Headers(options.headers);
-  headers.set("Content-Type", "application/json");
+/** The header set shared by both transports. */
+function requestHeaders(extra?: HeadersInit): Headers {
+  return new Headers(extra);
+}
 
-  const token = getAuthToken();
-
-  if (token !== null && token.length > 0) {
-    headers.set("Authorization", `Bearer ${token}`);
-  }
-
-  let response: Response;
-
+/** Performs the call, normalising transport failures into an `ApiError`. */
+async function send(fullUrl: string, options: RequestInit): Promise<Response> {
   try {
-    response = await fetch(`${API_BASE_URL}${endpoint}`, { ...options, headers });
+    return await fetch(fullUrl, options);
   } catch {
     throw new ApiError(
       CLIENT_ERROR.UNEXPECTED_ERROR,
@@ -200,14 +132,39 @@ export async function request<T>(endpoint: string, options: RequestInit = {}): P
       0,
     );
   }
+}
 
+/**
+ * Applies the response contract shared by every call in this module:
+ *
+ * - 401 raises `ApiError` — its own code when the backend supplied a domain one
+ *   (a wrong password stays `INVALID_CREDENTIALS`), otherwise
+ *   `AUTHENTICATION_EXPIRED` for a session that simply ended.
+ * - Other 4xx/5xx responses raise `ApiError` carrying the backend's `error.code`.
+ *
+ * A data-less success resolves to null.
+ */
+async function unwrap<T>(response: Response): Promise<T> {
   const envelope = await readEnvelope(response);
 
   if (response.status === 401) {
-    clearAuthTokens();
+    const code = envelope?.error?.code;
+    const message = envelope?.error?.message;
+
+    // Cookies are the server's to clear: a 401 here means the access cookie is
+    // gone or rejected, and the refresh cookie may still be perfectly good, so
+    // nothing is torn down client-side.
+    //
+    // A domain 401 — a wrong password, a revoked token — carries its own code and
+    // keeps it, so the form can point at the right field. A bare or generic 401
+    // is a session that simply ended.
+    if (typeof code === "string" && code.length > 0 && !SESSION_ENDED_CODES.includes(code)) {
+      throw new ApiError(code, message ?? defaultMessageForStatus(401), 401);
+    }
+
     throw new ApiError(
       CLIENT_ERROR.AUTHENTICATION_EXPIRED,
-      envelope?.error?.message ?? "Your session has expired. Please sign in again.",
+      "Your session has expired. Please sign in again.",
       401,
     );
   }
@@ -224,6 +181,39 @@ export async function request<T>(endpoint: string, options: RequestInit = {}): P
     );
   }
 
-  // Every Phase 1 endpoint returns `data`; a data-less success resolves to null.
   return (envelope?.data ?? null) as T;
+}
+
+/**
+ * Performs a JSON request against the backend and unwraps the success envelope.
+ */
+export async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  const headers = requestHeaders(options.headers);
+  headers.set("Content-Type", "application/json");
+
+  const response = await send(`${API_BASE_URL}${endpoint}`, {
+    ...options,
+    headers,
+    credentials: "include",
+  });
+
+  return unwrap<T>(response);
+}
+
+/**
+ * Performs a multipart request and unwraps the success envelope.
+ *
+ * `Content-Type` is deliberately left unset: a `FormData` body needs the browser
+ * to add a matching `boundary`, and setting the header by hand would make the
+ * body unparseable on the server.
+ */
+export async function requestMultipart<T>(endpoint: string, formData: FormData): Promise<T> {
+  const response = await send(`${API_BASE_URL}${endpoint}`, {
+    method: "POST",
+    headers: requestHeaders(),
+    body: formData,
+    credentials: "include",
+  });
+
+  return unwrap<T>(response);
 }
