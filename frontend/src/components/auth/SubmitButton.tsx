@@ -11,7 +11,7 @@ export interface SubmitButtonProps {
 
 /** Submit control that disables itself and shows a spinner while in flight. */
 export function SubmitButton(props: SubmitButtonProps): ReactElement {
-  const { label, loadingLabel = "Please wait", isSubmitting } = props;
+  const { label, loadingLabel = "กรุณารอสักครู่", isSubmitting } = props;
 
   return (
     <button

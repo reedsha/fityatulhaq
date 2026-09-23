@@ -112,7 +112,7 @@ export function ResetPasswordForm(): ReactElement {
     });
 
     setIsReset(true);
-    toast.success("Password updated. Taking you to log in...");
+    toast.success("อัปเดตรหัสผ่านแล้ว กำลังพาไปเข้าสู่ระบบ...");
 
     window.setTimeout((): void => {
       router.push("/login");
@@ -125,17 +125,17 @@ export function ResetPasswordForm(): ReactElement {
   if (!identifierIsValid) {
     return (
       <AuthCard
-        title="Create a new password"
-        subtitle="We need the email address the code was sent to."
-        banner={<FormBanner message="This link is missing a valid email address." />}
+        title="ตั้งรหัสผ่านใหม่"
+        subtitle="เราต้องการอีเมลที่รหัสยืนยันถูกส่งไป"
+        banner={<FormBanner message="ลิงก์นี้ไม่มีอีเมลที่ถูกต้อง" />}
         footer={
           <>
-            Start again? <AuthLink href="/forgot-password">Request a new code</AuthLink>
+            เริ่มใหม่? <AuthLink href="/forgot-password">ขอรหัสใหม่</AuthLink>
           </>
         }
       >
         <p className="text-body-sm text-ink-600">
-          Request a new verification code and we will take you straight to the next step.
+          ขอรหัสยืนยันใหม่ แล้วเราจะพาคุณไปยังขั้นตอนถัดไป
         </p>
       </AuthCard>
     );
@@ -143,24 +143,24 @@ export function ResetPasswordForm(): ReactElement {
 
   return (
     <AuthCard
-      title="Create a new password"
-      subtitle={`Setting a new password for ${identifier}.`}
+      title="ตั้งรหัสผ่านใหม่"
+      subtitle={`กำลังตั้งรหัสผ่านใหม่สำหรับ ${identifier}`}
       banner={formError !== undefined ? <FormBanner message={formError} /> : undefined}
       footer={
         <>
-          Remembered your password? <AuthLink href="/login">Back to log in</AuthLink>
+          จำรหัสผ่านได้แล้ว? <AuthLink href="/login">กลับไปเข้าสู่ระบบ</AuthLink>
         </>
       }
     >
       {isReset ? (
-        <FormSuccess message="Password updated. Taking you to log in..." />
+        <FormSuccess message="อัปเดตรหัสผ่านแล้ว กำลังพาไปเข้าสู่ระบบ..." />
       ) : null}
 
       <form noValidate onSubmit={form.handleSubmit(handleValid)} className="space-y-4">
         <FormField
           id="code"
           name="code"
-          label="Verification code"
+          label="รหัสยืนยัน"
           type="text"
           inputMode="numeric"
           maxLength={OTP_CODE_LENGTH}
@@ -170,7 +170,7 @@ export function ResetPasswordForm(): ReactElement {
           onBlur={form.handleBlur}
           autoComplete="one-time-code"
           placeholder="123456"
-          hint={`The ${OTP_CODE_LENGTH}-digit code from your email.`}
+          hint={`รหัส ${OTP_CODE_LENGTH} หลักจากอีเมลของคุณ`}
           required
           disabled={isBusy}
         />
@@ -178,14 +178,14 @@ export function ResetPasswordForm(): ReactElement {
         <FormField
           id="newPassword"
           name="newPassword"
-          label="New password"
+          label="รหัสผ่านใหม่"
           type="password"
           value={readValue(form.fields, "newPassword")}
           error={form.errors["newPassword"]}
           onChange={form.setField}
           onBlur={form.handleBlur}
           autoComplete="new-password"
-          hint={`At least ${MIN_PASSWORD_LENGTH} characters.`}
+          hint={`อย่างน้อย ${MIN_PASSWORD_LENGTH} ตัวอักษร`}
           required
           disabled={isBusy}
         />
@@ -193,7 +193,7 @@ export function ResetPasswordForm(): ReactElement {
         <FormField
           id={CONFIRM_FIELD}
           name={CONFIRM_FIELD}
-          label="Confirm new password"
+          label="ยืนยันรหัสผ่านใหม่"
           type="password"
           value={readValue(form.fields, CONFIRM_FIELD)}
           error={form.errors[CONFIRM_FIELD]}
@@ -205,8 +205,8 @@ export function ResetPasswordForm(): ReactElement {
         />
 
         <SubmitButton
-          label="Reset Password"
-          loadingLabel="Resetting password"
+          label="รีเซ็ตรหัสผ่าน"
+          loadingLabel="กำลังรีเซ็ตรหัสผ่าน"
           isSubmitting={isBusy}
         />
       </form>

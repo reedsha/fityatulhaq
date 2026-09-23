@@ -30,11 +30,11 @@ const INITIAL_VALUES: AuthFormValues = {
 
 function validateLoginField(name: string, value: string): string {
   if (name === "identifier") {
-    return value.trim().length === 0 ? "Enter your email or username" : "";
+    return value.trim().length === 0 ? "กรอกอีเมลหรือชื่อผู้ใช้" : "";
   }
 
   if (name === "password") {
-    return value.length === 0 ? "Enter your password" : "";
+    return value.length === 0 ? "กรอกรหัสผ่าน" : "";
   }
 
   return "";
@@ -99,13 +99,13 @@ export function LoginForm(): ReactElement {
     // user to the dashboard would be misleading, so the verification prompt stays.
     if (result.isNew) {
       setUnverifiedEmail(result.user.email);
-      toast.success("Signed in. Please verify your email address to finish setup.");
+      toast.success("เข้าสู่ระบบแล้ว กรุณายืนยันอีเมลเพื่อเปิดใช้งานบัญชี");
 
       return;
     }
 
     setIsRedirecting(true);
-    toast.success(`Welcome back, ${result.user.fullName}.`);
+    toast.success(`ยินดีต้อนรับกลับ, ${result.user.fullName}`);
 
     window.setTimeout((): void => {
       router.push(resolvePostLoginTarget());
@@ -122,25 +122,25 @@ export function LoginForm(): ReactElement {
   if (unverifiedEmail !== null) {
     return (
       <AuthCard
-        title="Verify your email"
-        subtitle="Your account was created but the email address has not been confirmed yet."
+        title="ยืนยันอีเมลของคุณ"
+        subtitle="บัญชีของคุณถูกสร้างแล้ว แต่ยังไม่ได้ยืนยันอีเมล"
         footer={
           <>
-            Wrong account? <AuthLink href="/login">Start over</AuthLink>
+            บัญชีไม่ถูกต้อง? <AuthLink href="/login">เริ่มใหม่</AuthLink>
           </>
         }
       >
-        <FormSuccess message="Sign in succeeded. Verify your email to unlock the dashboard." />
+        <FormSuccess message="เข้าสู่ระบบสำเร็จ ยืนยันอีเมลเพื่อเปิดใช้งานเต็มรูปแบบ" />
 
         <p className="text-body-sm text-ink-600">
-          We sent a verification code to <span className="font-medium">{unverifiedEmail}</span>.
+          เราส่งรหัสยืนยันไปที่ <span className="font-medium">{unverifiedEmail}</span>
         </p>
 
         <p className="mt-4 text-body-sm">
           <AuthLink
             href={`/register/success?identifier=${encodeURIComponent(unverifiedEmail)}`}
           >
-            Enter the verification code
+            กรอกรหัสยืนยัน
           </AuthLink>
         </p>
       </AuthCard>
@@ -149,22 +149,22 @@ export function LoginForm(): ReactElement {
 
   return (
     <AuthCard
-      title="Welcome back"
-      subtitle="Sign in to manage your profile, announcements and community activities."
+      title="ยินดีต้อนรับกลับ"
+      subtitle="เข้าสู่ระบบเพื่อจัดการโปรไฟล์ ประกาศ และกิจกรรมชุมชนของคุณ"
       banner={formError !== undefined ? <FormBanner message={formError} /> : undefined}
       footer={
         <>
-          Don&apos;t have an account? <AuthLink href="/register">Register</AuthLink>
+          ยังไม่มีบัญชี? <AuthLink href="/register">สมัครสมาชิก</AuthLink>
         </>
       }
     >
-      {isRedirecting ? <FormSuccess message="Signed in. Taking you to where you left off..." /> : null}
+      {isRedirecting ? <FormSuccess message="เข้าสู่ระบบแล้ว กำลังพาคุณไปยังหน้าที่ค้างไว้..." /> : null}
 
       <form noValidate onSubmit={form.handleSubmit(handleValid)} className="space-y-4">
         <FormField
           id="identifier"
           name="identifier"
-          label="Email or username"
+          label="อีเมลหรือชื่อผู้ใช้"
           type="text"
           value={readValue(form.fields, "identifier")}
           error={form.errors["identifier"]}
@@ -179,7 +179,7 @@ export function LoginForm(): ReactElement {
         <FormField
           id="password"
           name="password"
-          label="Password"
+          label="รหัสผ่าน"
           type="password"
           value={readValue(form.fields, "password")}
           error={form.errors["password"]}
@@ -201,10 +201,10 @@ export function LoginForm(): ReactElement {
               disabled={isBusy}
               className="h-4 w-4 rounded border-ink-300 text-brand-700 focus:ring-2 focus:ring-brand-300"
             />
-            Remember me
+            จดจำฉัน
           </label>
 
-          <AuthLink href="/forgot-password">Forgot your password?</AuthLink>
+          <AuthLink href="/forgot-password">ลืมรหัสผ่าน?</AuthLink>
         </div>
 
         {/*
@@ -213,7 +213,7 @@ export function LoginForm(): ReactElement {
           TODO: issue a shorter-lived refresh token when "Remember me" is off.
         */}
 
-        <SubmitButton label="Sign In" loadingLabel="Signing in" isSubmitting={isBusy} />
+        <SubmitButton label="เข้าสู่ระบบ" loadingLabel="กำลังเข้าสู่ระบบ" isSubmitting={isBusy} />
       </form>
     </AuthCard>
   );

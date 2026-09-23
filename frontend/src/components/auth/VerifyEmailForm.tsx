@@ -66,7 +66,7 @@ export function VerifyEmailForm(): ReactElement {
         body: JSON.stringify({ identifier, purpose: "EMAIL_VERIFICATION" }),
       });
 
-      toast.success("A new verification code is on its way.");
+      toast.success("รหัสยืนยันใหม่กำลังส่งไปหาคุณ");
     } catch (error: unknown) {
       toast.error(resolveUnknownError(error).message);
     }
@@ -81,7 +81,7 @@ export function VerifyEmailForm(): ReactElement {
     });
 
     setIsVerified(true);
-    toast.success("Email verified.");
+    toast.success("ยืนยันอีเมลแล้ว");
 
     window.setTimeout((): void => {
       router.push("/");
@@ -93,27 +93,27 @@ export function VerifyEmailForm(): ReactElement {
 
   return (
     <AuthCard
-      title="Verify your email"
+      title="ยืนยันอีเมลของคุณ"
       subtitle={
         identifierIsValid
-          ? `Enter the code we sent to ${identifier}.`
-          : "Enter the code we sent to your email address."
+          ? `กรอกรหัสที่เราส่งไปที่ ${identifier}`
+          : "กรอกรหัสที่เราส่งไปทางอีเมลของคุณ"
       }
       banner={formError !== undefined ? <FormBanner message={formError} /> : undefined}
       footer={
         <>
-          Wrong account? <AuthLink href="/login">Back to log in</AuthLink>
+          บัญชีไม่ถูกต้อง? <AuthLink href="/login">กลับไปเข้าสู่ระบบ</AuthLink>
         </>
       }
     >
       {isVerified ? (
-        <FormSuccess message="Email verified. Taking you to your dashboard..." />
+        <FormSuccess message="ยืนยันอีเมลแล้ว กำลังพาคุณไปยังหน้าแรก..." />
       ) : (
-        <FormSuccess message="Account created. One last step to unlock everything." />
+        <FormSuccess message="สร้างบัญชีแล้ว เหลืออีกหนึ่งขั้นตอนเพื่อเปิดใช้งานเต็มรูปแบบ" />
       )}
 
       {identifierIsValid ? null : (
-        <FormBanner message="We could not read the email address for this account. Please register again or log in." />
+        <FormBanner message="ไม่พบอีเมลของบัญชีนี้ กรุณาสมัครสมาชิกใหม่หรือเข้าสู่ระบบ" />
       )}
 
       <form noValidate onSubmit={form.handleSubmit(handleValid)} className="space-y-5">
@@ -127,14 +127,14 @@ export function VerifyEmailForm(): ReactElement {
         />
 
         <SubmitButton
-          label="Verify Code"
-          loadingLabel="Verifying code"
+          label="ยืนยันรหัส"
+          loadingLabel="กำลังยืนยันรหัส"
           isSubmitting={isBusy}
         />
       </form>
 
       <p className="mt-5 text-center text-body-sm text-ink-600">
-        <AuthLink href="/">Continue to your dashboard</AuthLink>
+        <AuthLink href="/">ไปยังหน้าแรก</AuthLink>
       </p>
     </AuthCard>
   );

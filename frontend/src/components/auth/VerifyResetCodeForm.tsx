@@ -65,7 +65,7 @@ export function VerifyResetCodeForm(): ReactElement {
         body: JSON.stringify({ identifier, purpose: "PASSWORD_RESET" }),
       });
 
-      toast.success("A new code is on its way.");
+      toast.success("รหัสใหม่กำลังส่งไปหาคุณ");
     } catch (error: unknown) {
       toast.error(resolveUnknownError(error).message);
     }
@@ -74,7 +74,7 @@ export function VerifyResetCodeForm(): ReactElement {
   const handleValid = async (values: AuthFormValues): Promise<void> => {
     const code = sanitizeText(readValue(values, "code"));
 
-    toast.success("Code entered. Choose your new password.");
+    toast.success("กรอกรหัสแล้ว เลือกรหัสผ่านใหม่ของคุณ");
 
     const query = `identifier=${encodeURIComponent(identifier)}&code=${encodeURIComponent(code)}`;
 
@@ -86,17 +86,17 @@ export function VerifyResetCodeForm(): ReactElement {
   if (!identifierIsValid) {
     return (
       <AuthCard
-        title="Reset your password"
-        subtitle="We need the email address the code was sent to."
-        banner={<FormBanner message="This link is missing a valid email address." />}
+        title="รีเซ็ตรหัสผ่าน"
+        subtitle="เราต้องการอีเมลที่รหัสยืนยันถูกส่งไป"
+        banner={<FormBanner message="ลิงก์นี้ไม่มีอีเมลที่ถูกต้อง" />}
         footer={
           <>
-            Start again? <AuthLink href="/forgot-password">Request a new code</AuthLink>
+            เริ่มใหม่? <AuthLink href="/forgot-password">ขอรหัสใหม่</AuthLink>
           </>
         }
       >
         <p className="text-body-sm text-ink-600">
-          Request a new verification code and we will take you straight to the next step.
+          ขอรหัสยืนยันใหม่ แล้วเราจะพาคุณไปยังขั้นตอนถัดไป
         </p>
       </AuthCard>
     );
@@ -104,16 +104,16 @@ export function VerifyResetCodeForm(): ReactElement {
 
   return (
     <AuthCard
-      title="Enter your code"
-      subtitle={`We sent a 6-digit verification code to ${identifier}.`}
+      title="กรอกรหัสยืนยัน"
+      subtitle={`เราส่งรหัสยืนยัน 6 หลักไปที่ ${identifier}`}
       banner={formError !== undefined ? <FormBanner message={formError} /> : undefined}
       footer={
         <>
-          Remembered your password? <AuthLink href="/login">Back to log in</AuthLink>
+          จำรหัสผ่านได้แล้ว? <AuthLink href="/login">กลับไปเข้าสู่ระบบ</AuthLink>
         </>
       }
     >
-      <FormSuccess message="Check your inbox and spam folder for the code." />
+      <FormSuccess message="ตรวจสอบกล่องจดหมายและโฟลเดอร์สแปมเพื่อหารหัส" />
 
       <form noValidate onSubmit={form.handleSubmit(handleValid)} className="space-y-5">
         <OtpVerification
@@ -126,8 +126,8 @@ export function VerifyResetCodeForm(): ReactElement {
         />
 
         <SubmitButton
-          label="Verify Code"
-          loadingLabel="Verifying code"
+          label="ยืนยันรหัส"
+          loadingLabel="กำลังยืนยันรหัส"
           isSubmitting={form.isSubmitting}
         />
       </form>

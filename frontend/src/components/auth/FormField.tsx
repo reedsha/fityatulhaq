@@ -84,7 +84,7 @@ export function FormField(props: FormFieldProps): ReactElement {
       <label htmlFor={id} className="block text-body-sm font-medium text-ink-700">
         {label}
         {optional ? (
-          <span className="ml-1 font-normal text-ink-500">(optional)</span>
+          <span className="ml-1 font-normal text-ink-500">(ไม่บังคับ)</span>
         ) : null}
       </label>
 

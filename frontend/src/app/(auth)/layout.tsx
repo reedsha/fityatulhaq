@@ -33,7 +33,7 @@ export default function AuthLayout({ children }: AuthLayoutProps): ReactElement 
       </div>
 
       <section
-        aria-label="Why join FityatulHaq"
+        aria-label="ทำไมต้องเข้าร่วม FityatulHaq"
         className="border-t border-brand-500/40 bg-brand-50"
       >
         <ul className="mx-auto grid max-w-5xl grid-cols-1 gap-6 px-4 py-10 sm:grid-cols-3 sm:px-6">
@@ -71,18 +71,18 @@ interface AuthFeature {
  */
 const AUTH_FEATURES: AuthFeature[] = [
   {
-    title: "Member activities",
-    description: "Programme schedules, activities and skills-building workshops.",
+    title: "กิจกรรมสำหรับสมาชิก",
+    description: "ตารางกิจกรรม เวิร์กช็อปเสริมทักษะ และกิจกรรมพัฒนาความสามารถ",
     icon: Users,
   },
   {
-    title: "Member discussions",
-    description: "Ask questions and share experience on the member webboard.",
+    title: "สนทนาสำหรับสมาชิก",
+    description: "ถามคำถามและแบ่งปันประสบการณ์บนเว็บบอร์ดสมาชิก",
     icon: MessageCircle,
   },
   {
-    title: "Charity points",
-    description: "Earn rewards for the good you put into the community.",
+    title: "แต้มบุญ",
+    description: "รับรางวัลจากความดีที่คุณมอบให้ชุมชน",
     icon: Heart,
   },
 ];

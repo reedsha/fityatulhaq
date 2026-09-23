@@ -69,7 +69,7 @@ export function OtpVerification(props: OtpVerificationProps): ReactElement {
       <FormField
         id="code"
         name="code"
-        label="Verification code"
+        label="รหัสยืนยัน"
         type="text"
         inputMode="numeric"
         maxLength={OTP_CODE_LENGTH}
@@ -79,13 +79,13 @@ export function OtpVerification(props: OtpVerificationProps): ReactElement {
         onBlur={onBlur}
         autoComplete="one-time-code"
         placeholder="123456"
-        hint={`Enter the ${OTP_CODE_LENGTH}-digit code we emailed you.`}
+        hint={`กรอกรหัส ${OTP_CODE_LENGTH} หลักที่เราส่งไปทางอีเมล`}
         required
         disabled={disabled}
       />
 
       <div className="flex flex-wrap items-center justify-between gap-2 text-body-sm">
-        <span className="text-ink-600">Didn&apos;t receive the code?</span>
+        <span className="text-ink-600">ยังไม่ได้รับรหัส?</span>
 
         <button
           type="button"
@@ -94,10 +94,10 @@ export function OtpVerification(props: OtpVerificationProps): ReactElement {
           className="font-medium text-brand-700 underline-offset-4 hover:underline focus:outline-none focus:ring-2 focus:ring-brand-300 disabled:cursor-not-allowed disabled:text-ink-400 disabled:no-underline"
         >
           {isResending
-            ? "Sending a new code..."
+            ? "กำลังส่งรหัสใหม่..."
             : canResend
-              ? "Resend code"
-              : `Resend in ${String(secondsLeft)}s`}
+              ? "ส่งรหัสใหม่"
+              : `ส่งรหัสใหม่ใน ${String(secondsLeft)} วินาที`}
         </button>
       </div>
     </div>

@@ -102,7 +102,7 @@ export function AuthCardFallback(): ReactElement {
         <div className="h-10 w-full animate-pulse rounded-lg bg-ink-100" />
         <div className="h-10 w-full animate-pulse rounded-lg bg-ink-100" />
       </div>
-      <span className="sr-only">Loading form</span>
+      <span className="sr-only">กำลังโหลดแบบฟอร์ม</span>
     </section>
   );
 }

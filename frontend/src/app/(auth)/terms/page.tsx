@@ -15,22 +15,22 @@ export const metadata: Metadata = {
 export default function TermsPage(): ReactElement {
   return (
     <AuthCard
-      title="Terms of Service"
-      subtitle="This page is a placeholder."
+      title="ข้อกำหนดการใช้งาน"
+      subtitle="หน้านี้เป็นเพียงหน้าตัวอย่าง"
       footer={
         <>
-          Ready to continue? <AuthLink href="/register">Back to registration</AuthLink>
+          พร้อมดำเนินการต่อ? <AuthLink href="/register">กลับไปหน้าสมัครสมาชิก</AuthLink>
         </>
       }
     >
       <p className="text-body-sm text-ink-600">
-        The full terms of service and privacy policy are still being prepared. By creating an
-        account you agree to use FityatulHaq respectfully: no harassment, no spam, and no
-        redistribution of members&apos; personal details.
+        ข้อกำหนดการใช้งานและนโยบายความเป็นส่วนตัวฉบับเต็มอยู่ระหว่างการจัดทำ
+        เมื่อคุณสร้างบัญชี คุณตกลงที่จะใช้ FityatulHaq อย่างเหมาะสม: ไม่คุกคาม
+        ไม่ส่งสแปม และไม่เผยแพร่ข้อมูลส่วนตัวของสมาชิก
       </p>
 
       <p className="mt-4 text-body-sm text-ink-600">
-        Once the published copy is available it will replace this notice.
+        เมื่อเอกสารฉบับจริงพร้อมเผยแพร่ จะมาแทนที่ข้อความนี้
       </p>
     </AuthCard>
   );

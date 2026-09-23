@@ -75,7 +75,7 @@ export function ForgotPasswordForm(): ReactElement {
     setIsSent(true);
     // The backend answers identically whether or not the address exists, so the
     // copy stays neutral rather than promising a message that may never arrive.
-    toast.success("If that email is registered, a code is on its way.");
+    toast.success("หากอีเมลนี้ลงทะเบียนไว้ รหัสยืนยันกำลังส่งไปหาคุณ");
 
     window.setTimeout((): void => {
       router.push(`/forgot-password/sent?identifier=${encodeURIComponent(payload.identifier)}`);
@@ -87,22 +87,22 @@ export function ForgotPasswordForm(): ReactElement {
 
   return (
     <AuthCard
-      title="Reset your password"
-      subtitle="Enter your email address and we'll send you a verification code."
+      title="รีเซ็ตรหัสผ่าน"
+      subtitle="กรอกอีเมลของคุณ แล้วเราจะส่งรหัสยืนยันให้"
       banner={formError !== undefined ? <FormBanner message={formError} /> : undefined}
       footer={
         <>
-          Remembered it? <AuthLink href="/login">Back to log in</AuthLink>
+          จำรหัสผ่านได้แล้ว? <AuthLink href="/login">กลับไปเข้าสู่ระบบ</AuthLink>
         </>
       }
     >
-      {isSent ? <FormSuccess message="Sending your verification code..." /> : null}
+      {isSent ? <FormSuccess message="กำลังส่งรหัสยืนยัน..." /> : null}
 
       <form noValidate onSubmit={form.handleSubmit(handleValid)} className="space-y-4">
         <FormField
           id="identifier"
           name="identifier"
-          label="Email address"
+          label="อีเมล"
           type="email"
           inputMode="email"
           value={readValue(form.fields, "identifier")}
@@ -115,7 +115,7 @@ export function ForgotPasswordForm(): ReactElement {
           disabled={isBusy}
         />
 
-        <SubmitButton label="Send Code" loadingLabel="Sending code" isSubmitting={isBusy} />
+        <SubmitButton label="ส่งรหัส" loadingLabel="กำลังส่งรหัส" isSubmitting={isBusy} />
       </form>
     </AuthCard>
   );

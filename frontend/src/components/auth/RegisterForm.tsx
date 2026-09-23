@@ -156,7 +156,7 @@ export function RegisterForm(): ReactElement {
     await register(payload);
 
     setIsRedirecting(true);
-    toast.success("Account created. Check your email for the verification code.");
+    toast.success("สร้างบัญชีแล้ว ตรวจสอบอีเมลเพื่อรับรหัสยืนยัน");
 
     // The backend issues an EMAIL_VERIFICATION code at registration, so the user
     // is sent to the verification screen rather than straight to the dashboard.
@@ -175,24 +175,24 @@ export function RegisterForm(): ReactElement {
 
   return (
     <AuthCard
-      title="Create your account"
-      subtitle="Join FityatulHaq to follow announcements, events and community activities."
+      title="สร้างบัญชีของคุณ"
+      subtitle="เข้าร่วม FityatulHaq เพื่อติดตามประกาศ กิจกรรม และข่าวสารชุมชน"
       banner={formError !== undefined ? <FormBanner message={formError} /> : undefined}
       footer={
         <>
-          Already have an account? <AuthLink href="/login">Log in</AuthLink>
+          มีบัญชีแล้ว? <AuthLink href="/login">เข้าสู่ระบบ</AuthLink>
         </>
       }
     >
       {isRedirecting ? (
-        <FormSuccess message="Account created. Taking you to email verification..." />
+        <FormSuccess message="สร้างบัญชีแล้ว กำลังพาไปยืนยันอีเมล..." />
       ) : null}
 
       <form noValidate onSubmit={form.handleSubmit(handleValid)} className="space-y-4">
         <FormField
           id="fullName"
           name="fullName"
-          label="Full name"
+          label="ชื่อ-นามสกุล"
           type="text"
           value={readValue(form.fields, "fullName")}
           error={form.errors["fullName"]}
@@ -207,7 +207,7 @@ export function RegisterForm(): ReactElement {
         <FormField
           id="email"
           name="email"
-          label="Email address"
+          label="อีเมล"
           type="email"
           inputMode="email"
           value={readValue(form.fields, "email")}
@@ -223,14 +223,14 @@ export function RegisterForm(): ReactElement {
         <FormField
           id="username"
           name="username"
-          label="Username"
+          label="ชื่อผู้ใช้"
           type="text"
           value={readValue(form.fields, "username")}
           error={form.errors["username"]}
           onChange={form.setField}
           onBlur={form.handleBlur}
           autoComplete="username"
-          hint="3-30 characters: letters, numbers and underscores."
+          hint="3-30 ตัวอักษร: ตัวอักษร ตัวเลข และขีดล่าง"
           required
           disabled={isBusy}
         />
@@ -238,14 +238,14 @@ export function RegisterForm(): ReactElement {
         <FormField
           id="password"
           name="password"
-          label="Password"
+          label="รหัสผ่าน"
           type="password"
           value={readValue(form.fields, "password")}
           error={form.errors["password"]}
           onChange={form.setField}
           onBlur={form.handleBlur}
           autoComplete="new-password"
-          hint="At least 8 characters."
+          hint="อย่างน้อย 8 ตัวอักษร"
           required
           disabled={isBusy}
         />
@@ -253,7 +253,7 @@ export function RegisterForm(): ReactElement {
         <FormField
           id="confirmPassword"
           name="confirmPassword"
-          label="Confirm password"
+          label="ยืนยันรหัสผ่าน"
           type="password"
           value={readValue(form.fields, "confirmPassword")}
           error={form.errors["confirmPassword"]}
@@ -267,7 +267,7 @@ export function RegisterForm(): ReactElement {
         <FormField
           id="phone"
           name="phone"
-          label="Phone number"
+          label="เบอร์โทรศัพท์"
           type="tel"
           inputMode="tel"
           value={readValue(form.fields, "phone")}
@@ -283,7 +283,7 @@ export function RegisterForm(): ReactElement {
         <FormField
           id="birthDate"
           name="birthDate"
-          label="Date of birth"
+          label="วันเกิด"
           type="date"
           value={readValue(form.fields, "birthDate")}
           error={form.errors["birthDate"]}
@@ -308,8 +308,7 @@ export function RegisterForm(): ReactElement {
               className="mt-0.5 h-4 w-4 rounded border-ink-300 text-brand-700 focus:ring-2 focus:ring-brand-300"
             />
             <label htmlFor={TERMS_FIELD} className="text-body-sm text-ink-700">
-              I agree to the <AuthLink href="/terms">Terms of Service</AuthLink> and the privacy
-              policy.
+              ยอมรับ <AuthLink href="/terms">ข้อกำหนดการใช้งาน</AuthLink> และนโยบายความเป็นส่วนตัว
             </label>
           </div>
 
@@ -321,8 +320,8 @@ export function RegisterForm(): ReactElement {
         </div>
 
         <SubmitButton
-          label="Create Account"
-          loadingLabel="Creating account"
+          label="สร้างบัญชี"
+          loadingLabel="กำลังสร้างบัญชี"
           isSubmitting={isBusy}
         />
       </form>
