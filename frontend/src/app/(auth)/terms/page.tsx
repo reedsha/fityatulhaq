@@ -4,8 +4,8 @@ import type { ReactElement } from "react";
 import { AuthCard, AuthLink } from "@/components/auth/AuthCard";
 
 export const metadata: Metadata = {
-  title: "Terms of Service",
-  description: "The terms that apply when you use FityatulHaq.",
+  title: "ข้อกำหนดการใช้งาน",
+  description: "ข้อกำหนดที่ใช้บังคับเมื่อคุณใช้งาน FityatulHaq",
 };
 
 /**

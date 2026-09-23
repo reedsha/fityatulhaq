@@ -15,6 +15,7 @@ import {
   type AuthFormValues,
 } from "@/hooks/useAuthForm";
 import { buildLoginPayload, loginSchema, readValue } from "@/lib/validation";
+import { isSafeInternalPath } from "@/lib/memberGate";
 
 /** How long the welcome message stays up before the post-login redirect. */
 const REDIRECT_DELAY_MS = 1000;
@@ -66,16 +67,13 @@ function validateLoginForm(values: AuthFormValues): AuthFormErrors {
  * Read at submit time through `window.location` rather than through
  * `useSearchParams` at render time: `/login` builds as a static route, and a
  * render-time hook would force a Suspense CSR bailout that fails the build.
- *
- * Only internal paths are honoured — the value must start with a single slash,
- * must not be protocol-relative, and must carry no URL scheme — so a crafted
- * link can never bounce a freshly signed-in member off-site.
+ * The three safety rules live in `isSafeInternalPath` (@/lib/memberGate) so the
+ * member-action gates share one implementation.
  */
 function resolvePostLoginTarget(): string {
   const raw = new URLSearchParams(window.location.search).get("next") ?? "";
-  const SCHEME_PATTERN = /^[a-zA-Z][a-zA-Z0-9+.-]*:/;
 
-  if (raw.startsWith("/") && !raw.startsWith("//") && !SCHEME_PATTERN.test(raw)) {
+  if (isSafeInternalPath(raw)) {
     return raw;
   }
 
