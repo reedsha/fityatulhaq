@@ -2,7 +2,8 @@ import { Router } from "express";
 import rateLimit from "express-rate-limit";
 
 import { signAsset } from "../controllers/assetController";
-import { authenticate } from "../middleware/authenticate";
+import { requireRole } from "../middleware/requireRole";
+import { ROLES } from "../types";
 
 const router = Router();
 
@@ -48,6 +49,11 @@ const signLimiter = rateLimit({
 
 // Limited before authenticating, matching `authRoutes`: the cheap gate rejects
 // floods before any token verification work happens.
-router.post("/sign", signLimiter, authenticate, signAsset);
+//
+// `requireRole` composes its own `authenticate` as the first element of the
+// tuple it returns, so the JWT is verified exactly once and the role gate runs
+// right after it. Asset downloads are member actions per PRD §6.4 — a GUEST
+// (or any unlisted role) is refused with 403 before the controller runs.
+router.post("/sign", signLimiter, ...requireRole(ROLES.MEMBER, ROLES.CONTENT_MODERATOR), signAsset);
 
 export default router;

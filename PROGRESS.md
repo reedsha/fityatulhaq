@@ -1,8 +1,10 @@
 # 📊 FityatulHaq Public Website (Web 1) — Progress & Survival Guide
 
-> **Last Updated:** 2026-09-23 · **Current Milestone:** M0 Complete (Steps 1–3 Done) — next: M1 · **Source of Truth:** `Requirement.pdf` (raw text at `requirement_raw.txt`)
+> **Last Updated:** 2026-09-23 · **Current Milestone:** M0 Complete (Steps 1–3 Done, committed & re-verified) — next: M1 · **Source of Truth:** `Requirement.pdf` (raw text at `requirement_raw.txt`)
 >
 > **⚠️ THIS FILE IS THE SURVIVAL GUIDE.** Every task, decision, deletion, and deviation must be recorded here. Before touching any file, read the full Milestones section, verify prerequisites, and confirm Definition-of-Done items are satisfied.
+>
+> **Repo state 2026-09-23:** M0 work committed (`6adf90f` backend · `617f7d4` homepage promotion + mock tags · `208fd7a` gitignore). Working tree clean except the owner's own `AGENTS.md` / `IDENTITY.md` / `SOUL.md` / `USER.md` deletions and untracked `.zedignore` — all four are intentional and must stay out of commits.
 
 ---
 
@@ -28,6 +30,8 @@ cd backend; npm run build       # tsc compilation
 ```
 
 **PowerShell note:** no `&&` chaining between commands — use `;`.
+
+**Stale-cache recovery (blank page, or a page serving a previous version of itself):** `next build` and `next dev` share one `.next` directory. Running either while the other is live, or deleting/renaming a route, can leave compiled output from a previous tree in place — the symptoms are (a) a page rendering an older version of itself, including a long-deleted stub, and (b) `tsc --noEmit` reporting a phantom `TS2307` for a route file that no longer exists. Recovery, in order: stop both servers → `rm -rf frontend/.next frontend/tsconfig.tsbuildinfo` → re-run the three gates → restart `next dev`. Diagnose this in the cache, **not** in source: on 2026-09-23 the source was correct the whole time while `/` served the pre-refactor stub.
 
 ---
 
@@ -61,7 +65,7 @@ Auth:        Custom JWT + httpOnly cookies (NOT NextAuth.js — deliberate choic
 
 | # | PRD URL Path | Status | Notes |
 |---|-------------|--------|-------|
-| `/` | ✅ Implemented | Reference-design landing page (promoted from `/dashboard`): hero, ticker, category cards, news grid, webboard preview, stats — **auth-gated: guests redirect to `/login`** |
+| `/` | ✅ Implemented | Reference-design landing page (promoted from `/dashboard`): hero, ticker, category cards, news grid, webboard preview, stats — **Public per §5.1.1**: guest hero CTAs (ร่วมเป็นสมาชิก → `/register`, เข้าสู่ระบบ → `/login`), member sees their name; no auth gate |
 | `/news` | ✅ Implemented | Dept filter, sort, pagination, keyword search — mock data |
 | `/news/[slug]` | ✅ Implemented | SSG detail view |
 | `/announcements` | ✅ Implemented | Ref numbers, dates, PDF icon — mock data |
@@ -177,6 +181,58 @@ Every milestone cites its PRD sections as source of truth. Follow this order str
 - **Note:** the homepage panel (`components/home/DashboardPanel.tsx`) carries its own inline content (hero copy, ticker text, news/announcement previews, stats). Those literals are *page copy*, not data-module exports, and were left as-is; if the ticker/news previews become API-fed later, extract them then.
 - **Definition of Done:** All mock files tagged ✅ · Runtime fallback verified — ⚠️ deferred to the API swap with the pattern documented above (no callers exist to fail over)
 
+#### M0 housekeeping — commits landed & green re-verification (2026-09-23)
+- **Status:** ✅ Done — verification and history hygiene only; no functional change.
+- **Commits landed** (pathspec-only staging, never `git add -A`):
+  - `6adf90f` — Add signed asset URL service and cookie sessions (M0-Step 2 backend + cookie-session wiring, 13 files)
+  - `617f7d4` — Serve dashboard UI at root and tag mock data (homepage promotion + M0-Step 3 tags + design tokens + this file, 31 files). Git recorded the panel move as a rename: `components/dashboard/DashboardPanel.tsx` → `components/home/DashboardPanel.tsx` (98% similar), so its history is preserved.
+  - `208fd7a` — Ignore OneDrive staging and agent scratch dirs.
+- **Gate re-run on a clean tree** (`.next` and `tsconfig.tsbuildinfo` deleted first): FE `npx tsc --noEmit` exit 0 · FE `npm run build` exit 0 · BE `npm run build` exit 0.
+- **Live verification** (production build served on `:3100`, because the same `.next` cannot be shared with `next dev`): `/` → **200**, HTML contains the global chrome (`bg-brand-950` bands, nav labels Announcements / Community / Knowledge / Webboard, one `animate-pulse` skeleton node) and **zero** occurrences of the old stub copy ("scaffolding") · `/dashboard` → **404** ("could not be found") · `/news` → 200 · `/about` → 200.
+- **Route-table proof of the deletion:** `.next/app-path-routes-manifest.json` contains `"/page": "/"` and **0** occurrences of `dashboard`.
+- **Interpretation note:** `/` carries the panel's loading skeleton in its server HTML because `DashboardPanel` resolves the session client-side via `getMe`; hero/ticker/stats markup appears after hydration. Pre-existing panel behaviour, not a regression.
+- **`.gitignore` additions (`208fd7a`):** `.tmp.driveupload/` (OneDrive in-flight upload staging — it held one orphaned copy of a `node_modules/effect` file), `.openclaw/` and `memory/` (coordinator runtime state). Keeps a future `git add -A` from sweeping OneDrive/agent junk into the tree. Note `.previews/` (5 QA screenshots) is deliberately **not** ignored — it is already tracked.
+- **Why this entry exists:** the first post-refactor live check served the *old* stub page at `/`. Root cause was a stale `.next` left behind by an earlier `next build`-while-`next dev` collision, so the recovery protocol is now recorded under HOW TO RUN rather than being re-diagnosed next session.
+- **Post-verification ops notes (2026-09-23, same day):**
+  - **Hydration warning on `<html>`** (`data-qb-installed="true"`, `suppresshydrationwarning` in the React diff): caused by the **QuillBot browser extension** injecting attributes before React hydrates — benign, dev-console only, not a code bug. Mitigated anyway: `suppressHydrationWarning` added to `<html>` in `RootLayout` (silences attribute-level mismatches on that element only; children remain strictly checked). FE `tsc --noEmit` clean after the edit; the full FE build was **not** re-run while `next dev` is live (cache-corruption trap) — the next gate run covers it.
+  - **Dev account deleted at the owner's request:** `mrasheed.smd1424@gmail.com` (username `mora`, role MEMBER) removed so the owner can re-register fresh. 14 refresh tokens cascaded. Method: throwaway `ts-node` script against `DATABASE_URL` via the driver adapter (the generated client is `.ts`-only, so plain `node` cannot require it) — script deleted after use, never committed. Login for the deleted email now returns `401 INVALID_CREDENTIALS` (verified). Remaining users are the six known test rows (`probe_*`, `smoke_*`, `e2e_verify_9214@`).
+  - **OTP delivery note for re-registration:** SMTP is still unconfigured (debt D0, `SMTP_HOST=localhost`), so the verification email cannot actually send. The code is **echoed to the backend console/log** as `[OTP_DEV_ONLY] EMAIL_VERIFICATION code for <email>: <6 digits>` — read it from there. Sign-in works even while unverified (`isNew: true` just routes to the verify screen).
+
+---
+
+### M1.5: Public access alignment + access-control wiring (§5.1.1, §3.3, §6.2, §6.4, §6.5)
+
+**Status:** ✅ Done — 2026-09-23, all gates green
+**Gate checks:** FE `npx tsc --noEmit` exit 0 · FE `npm run build` exit 0 (40/40 pages, `/login` still static ○) · BE `npm run build` exit 0 · BE suites: `signUrlService.test.ts` all pass, `auth.test.ts` smoke all pass, new `assetSignRole.test.ts` 3/3 (401 / GUEST→403 / MEMBER→gate-open) · live matrix: guest `/` → 200 with both hero CTAs in SSR HTML and zero "Loading your account" remnants · guest `/profile` → 200 (login card is client-side, as designed)
+**Depends on:** M0-1 (roles + `requireRole` factory)
+
+**Owner decision 2026-09-23:** the site follows the PRD model exactly — **every page a guest may see is open to everyone; only member-only *actions* redirect to `/login`** (and return the visitor to where they were afterwards). This step retires the deliberate stopgap that gated the homepage.
+
+**Why now:** `/` was the only page contradicting §5.1.1 (audit 2026-09-23: every other live page is already guest-accessible; `AuthAwareShell.requireAuth` has zero call sites; `/profile` self-gates with a login card, which is the correct pattern). No milestone previously planned the un-gating.
+
+**Role-based access status after M1.5:**
+- ✅ Roles in schema (`GUEST | MEMBER | CONTENT_MODERATOR`, M0-1) · JWT carries role · `authenticate` populates `req.user.role`
+- ✅ `requireRole` has its **first consumer**: `POST /api/v1/assets/sign` is gated to `MEMBER | CONTENT_MODERATOR` (proved by `assetSignRole.test.ts` 3/3)
+- ✅ Frontend guest/member states: `Header` (§3.3 pills vs avatar), `AuthAwareShell.requireAuth`, `/profile` login card
+- ✅ Login return-URL flow built: `/login?next=<internal path>` (M2 knowledge gates and M4 New Thread are its planned consumers)
+- Guests are unauthenticated visitors by design — the DB `GUEST` role stays unused (no self-serve path creates it); the M1.5 GUEST probe mints a stateless token, touching no rows
+
+#### Scope:
+1. **Un-gate `/`** ✅ — `DashboardPanel.tsx`: redirect effect + full-page spinner deleted; every section renders immediately for guests and members. Hero greeting: member → `ยินดีต้อนรับ, {fullName}`; guest → `ยินดีต้อนรับ — ร่วมเป็นสมาชิก (→ /register, lime) · เข้าสู่ระบบ (→ /login, white)`. Existing lime `/register` CTA pill kept (§5.1.1 guest CTA section).
+2. **Login return-URL flow** ✅ — `LoginForm` resolves `?next=` at submit time (window.location, NOT useSearchParams — keeps `/login` static) and redirects there after verified sign-in; internal-only validation (leading `/`, no `//`, no scheme) else `/`. Unverified flow untouched.
+3. **Frontend action-gate pattern** — a small `ensureMember(returnTo)` helper (check `isAuthenticated`, else `router.push("/login?next=…")`). **Built with its first real consumer, not before** — dead-code rule per the M0-Step 3 deviation. First consumer arrives in M2 (knowledge download/ask) or M4 (New Thread); both milestone scopes already describe this exact behaviour and will consume the helper + `?next=` flow.
+4. **First `requireRole` consumer (backend)** ✅ — `POST /api/v1/assets/sign` now uses `...requireRole(ROLES.MEMBER, ROLES.CONTENT_MODERATOR)` (the tuple composes its own `authenticate`, so the standalone import was replaced — one JWT verification, not two). Proven by `assetSignRole.test.ts`.
+5. **Docs** ✅ — route-inventory row for `/` and the Deviations Ledger entry updated to the public-per-§5.1.1 position.
+
+#### Deviations from the prompt (recorded):
+1. `FOCUS_RING_DARK` used on the hero CTAs instead of `FOCUS_RING` — the greeting sits on the dark `bg-brand-950` hero, where a brand-600 ring would be invisible; the dark variant (accent-300 ring, brand-950 offset) is the surface-correct treatment per Header.tsx's own docs.
+2. `signedUrl.ts` replaced the standalone `authenticate` import with the `requireRole` tuple (whose first element IS authenticate) instead of stacking both — the middleware's own docstring prescribes the spread, and stacking would verify the JWT twice.
+3. Live-matrix checks that need a browser session (member greeting after hydration, `?next=/news` landing, `next=https://evil…` fallback) are **code-verified + build-verified but not click-through-verified** — curl cannot execute client JS. The guest-CTA SSR output, 401/403/role-open API behaviour, and all three builds are machine-verified. Owner click-through recommended.
+4. Micro-copy: LoginForm success line changed "Taking you to your dashboard..." → "Taking you to where you left off..." so it stays truthful when `?next` points elsewhere.
+
+#### Gate checks:
+FE `tsc --noEmit` · FE `npm run build` · BE `npm run build` · live matrix: guest `/` → 200 no redirect; guest `/profile` → login card; guest clicking a member action → `/login?next=…`; member → personalised greeting; `GUEST`-role JWT on `/assets/sign` → 403.
+
 ---
 
 ### M1: Completed — §5.1 Public Pages
@@ -211,7 +267,7 @@ Every milestone cites its PRD sections as source of truth. Follow this order str
    - `videos` — **Public OR Member with gate**, thumbnail grid with video player embed, guest sees thumbnail+description, member plays
    - `recommended` — public, curated list with type badges ("News", "Book", "Video")
 
-2. **Gating logic:** For academic, qa, books, videos — public access shows abstract; clicking a gated action redirects to login (per §6.5). After login, the signed URL flow grants temporary access.
+2. **Gating logic:** For academic, qa, books, videos — public access shows abstract; clicking a gated action redirects to login (per §6.5). After login, the signed URL flow grants temporary access. **Consumes the M1.5 `?next=` return flow and `ensureMember` helper.**
 
 3. **KnowledgeHubPage.tsx changes:** Only the category tiles change — `<article>` becomes `<Link href="/knowledge/${category.id}">`. Rest of page preserved verbatim.
 
@@ -243,7 +299,7 @@ Every milestone cites its PRD sections as source of truth. Follow this order str
 **UI preserved:** If stub UI was already designed, extend it. Otherwise scaffold from scratch using design tokens.
 
 #### Scope:
-1. `/webboard` — Two board cards: Youth Care + General. "New Thread" button visible to members, hidden/redirect-to-login for guests
+1. `/webboard` — Two board cards: Youth Care + General. "New Thread" button visible to members, hidden/redirect-to-login for guests (**via the M1.5 `?next=` return flow**)
 2. `/webboard/youth-care` — Anonymous display mode ("Anonymous User #ID"), Pending/Answered status toggle, strict anonymity enforced, posts go to Pending Review queue until CONTENT_MODERATOR approves
 3. `/webboard/general` — Tags, sort (Latest/Popular/Most Replied), instant moderation
 4. `/webboard/[board]/[postId]` — Thread view, nested comments, report button. Guests: read-only. Members: comment + react + report
@@ -353,7 +409,7 @@ Before marking ANY step complete:
 | Auth library | NextAuth.js (PRD §10) | Custom JWT + httpOnly cookies | Tighter control over cookie lifecycle, CSRF mitigation via sameSite, avoids NextAuth.js abstraction complexity |
 | Next.js version | 16 (PRD §10) | 15.5.25 | Defer to M7 deployment per Big Mo's approval. Upgrading mid-dev introduces untested React 19 edge cases. |
 | Realtime/WebSocket | Supabase Realtime (PRD §10) | Deferred per §8.2 | Threading decisions postponed to deployment phase |
-| `/dashboard` | Not in PRD | Route deleted; its UI **promoted to `/`** (2026-09-23). The panel moved to `components/home/DashboardPanel.tsx`; all inbound links → `/` | Unified the two competing homepage implementations; `/` is now the signed-in landing page |
+| `/` | Not in PRD | Route deleted; its UI **promoted to `/`** (2026-09-23). The panel moved to `components/home/DashboardPanel.tsx`; all inbound links → `/`. The initial auth-gated stopgap was **retired by M1.5** the same day — `/` is now public per §5.1.1 |
 | Old homepage UI | — | `components/home/` (`HomePage.tsx` + 10 sections, Phase 4 digest) **deleted** per the same prompt. Tracked in git — recoverable via `git checkout 4fd7ad5 -- frontend/src/components/home` (or any later commit containing it) | The dashboard panel is the homepage of record; two live homepage implementations would have kept drifting apart |
 | `/community` | Not in PRD | Deleted | Added mid-build outside PRD scope |
 | `/faq` | Not in PRD | Deleted | Leftover stub outside PRD scope |
@@ -377,6 +433,7 @@ The original plan deleted the panel outright. Executed instead as **promotion**:
 - [x] Verify no remaining imports of DashboardPanel from `@/components/dashboard` or references to the `/dashboard` route
 - [x] Verify build passes — FE `next build` 40/40, route table shows `/` at 4.88 kB and no `/dashboard`
 - [x] Verify runtime — `/` → 200, `/dashboard` → 404
+- [x] **Re-verified 2026-09-23 on a clean rebuild after clearing `.next`** — `/` → 200 serving the panel (not the old stub), `/dashboard` → 404, and the rebuilt route manifest is free of `dashboard`
 
 ### Delete: `/community`
 - [ ] Delete `frontend/src/app/community/page.tsx`
@@ -470,7 +527,11 @@ The original plan deleted the panel outright. Executed instead as **promotion**:
 - Backend boot logs SMTP warning until real credentials set — EXPECTED, not a breakage
 - Cookie auth + 0 localStorage refs verified
 - Mock data files persist as runtime fallback until manual removal confirmed
-- `deep-code-review` skill at: `C:\Users\muham\.openclaw\skills\deep-code-review\SKILL.md`
+- `deep-code-review` skill: **path is dead** — `C:\Users\muham\.openclaw\` was deleted 2026-09-23. Restore the skill before running the next deep-code-review gate.
+- Stale `.next` serves a previous version of a page (blank output or outdated UI) after a route change or a build/dev collision; the same cache produces phantom `TS2307` errors for deleted routes. Recovery protocol is under HOW TO RUN — deleting `.next` is always safe, and the fix is never in source.
+- Gitignored scratch that will reappear in `git status` if the rules are ever lost: `.tmp.driveupload/` (OneDrive upload staging), `memory/` and `.openclaw/` (coordinator runtime state). `.previews/` is tracked on purpose.
+- **Never run two `next dev` instances on the same checkout** — they share one `.next` and corrupt each other (2026-09-23: a second instance on :3001 sat alongside the detached one on :3000; both were killed and a single fresh instance started). One server, or none.
+- **LAN-IP origins (`http://192.168.x.x:<port>`) fail CORS by design in dev.** The dev-loopback bypass in `src/index.ts` (`LOOPBACK_ORIGIN_PATTERN`) only covers `localhost` / `127.0.0.1` / `[::1]` with any port; a LAN-IP origin gets `[CORS_REJECTED]` in the backend log and no `Access-Control-Allow-Origin` header. Do **not** fix this by adding the LAN origin to `CORS_ALLOWED_ORIGINS` — it would pass the preflight but `SameSite=lax` auth cookies are cross-site from a LAN origin, so the session still would not stick. Always browse via `http://localhost:<port>`. Real multi-device testing needs HTTPS + `COOKIE_SAME_SITE=none` — defer to M7.
 - **Next.js 15.5.25 → 16:** Breaking changes exist (async Request APIs, caching semantics). Codemod available: `npx @next/codemod upgrade latest`. Defer to M7 deployment per Big Mo's approval.
 
 ---
@@ -478,7 +539,8 @@ The original plan deleted the panel outright. Executed instead as **promotion**:
 ## ✅ HANDSHAKE FOR NEXT SESSION
 
 1. Read this whole file (milestones section first, then debt register, then quick reference)
-2. Run the verification chain: `tsc --noEmit` (FE) → `npm run build` (FE) → `npm run build` (BE)
-3. Begin **M0-Step 1**: Role Schema Alignment
+2. Run the verification chain: `tsc --noEmit` (FE) → `npm run build` (FE) → `npm run build` (BE). If a deleted route raises a phantom `TS2307`, delete `.next` first — see HOW TO RUN
+3. Begin **M1** — M0 (Steps 1–3) is complete; the next work is the §5.1 public-pages follow-up, starting with the first real consumer of `requireRole.ts`
 4. After each step: update this file, update Last Updated timestamp, record gates passed
 5. Never claim done without all three gates passing
+6. This file is the only handover surface — the coordinator's `memory/` notes and `.zedignore` are gitignored machine state, not documentation

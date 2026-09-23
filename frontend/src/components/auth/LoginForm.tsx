@@ -16,7 +16,7 @@ import {
 } from "@/hooks/useAuthForm";
 import { buildLoginPayload, loginSchema, readValue } from "@/lib/validation";
 
-/** How long the welcome message stays up before the dashboard redirect. */
+/** How long the welcome message stays up before the post-login redirect. */
 const REDIRECT_DELAY_MS = 1000;
 
 const REMEMBER_FIELD = "rememberMe";
@@ -60,6 +60,28 @@ function validateLoginForm(values: AuthFormValues): AuthFormErrors {
   return errors;
 }
 
+/**
+ * Resolves the post-login destination from the `?next=` query parameter.
+ *
+ * Read at submit time through `window.location` rather than through
+ * `useSearchParams` at render time: `/login` builds as a static route, and a
+ * render-time hook would force a Suspense CSR bailout that fails the build.
+ *
+ * Only internal paths are honoured — the value must start with a single slash,
+ * must not be protocol-relative, and must carry no URL scheme — so a crafted
+ * link can never bounce a freshly signed-in member off-site.
+ */
+function resolvePostLoginTarget(): string {
+  const raw = new URLSearchParams(window.location.search).get("next") ?? "";
+  const SCHEME_PATTERN = /^[a-zA-Z][a-zA-Z0-9+.-]*:/;
+
+  if (raw.startsWith("/") && !raw.startsWith("//") && !SCHEME_PATTERN.test(raw)) {
+    return raw;
+  }
+
+  return "/";
+}
+
 export function LoginForm(): ReactElement {
   const router = useRouter();
   const { login } = useAuth();
@@ -88,7 +110,7 @@ export function LoginForm(): ReactElement {
     toast.success(`Welcome back, ${result.user.fullName}.`);
 
     window.setTimeout((): void => {
-      router.push("/");
+      router.push(resolvePostLoginTarget());
     }, REDIRECT_DELAY_MS);
   };
 
@@ -138,7 +160,7 @@ export function LoginForm(): ReactElement {
         </>
       }
     >
-      {isRedirecting ? <FormSuccess message="Signed in. Taking you to your dashboard..." /> : null}
+      {isRedirecting ? <FormSuccess message="Signed in. Taking you to where you left off..." /> : null}
 
       <form noValidate onSubmit={form.handleSubmit(handleValid)} className="space-y-4">
         <FormField

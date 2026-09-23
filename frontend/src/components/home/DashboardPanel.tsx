@@ -1,8 +1,9 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useEffect, type ReactElement } from "react";
+import Link from "next/link";
+import type { ReactElement } from "react";
 
+import { FOCUS_RING_DARK } from "@/components/layout/Header";
 import { useAuth } from "@/context/AuthContext";
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -14,44 +15,20 @@ import { useAuth } from "@/context/AuthContext";
 ───────────────────────────────────────────────────────────────────────────── */
 
 /**
- * The site's landing page: proves the session works end to end by loading
- * `GET /auth/me`, and gives the register/login redirects somewhere to land.
+ * The site's landing page — PUBLIC per PRD §5.1.1: guests browse every section
+ * and are greeted with the register/login CTAs in the hero, while signed-in
+ * members see their name once the session resolves. Nothing here gates or
+ * redirects — only member-only ACTIONS elsewhere in the app require a session
+ * (§6.4), and those hand back through `/login?next=…`.
+ *
  * Promoted from `/dashboard` to `/` when the two routes were unified; the
  * `DashboardPanel` name is kept so the promotion stays traceable in history.
  */
 export function DashboardPanel(): ReactElement {
-  const router = useRouter();
-  const { user, isLoading, isAuthenticated, getMe } = useAuth();
-
-  useEffect((): void => {
-    if (isLoading || isAuthenticated) {
-      return;
-    }
-
-    // The session cookie is httpOnly, so there is no local hint to read: "signed
-    // out" and "profile not loaded yet" look identical from here. Asking the
-    // server tells the two apart — a session that is still valid resolves with a
-    // profile (the common case right after registration), and a visitor without
-    // one is sent to the sign-in page.
-    void getMe().catch((): void => {
-      router.replace("/login");
-    });
-  }, [getMe, isAuthenticated, isLoading, router]);
-
-  /* ── Loading guard ─────────────────────────────────────────────────────── */
-  if (isLoading || user === null) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-brand-950">
-        <div className="flex flex-col items-center gap-4">
-          <div className="h-12 w-12 animate-spin rounded-full border-4 border-accent-300 border-t-transparent" />
-          <p className="text-body-sm font-medium text-ink-400">Loading your account…</p>
-        </div>
-      </div>
-    );
-  }
+  const { user } = useAuth();
 
   /* ─────────────────────────────────────────────────────────────────────────
-     REFERENCE-DESIGN LAYOUT
+     REFERENCE-DESIGN LAYOUT (rendered immediately for guests and members)
      Section order (top → bottom):
        2. Hero banner
        3. Vivid blue ticker bar
@@ -102,8 +79,29 @@ export function DashboardPanel(): ReactElement {
             <span className="text-[#b2f35e]">สู่การยอมจำนนต่อพระเจ้า</span>
           </h1>
           <p className="mt-4 text-body text-ink-300">
-            ยินดีต้อนรับ,{" "}
-            <span className="font-semibold text-white">{user.fullName}</span>
+            {user !== null ? (
+              <>
+                ยินดีต้อนรับ,{" "}
+                <span className="font-semibold text-white">{user?.fullName ?? ""}</span>
+              </>
+            ) : (
+              <>
+                ยินดีต้อนรับ —{" "}
+                <Link
+                  href="/register"
+                  className={`font-semibold text-accent-300 underline underline-offset-4 transition duration-fast ease-standard motion-reduce:transition-none hover:text-ink-50 ${FOCUS_RING_DARK}`}
+                >
+                  ร่วมเป็นสมาชิก
+                </Link>
+                <span aria-hidden="true"> · </span>
+                <Link
+                  href="/login"
+                  className={`font-semibold text-white underline underline-offset-4 transition duration-fast ease-standard motion-reduce:transition-none hover:text-accent-300 ${FOCUS_RING_DARK}`}
+                >
+                  เข้าสู่ระบบ
+                </Link>
+              </>
+            )}
           </p>
         </div>
       </section>
