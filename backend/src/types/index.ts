@@ -23,6 +23,18 @@ export const OTP_PURPOSES = {
 export type OtpPurposeValue = (typeof OTP_PURPOSES)[keyof typeof OTP_PURPOSES];
 
 /**
+ * A short-lived storage URL handed to the browser by `POST /assets/sign`.
+ *
+ * `expiresAt` is a Unix timestamp in milliseconds. It is never later than the
+ * TTL the signing side actually minted, so a client can time a refresh without
+ * following a link that has already died.
+ */
+export interface SignedUrlResponse {
+  signedUrl: string;
+  expiresAt: number;
+}
+
+/**
  * Identity attached to the request once the access token is verified.
  */
 export interface UserPayload {

@@ -4,10 +4,19 @@ import { z } from "zod";
 import {
   createAppError,
   formatAuthResponse,
+  isApplicationError,
+  toErrorMessage,
   toHttpError,
 } from "../middleware/errorFormatter";
+import { logger } from "../middleware/logger";
 import * as authService from "../services/authService";
 import { MIN_PASSWORD_LENGTH } from "../services/authService";
+import {
+  clearAuthCookies,
+  readRefreshTokenCookie,
+  setAuthCookies,
+} from "../utils/authCookies";
+import { parseBody } from "../utils/validation";
 
 export const registerSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -32,8 +41,18 @@ export const loginSchema = z.object({
   password: z.string().min(1, "Password required"),
 });
 
+/**
+ * The refresh token normally arrives in the httpOnly `refreshToken` cookie, so
+ * the body is optional: it stays accepted so non-browser callers (and the smoke
+ * test) can keep presenting the token explicitly.
+ */
 export const refreshTokenSchema = z.object({
-  refreshToken: z.string().min(1, "Refresh token required"),
+  refreshToken: z.string().min(1, "Refresh token required").optional(),
+});
+
+/** Same contract as the refresh body — the cookie is the usual source. */
+export const logoutSchema = z.object({
+  refreshToken: z.string().min(1, "Refresh token required").optional(),
 });
 
 export const forgotPwdSchema = z.object({
@@ -52,22 +71,13 @@ export const resetPwdSchema = z.object({
 });
 
 /**
- * Parses (and therefore validates) a request body. A failure throws the
- * `ZodError` itself, which the global error handler turns into a 400
- * `VALIDATION_ERROR` envelope — no unvalidated data ever reaches a service.
+ * Same identifier + code contract as the reset flow, minus the new password:
+ * this endpoint only redeems the EMAIL_VERIFICATION code.
  */
-function parseBody<TSchema extends z.ZodTypeAny>(
-  schema: TSchema,
-  body: unknown,
-): z.infer<TSchema> {
-  const result = schema.safeParse(body);
-
-  if (!result.success) {
-    throw result.error;
-  }
-
-  return result.data as z.infer<TSchema>;
-}
+export const verifyEmailSchema = z.object({
+  identifier: z.string().email("Valid email required"),
+  code: z.string().length(6, "OTP must be 6 digits"),
+});
 
 export async function register(
   req: Request,
@@ -78,7 +88,11 @@ export async function register(
     const payload = parseBody(registerSchema, req.body);
     const result = await authService.register(payload);
 
-    res.status(201).json(formatAuthResponse(result));
+    // The session lives in httpOnly cookies now. The access token is echoed in
+    // the body as well so server-to-server callers can still use a bearer header.
+    setAuthCookies(res, result);
+
+    res.status(201).json(formatAuthResponse({ accessToken: result.accessToken }));
   } catch (error) {
     next(toHttpError(error, { code: "REGISTER_FAILED", message: "Unable to complete registration" }));
   }
@@ -93,7 +107,15 @@ export async function login(
     const payload = parseBody(loginSchema, req.body);
     const result = await authService.login(payload);
 
-    res.status(200).json(formatAuthResponse(result));
+    setAuthCookies(res, result);
+
+    res.status(200).json(
+      formatAuthResponse({
+        user: result.user,
+        isNew: result.isNew,
+        accessToken: result.accessToken,
+      }),
+    );
   } catch (error) {
     next(toHttpError(error, { code: "LOGIN_FAILED", message: "Unable to sign in" }));
   }
@@ -106,11 +128,69 @@ export async function refreshToken(
 ): Promise<void> {
   try {
     const payload = parseBody(refreshTokenSchema, req.body);
-    const result = await authService.refreshToken(payload);
 
-    res.status(200).json(formatAuthResponse(result));
+    // Cookie first: it is what a browser presents. The body stays a fallback for
+    // callers that hold the token themselves.
+    const presented = readRefreshTokenCookie(req) ?? payload.refreshToken;
+
+    if (presented === undefined) {
+      throw createAppError(
+        "TOKEN_REVOKED",
+        "Refresh token is invalid or has been revoked",
+        401,
+      );
+    }
+
+    const result = await authService.refreshToken({ refreshToken: presented });
+
+    setAuthCookies(res, result);
+
+    res.status(200).json(formatAuthResponse({ accessToken: result.accessToken }));
   } catch (error) {
+    // A rejected refresh token is unusable from here on, so the dead cookies are
+    // cleared instead of being re-presented on every future attempt.
+    if (isApplicationError(error) && error.statusCode === 401) {
+      clearAuthCookies(res);
+    }
+
     next(toHttpError(error, { code: "TOKEN_REFRESH_FAILED", message: "Unable to refresh the session" }));
+  }
+}
+
+/**
+ * Ends the session: revokes the stored refresh token and expires both cookies.
+ *
+ * Deliberately not rate limited — a throttled sign-out would leave the browser
+ * holding live credentials, which is the one outcome this endpoint exists to
+ * prevent. Revocation failures are logged without failing the request, because
+ * the cookies are dropped either way and the row expires on its own.
+ */
+export async function logout(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const payload = parseBody(logoutSchema, req.body);
+    const presented = readRefreshTokenCookie(req) ?? payload.refreshToken;
+
+    if (presented !== undefined) {
+      try {
+        await authService.logout({ refreshToken: presented });
+      } catch (error) {
+        logger.warn(`[LOGOUT_REVOKE_FAILED] ${toErrorMessage(error)}`);
+      }
+    }
+
+    clearAuthCookies(res);
+
+    res.status(200).json(formatAuthResponse({ message: "Signed out" }));
+  } catch (error) {
+    // The cookies are dropped even when the body was unusable: the caller asked
+    // to be signed out, and leaving live credentials behind would be worse.
+    clearAuthCookies(res);
+
+    next(toHttpError(error, { code: "LOGOUT_FAILED", message: "Unable to sign out" }));
   }
 }
 
@@ -149,6 +229,26 @@ export async function resetPassword(
       toHttpError(error, {
         code: "PASSWORD_RESET_FAILED",
         message: "Unable to reset the password",
+      }),
+    );
+  }
+}
+
+export async function verifyEmail(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const payload = parseBody(verifyEmailSchema, req.body);
+    const result = await authService.verifyEmail(payload);
+
+    res.status(200).json(formatAuthResponse(result));
+  } catch (error) {
+    next(
+      toHttpError(error, {
+        code: "EMAIL_VERIFICATION_FAILED",
+        message: "Unable to verify the email",
       }),
     );
   }

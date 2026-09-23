@@ -11,3 +11,5 @@ export const API_V1_PREFIX = "/api/v1";
 export const AUTH_ROUTE_PREFIX = `${API_V1_PREFIX}/auth`;
 
 export const USER_ROUTE_PREFIX = `${API_V1_PREFIX}/users`;
+
+export const ASSETS_ROUTE_PREFIX = `${API_V1_PREFIX}/assets`;

@@ -1,12 +1,14 @@
 import "dotenv/config";
 
 import compression from "compression";
+import cookieParser from "cookie-parser";
 import cors from "cors";
 import express, { type Express } from "express";
 import helmet from "helmet";
 import morgan from "morgan";
 
 import { disconnectPrisma, initPrisma } from "./config/database";
+import { ASSETS_ROUTE_PREFIX, AUTH_ROUTE_PREFIX, USER_ROUTE_PREFIX } from "./config/routePrefix";
 // Imported for its side effect: booting fails loudly if the privileged Supabase
 // key is missing, and the client is ready for the Phase 2 storage work.
 import "./config/supabase";
@@ -14,6 +16,8 @@ import { errorHandler, toErrorMessage } from "./middleware/errorFormatter";
 import { logger } from "./middleware/logger";
 import { sanitizeBody } from "./middleware/sanitizeBody";
 import authRoutes from "./routes/authRoutes";
+import signedUrlRoutes from "./routes/signedUrl";
+import userRoutes from "./routes/userRoutes";
 
 const REQUIRED_ENV_VARS = [
   "DATABASE_URL",
@@ -49,13 +53,64 @@ function resolveAllowedOrigins(): string[] {
     .filter((origin) => origin.length > 0);
 }
 
+/**
+ * Development serves the web app from whichever port is free: the dev server
+ * climbs 3000, 3001, 3002 … whenever older ones are still running. A fixed
+ * allowlist therefore breaks sign-in every time the port drifts, so loopback
+ * origins are accepted outside production and the configured allowlist stays
+ * authoritative in production.
+ */
+const LOOPBACK_ORIGIN_PATTERN = /^http:\/\/(?:localhost|127\.0\.0\.1|\[::1\]):\d+$/;
+
+const IS_PRODUCTION = process.env.NODE_ENV === "production";
+
+const allowedOrigins = resolveAllowedOrigins();
+
+function isAllowedOrigin(origin: string): boolean {
+  if (allowedOrigins.includes(origin)) {
+    return true;
+  }
+
+  return !IS_PRODUCTION && LOOPBACK_ORIGIN_PATTERN.test(origin);
+}
+
+/**
+ * An origin callback rather than a static list, so a rejected origin can be
+ * logged. Without that log the browser only reports a bare "no
+ * Access-Control-Allow-Origin header" and the real cause never reaches the
+ * server.
+ */
+function resolveCorsOrigin(
+  origin: string | undefined,
+  callback: (error: Error | null, allow?: boolean) => void,
+): void {
+  // No Origin at all means a non-browser caller — curl, the smoke test, or
+  // server-to-server traffic. CORS is a browser-only policy, so there is nothing
+  // to decide here.
+  if (origin === undefined || origin.trim() === "" || isAllowedOrigin(origin)) {
+    callback(null, true);
+    return;
+  }
+
+  logger.warn(
+    `[CORS_REJECTED] ${origin} is not allowed. Add it to CORS_ALLOWED_ORIGINS to permit it.`,
+  );
+
+  callback(null, false);
+}
+
 const PORT = resolvePort();
 
 const app: Express = express();
 
 app.use(helmet());
 app.use(compression());
-app.use(cors({ origin: resolveAllowedOrigins(), credentials: true }));
+app.use(cors({ origin: resolveCorsOrigin, credentials: true }));
+
+// The browser session travels in httpOnly cookies, so the jar has to be parsed
+// before any route runs: `authenticate` reads `req.cookies`, and the auth
+// controllers write the pair back with `res.cookie`.
+app.use(cookieParser());
 app.use(
   morgan("combined", {
     stream: {
@@ -68,7 +123,9 @@ app.use(
 app.use(express.json({ limit: "10mb" }));
 app.use(sanitizeBody);
 
-app.use("/api/v1/auth", authRoutes);
+app.use(AUTH_ROUTE_PREFIX, authRoutes);
+app.use(USER_ROUTE_PREFIX, userRoutes);
+app.use(ASSETS_ROUTE_PREFIX, signedUrlRoutes);
 
 app.use("*", (_req: express.Request, res: express.Response): void => {
   res.status(404).json({
