@@ -55,3 +55,11 @@ backend/.claude/
 backend/.windsurf/
 backend/.agents/
 backend/skills-lock.json
+
+# --- Agent scratch, OneDrive staging & other non-source dirs (never commit) ---
+# OneDrive's in-flight upload staging; it re-creates files here mid-sync and a
+# stray copy would otherwise be swept up by `git add -A`.
+.tmp.driveupload/
+# Agent runtime state (the coordinator's `memory/` notes) — not project source.
+.openclaw/
+memory/
