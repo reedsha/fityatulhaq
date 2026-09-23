@@ -1,6 +1,6 @@
 # 📊 FityatulHaq Public Website (Web 1) — Progress & Survival Guide
 
-> **Last Updated:** 2026-09-23 · **Current Milestone:** M0 Complete (Steps 1–3 Done, committed & re-verified) — next: M1 · **Source of Truth:** `Requirement.pdf` (raw text at `requirement_raw.txt`)
+> **Last Updated:** 2026-09-24 · **Current Milestone:** M0 Complete (Steps 1–3 Done, committed & re-verified) — next: M1 · **Source of Truth:** `Requirement.pdf` (raw text at `requirement_raw.txt`)
 >
 > **⚠️ THIS FILE IS THE SURVIVAL GUIDE.** Every task, decision, deletion, and deviation must be recorded here. Before touching any file, read the full Milestones section, verify prerequisites, and confirm Definition-of-Done items are satisfied.
 >
@@ -76,16 +76,16 @@ Auth:        Custom JWT + httpOnly cookies (NOT NextAuth.js — deliberate choic
 | `/contact` | ✅ Implemented | Contact form, map embed, social links |
 | `/partners` | ✅ Implemented | Logo grid with external links |
 | `/knowledge` | ✅ Implemented | 9-category landing grid with lock badges + "Coming soon" chips |
-| `/knowledge/courses` | ❌ Missing | Sub-route |
-| `/knowledge/camps` | ❌ Missing | Sub-route |
-| `/knowledge/academic` | ❌ Missing | 🔒 member-gated + signed URL downloads |
-| `/knowledge/encyclopedia` | ❌ Missing | Sub-route |
-| `/knowledge/biography` | ❌ Missing | Sub-route |
-| `/knowledge/youth-advice` | ❌ Missing | Sub-route |
-| `/knowledge/qa` | ❌ Missing | 🔒 member-gated ask form + FAQ accordion |
-| `/knowledge/books` | ❌ Missing | 🔒 member-gated + signed URL downloads |
-| `/knowledge/videos` | ❌ Missing | 🔒 member-gated + embedded player |
-| `/knowledge/recommended` | ❌ Missing | Sub-route |
+| `/knowledge/courses` | ✅ Implemented | Public grid — mock data (M2) |
+| `/knowledge/camps` | ✅ Implemented | Public timeline — mock data (M2) |
+| `/knowledge/academic` | ✅ Implemented | Public list + abstracts; download is member-only via signed URL — 503 until M6 (M2) |
+| `/knowledge/encyclopedia` | ✅ Implemented | Public card grid — mock data (M2) |
+| `/knowledge/biography` | ✅ Implemented | Public portrait grid — mock data (M2) |
+| `/knowledge/youth-advice` | ✅ Implemented | Public article cards — mock data (M2) |
+| `/knowledge/qa` | ✅ Implemented | Public accordion; Ask button member-only, logging lands M4 (M2) |
+| `/knowledge/books` | ✅ Implemented | Public catalogue; download is member-only via signed URL — 503 until M6 (M2) |
+| `/knowledge/videos` | ✅ Implemented | Public thumbnails; playback member-only, placeholder embeds (M2) |
+| `/knowledge/recommended` | ✅ Implemented | Public curated list, real links only (M2) |
 | `/search` | ❌ Missing | Global unified keyword search across all types |
 | `/webboard` | ⚠️ Stub | Placeholder card — real threads come in M5 |
 | `/webboard/general` | ⚠️ Stub | Guest-read/member-post — comes in M5 |
@@ -247,31 +247,101 @@ FE `tsc --noEmit` · FE `npm run build` · BE `npm run build` · live matrix: gu
 
 ---
 
-### M2: Knowledge Hub Full (§5.2)
+### M2: Knowledge Hub Full (§5.2) — ✅ Done 2026-09-23
 
-**PRD sources:** §5.2.1–§5.2.12  
-**Depends on:** M0-1 (role schema), M0-2 (signed URL service), M0-3 (fallback strategy)  
-**UI preserved:** Current `/knowledge` landing page — dark band header, category tiles with lock badges, "While you wait" cross-links — NOT rebuilt. Extended: non-interactive `<article>` tiles become `<Link>` components pointing to real sub-routes.
+**Status:** ✅ Done — 2026-09-23, all gates green
+**Gate checks:** FE `npx tsc --noEmit` exit 0 · FE `npm run build` exit 0 (**route count 40 → 50**; ten `/knowledge/*` routes SSG ●) · BE `npm run build` exit 0 · BE suites `assetSignRole.test.ts` 3/3 + `signUrlService.test.ts` all pass (code unchanged) · live matrix: hub tiles are real links (zero "Coming soon" chips), all 12 `/knowledge*` GETs → 200, unknown slug → graceful not-found block, guest gated pages show "Log in to download/play/ask" linking to `/login?next=…`, zero `<img>` tags, recommended hrefs all resolve
+**PRD sources:** §5.2.1–§5.2.11  
+**Depends on:** M0-1 (role schema), M0-2 (signed URL service), M0-3 (fallback strategy), M1.5 (?next= flow)  
+**UI preserved:** Current `/knowledge` landing page — dark band header, category tiles with lock badges, "While you wait" cross-links — NOT rebuilt. Extended: non-interactive `<article>` tiles became `<Link>` components pointing to the real sub-routes.
 
 #### What to implement (exact PRD scope):
 
-1. `/knowledge/[category]/page.tsx` — create for each of the 10 categories:
-   - `courses` — public, grid layout (title, description, date, difficulty badge)
-   - `camps` — public, timeline/grid hybrid (date, location, gallery thumbnail)
-   - `academic` — **Public OR Member with gate**, tag cloud layout, gated PDF/Word downloads via signed URL
-   - `encyclopedia` — public, card grid with tags/categories
-   - `biography` — public, portrait grid with brief bios
-   - `youth-advice` — public, rich-text article format
-   - `qa` — **Public OR Member with gate**, FAQ accordion + member "Ask" button → logs question for Youth Care board discussion
-   - `books` — **Public OR Member with gate**, book cover grid, guest sees title+abstract only, member triggers signed URL download
-   - `videos` — **Public OR Member with gate**, thumbnail grid with video player embed, guest sees thumbnail+description, member plays
-   - `recommended` — public, curated list with type badges ("News", "Book", "Video")
+#### Actions completed (all ✅):
+- `lib/knowledgeData.ts` — every `KnowledgeCategory` gained a PRD `slug` (`kc-papers`→`academic`, `kc-qa-corner`→`qa`, …).
+- `lib/knowledgeItemsData.ts` (new, MOCK-tagged) — the ten typed collections (`COURSES…RECOMMENDED`, 3–5 fictional items each) with the exact interfaces from the task spec; `assetId`s are mock strings the real signing endpoint will 503 on until M6; `embedUrl` is the marked Blender open-film placeholder on youtube-nocookie.
+- `lib/memberGate.ts` (new) — `isSafeInternalPath` + `loginReturnHref`; `LoginForm.resolvePostLoginTarget` now consumes it (one shared validation).
+- Hub (`KnowledgeHubPage.tsx`): tiles are real `<Link>`s with hover affordance, "Coming soon" chips removed, member-note kept, third cross-link card "Curated picks" → `/knowledge/recommended`; route-shell metadata de-phased.
+- `app/knowledge/[category]/page.tsx` (new shell) — `generateStaticParams` (9 slugs + `recommended`), per-category `generateMetadata`, graceful not-found block, dark header band with breadcrumb; `KnowledgeCategoryContent.tsx` switches slug → section.
+- Ten section components (one file each): Courses (difficulty chips), Camps (timeline), Encyclopedia (tag chips, display-only), Biography (initials avatars, committee pattern), YouthAdvice, Recommended (typed badges, real links) — plus the four GATED ones: Academic/Books (abstract for all; guest → `Log in to download` link via `loginReturnHref`; member → `DownloadButton` calling real `POST /assets/sign`, honest 502/503 "library being connected" toast, 401 → login return), Videos (guest → `Log in to play`; member → inline youtube-nocookie iframe, one at a time), Qa (accordion mirroring FaqPage aria contract; guest → `Log in to ask` lime pill; member → Ask button with the honest M4-deferral toast + webboard link).
 
-2. **Gating logic:** For academic, qa, books, videos — public access shows abstract; clicking a gated action redirects to login (per §6.5). After login, the signed URL flow grants temporary access. **Consumes the M1.5 `?next=` return flow and `ensureMember` helper.**
+#### Deviations from the prompt (recorded):
+1. `gatedActions.tsx` — `LoginToDownloadLink` renders an `<a>` styled as a button rather than a `<button>` wrapping navigation; semantics for a navigation action favour the anchor, styling is identical.
+2. Videos guest link carries `?play=<videoId>` in its `next` value (still a page path + query, validated by the same rules) so a post-login return is distinguishable; no auto-play resume was built — the member just clicks Play after returning.
+3. `502 SERVICE_CREDENTIALS_REJECTED` was added to the "library pending" toast set alongside 503 — both mean "Web 2 not wired", which is M6's work, not a user error.
 
-3. **KnowledgeHubPage.tsx changes:** Only the category tiles change — `<article>` becomes `<Link href="/knowledge/${category.id}">`. Rest of page preserved verbatim.
+#### What intentionally lands later:
+- qa Ask logging → M4 (Youth Care board) · real downloads/streaming quality → M6 (Web 2 archive) · tag filtering + /search → M5
 
-4. **Gate checks:** FE tsc, FE build, BE build. All three pass.
+#### Gate checks:
+FE `tsc --noEmit` · FE `npm run build` · BE `npm run build`. All three pass.
+
+---
+
+### M2.5: Thai Language & Brand Typography (site-wide; PRD context — Thai-language public site)
+
+**Status:** 📋 Planned — Batch 1 (M2.5-1 Foundation) ✅ Done 2026-09-23 · Batch 1.5 (M2.5-1.5 Logo integration) ✅ Done 2026-09-24, all gates green · Batches 2–3 pending  
+**Gate checks (Batch 1):** FE `npx tsc --noEmit` exit 0 · FE `npm run build` exit 0 (**route count 50 → 48** — `/community` + `/faq` deleted) · BE `npm run build` exit 0 · BE suites `assetSignRole` + `signUrlService` + auth smoke all pass · live matrix: `/` `/knowledge` `/login` → 200 · `/community` `/faq` → 404 · `--font-kanit` class on `<html>` (`__variable_f3269f`) · Kanit stack + 6 `@font-face` blocks in emitted CSS, 5 woff2 faces emitted to `/_next/static/media/` (sizes match the source files) · header shows 7 Thai nav entries, zero "Community" · Footer FAQ entry gone · `/login` title → `เข้าสู่ระบบ | FityatulHaq` · Thai dates render (`14 กันยายน 2568`)  
+**Sequencing rationale:** deliberately slotted BEFORE M3/M4/M5. The PRD is written in Thai and targets Thai youth; all English copy so far was build scaffolding. Running this now means M3 (header states), M4 (webboard) and M5 (search/legal) ship Thai natively instead of being translated afterwards — one sweep instead of two.
+
+#### Actions completed (Batch 1 — all ✅):
+- Five Kanit woff2 faces copied to `frontend/src/fonts/` (Regular/Medium/SemiBold/Bold/ExtraBold); loaded via `next/font/local` in `app/layout.tsx` with the variable class on **`<html>`** (preflight applies the stack at html level).
+- `designTokens.fontFamily.sans` → `var(--font-kanit), system-ui, …`; Tailwind mapping consumed the token unchanged (verified in emitted CSS: `font-family: var(--font-kanit), system-ui, …` + 5 `@font-face` + 1 `kanit Fallback` block).
+- `/community` + `/faq` deleted (page shells, components, data modules); Header `Community` nav entry removed (7 Thai entries remain); Footer FAQ entry removed; DashboardPanel SDU-TMYDA CTA re-pointed → `/knowledge`.
+- `Header.tsx` fully Thai (nav labels, skip link, auth pills เข้าสู่ระบบ/สมัครสมาชิก, aria-labels); `Footer.tsx` remaining strings Thai (copyright → `สงวนลิขสิทธิ์`).
+- `errorMessages.ts` — every user-facing message Thai (code keys untouched).
+- `validation.ts` — all field/form messages Thai; `formatDate` → `th-TH` long month (Buddhist era: `14 กันยายน 2568` verified live); `timeAgo` units Thai (`ชั่วโมงที่แล้ว`), `just now` → `เมื่อสักครู่`.
+- Route-shell metadata Thai for: root (`/` — also fixed the leftover **Indonesian** description), `/profile`, `/webboard` ×3, `/design-system`, `/terms`, and the six (auth) shells (`/login` title verified live: `เข้าสู่ระบบ | FityatulHaq`).
+- `backend/src/utils/smtp.ts` — OTP subject lines, heading/intro/expiry/footer copy in Thai (HTML `lang="th"`), transport/rate-limit logic untouched. Emails still cannot send until D0 (SMTP unconfigured) — copy-readiness only.
+
+#### Deviations from the prompt (recorded):
+1. `timeAgo`'s `elapsedAgo` helper was translated (not deleted) — the prompt allowed either; it IS exported/used via `timeAgo`, and unit strings became Thai (`นาที/ชั่วโมง/วัน/สัปดาห์/เดือน/ปี`). Its docstring examples updated to match.
+2. Root `page.tsx` metadata edit was included in this batch (prompt listed it) but the old_text premise included the public-root doc comment — matched reality by editing only the metadata block.
+
+#### Owner decisions (resolved 2026-09-23):
+- **D-T1 ✅** — `font/` now carries the **complete Kanit family** (Thin→Black, woff2 + woff, all italics). The M1.5 weight gap is closed: Bold (700) and ExtraBold (800) are available. Execution uses the five needed **woff2** faces only (Regular 400, Medium 500, SemiBold 600, Bold 700, ExtraBold 800) — smallest payload, no faux-bold; italics/other weights added later if a design need appears.
+- **D-T2 ✅** — Kanit for everything. `Prompt-Medium.ttf` is gone from `font/` (owner replaced the folder with the full family); no pairing.
+- **D-T3 ✅** — OTP email template (`backend/src/utils/smtp.ts`) translates to Thai in M2.5-1.
+- **D-T4 ✅** — `/community` and `/faq` are **deleted in M2.5-1** (M5's deletion pulled forward). Inbound links audited: Header nav `Community` entry, DashboardPanel category-card CTA (`href="/community"` → re-point to `/knowledge`, matching the sibling card), Footer `คำถามที่พบบ่อย` link entry.
+- **D-T5 ✅** — `formatDate` switches to `Intl.DateTimeFormat("th-TH")` (Buddhist-era Thai dates); `<time dateTime>` keeps ISO.
+
+#### A. Brand typography (the `font/` directory at repo root)
+Files provided: `Kanit-Light.otf`, `Kanit-Regular.otf`, `Kanit-Medium.otf`, `Kanit-SemiBold.otf`, `Prompt-Medium.ttf` (Kanit + Prompt are OFL-licensed Google Fonts — free for commercial use).
+
+1. Copy **five Kanit woff2 faces** into `frontend/src/fonts/`: `Kanit-Regular.woff2` (400), `Kanit-Medium.woff2` (500), `Kanit-SemiBold.woff2` (600), `Kanit-Bold.woff2` (700), `Kanit-ExtraBold.woff2` (800) — from the repo-root `font/` directory (full family now present; skip italics/other weights until a design need appears).
+2. `frontend/src/app/layout.tsx` — load via `next/font/local` (`weight` per file, `display: "swap"`, `variable: "--font-kanit"`) and put the variable class on **`<html>`**, not `<body>`: Tailwind preflight applies the font stack on `html`, and a CSS variable defined on `body` is invisible to it.
+3. `frontend/src/styles/designTokens.ts` — replace the system `fontFamily.sans` with `"var(--font-kanit), system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif"` (the token's own comment anticipated exactly this swap — every consumer, including the Tailwind `sans` mapping in `tailwind.config.ts`, follows automatically). `mono` unchanged.
+4. **Weight gap — RESOLVED:** the complete Kanit family is in `font/`; 700/800 load as real faces. No remapping needed.
+5. **D-T2 ✅:** Kanit everywhere — no Prompt, no two-face pairing.
+6. Verification: `/design-system` page + a few real pages render Kanit; `Network` tab shows self-hosted woff2/otf, no external requests.
+
+#### B. Thai copy sweep — scope established by audit (2026-09-23)
+Current language split: only 3 files carry Thai (`DashboardPanel.tsx`, `Footer.tsx`, root `page.tsx` — whose metadata description is leftover **Indonesian**, "Portal Komunitas…", and gets fixed here); **39 component files are English-only**.
+
+Batches (each ends with the three gates + a leftover-English spot check):
+- **Batch B0 (M2.5-1) — foundation & deletions ✅:** font infrastructure (A); **delete `/community` + `/faq`** (page shells, components, `communityData.ts`/`faqData.ts`, Header nav entry, Footer FAQ entry, DashboardPanel CTA re-point → `/knowledge`); `Header.tsx` + `Footer.tsx` remaining English strings; `errorMessages.ts`; `lib/validation.ts` user-facing messages; `formatDate` → `th-TH`; root `layout.tsx`/`page.tsx` metadata; `backend/src/utils/smtp.ts` OTP email template → Thai.
+- **Batch B1.5 (M2.5-1.5) — logo integration ✅ Done 2026-09-24, all gates green (owner request 2026-09-23):** assets from repo-root `logos/` (six PNGs: f/fit/fityatulhaq × blue/white — the f1/f2/f3 system, logo blue `#0052FF` + white) → copy to `frontend/src/assets/logos/`; favicon via `app/icon.png` + `app/apple-icon.png` (f-blue); Header logo tile swap (f-blue + keep Kanit wordmark text); Footer brand column (f-white on the `#0052ff` band); auth screens (fityatulhaq-white above the card in `(auth)/layout.tsx`). Runs next, before B2.
+  - **Completion note (2026-09-24):** Owner-finalised mapping (supersedes the tentative one above): Header → `fityatulhaq-white.png`; Footer wordmark → `fityatulhaq-white.png`; auth canvas → `fityatulhaq-white.png` (above the card); favicon / apple-touch → `f-white.png`.
+  - **Files modified:** `frontend/src/components/layout/Header.tsx` (icon-tile `<span>` + matching text span → one `next/image`, `h-8`, `priority`); `frontend/src/components/layout/Footer.tsx` (oversized `FITYATULHAQ` `<p>` → centred `next/image`, `h-10`); `frontend/src/app/(auth)/layout.tsx` (`fityatulhaq-white.png` inside the centred column, above the card, `h-12`, `priority`; redundant duplicate `AuthFeature` interface removed). **Assets:** the six PNGs copied from repo-root `logos/` → `frontend/src/assets/logos/`; `frontend/src/app/icon.png` + `frontend/src/app/apple-icon.png` are `f-white.png` via Next's file convention (no `metadata.icons` needed). Every image carries `alt="FityatulHaq"`; no hardcoded colours; no new dependencies.
+  - **Gate checks:** FE `npx tsc --noEmit` exit 0 · FE `npm run build` exit 0 (50/50 routes prerendered, lint + type validity checked). No backend change → BE `npm run build` not run.
+- **Batch B2 (M2.5-2) — auth flows (M2.5-2 prompt):** the 8 auth forms + `AuthCard`, `FormField`, `SubmitButton`, `OtpVerification` (labels, placeholders, banners, success copy) + their route-shell metadata.
+- **Batch B3 (M2.5-2) — M1 public pages + their mock data (M2.5-2 prompt):** news list/detail (`newsData.ts` content incl. department names — the filter chips are data-driven), announcements, about + committee, donate (keep the frozen placeholder bank values), contact, partners (`partnerData.ts`), profile/webboard/terms shells.
+- **Batch B4 (M2.5-3) — M2 knowledge + closeout (M2.5-3 prompt):** hub + ten sections + `knowledgeItemsData.ts` content; site-wide leftover-English audit; M2.5 marked Done.
+- **Backend stays English** (deviation to record): error codes/messages and zod messages are machine-facing; `errorMessages.ts` is the human-translation layer. Exception: the OTP email template in `backend/src/utils/smtp.ts` is member-facing — translate to Thai (D-T3; harmless now even though SMTP is unconfigured, debt D0).
+- **Terminology sheet (single source for all batches):** เข้าสู่ระบบ = Log in · สมัครสมาชิก = Register · สมาชิก = Member · ออกจากระบบ = Log out · ดาวน์โหลด = Download · ความรู้/ศูนย์ความรู้ = Knowledge Hub · ข่าวสาร = News · ประกาศ = Announcements · ติดต่อเรา = Contact · โปรไฟล์ = Profile. Tone: neutral polite web-Thai, no gendered particles.
+
+#### Definition of Done:
+- Kanit self-hosted via `next/font/local`, no external font requests, weights resolve without faux-bold
+- No user-facing English strings remain outside code identifiers (checklist per batch: labels, placeholders, buttons, banners, toasts, aria-labels, metadata, mock-data content)
+- Thai dates site-wide via `formatDate` (`th-TH`)
+- All three gates green after every batch; `/design-system` shows the Kanit specimen
+
+#### Owner decisions pending:
+- **D-T1** font weights: add Kanit Bold/ExtraBold files (preferred) or remap 700/800 → 600?
+- **D-T2** `Prompt-Medium.ttf` role: skip for now (proposed) or pair as body face?
+- **D-T3** translate the OTP email template to Thai now? (proposed: yes)
+- **D-T4 ✅** delete `/community` + `/faq` in this milestone (pulling M5's deletion forward) — IN PROGRESS: **M2.5-1**
+- **D-T5** Buddhist-era Thai dates (`th-TH` default) — confirm? (proposed: yes)
 
 ---
 
@@ -435,18 +505,20 @@ The original plan deleted the panel outright. Executed instead as **promotion**:
 - [x] Verify runtime — `/` → 200, `/dashboard` → 404
 - [x] **Re-verified 2026-09-23 on a clean rebuild after clearing `.next`** — `/` → 200 serving the panel (not the old stub), `/dashboard` → 404, and the rebuilt route manifest is free of `dashboard`
 
-### Delete: `/community`
+### Delete: `/community` — pulled forward to M2.5-1 (2026-09-23, owner decision D-T4)
 - [ ] Delete `frontend/src/app/community/page.tsx`
 - [ ] Delete `frontend/src/components/community/CommunityPage.tsx`
-- [ ] **⚠️ Updated 2026-09-23:** `DashboardPanel.tsx` was NOT deleted — it was promoted to the `/` homepage and now lives at `components/home/DashboardPanel.tsx`. Do **not** delete it. Instead: audit the panel's category-card CTAs for any `/community` links and re-point or remove them.
+- [ ] **⚠️ Updated 2026-09-23:** `DashboardPanel.tsx` was NOT deleted — it was promoted to the `/` homepage and now lives at `components/home/DashboardPanel.tsx`. Do **not** delete it. Its category-card CTA (`href="/community"`, the SDU TMYDA card) must be re-pointed to `/knowledge` — matching the sibling TMYDA card's CTA.
 - [ ] Delete `frontend/src/lib/communityData.ts`
+- [ ] Header `DEFAULT_NAVIGATION`: remove the `Community` entry
 - [ ] Verify build passes
 
-### Delete: `/faq`
+### Delete: `/faq` — pulled forward to M2.5-1 (2026-09-23, owner decision D-T4)
 - [ ] Delete `frontend/src/app/faq/page.tsx`
 - [ ] Delete `frontend/src/components/faq/FaqPage.tsx`
 - [ ] Delete `frontend/src/lib/faqData.ts`
 - [ ] Verify no remaining imports of `FaqPage` or `FAQ_ITEMS`
+- [ ] Footer `คำถามที่พบบ่อย` link entry removed
 - [ ] Verify build passes
 
 ### Note: `/terms` relocation (not deletion)

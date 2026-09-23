@@ -1,6 +1,9 @@
 import { Heart, MessageCircle, Users } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import Image from "next/image";
 import type { ReactElement, ReactNode } from "react";
+
+import fityatulhaqWhiteLogo from "@/assets/logos/fityatulhaq-white.png";
 
 export interface AuthLayoutProps {
   children: ReactNode;
@@ -9,15 +12,24 @@ export interface AuthLayoutProps {
 /**
  * Shell for every authentication screen.
  *
- * Matches the approved reference: a full-bleed brand-blue canvas with the card
- * centred on it, and the three-point feature strip beneath — the strip sits
- * outside the card so it reads as site chrome rather than part of the form.
+ * Matches the approved reference: a full-bleed brand-blue canvas with the brand
+ * wordmark above the card — the card itself centred — and the three-point
+ * feature strip beneath. The strip sits outside the card so it reads as site
+ * chrome rather than part of the form.
  */
 export default function AuthLayout({ children }: AuthLayoutProps): ReactElement {
   return (
     <div className="flex min-h-screen flex-col bg-brand-600">
       <div className="flex flex-1 items-center justify-center px-4 py-10 sm:px-6">
-        <main className="flex w-full max-w-md flex-col items-center">{children}</main>
+        <main className="flex w-full max-w-md flex-col items-center">
+          <Image
+            src={fityatulhaqWhiteLogo}
+            alt="FityatulHaq"
+            priority
+            className="mb-6 h-12 w-auto"
+          />
+          {children}
+        </main>
       </div>
 
       <section
@@ -44,12 +56,6 @@ export default function AuthLayout({ children }: AuthLayoutProps): ReactElement 
       </section>
     </div>
   );
-}
-
-interface AuthFeature {
-  title: string;
-  description: string;
-  icon: LucideIcon;
 }
 
 interface AuthFeature {

@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronDown, Menu, X } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -11,6 +12,7 @@ import {
   type ReactElement,
 } from "react";
 
+import fityatulhaqWhiteLogo from "@/assets/logos/fityatulhaq-white.png";
 import { useAuth } from "@/context/AuthContext";
 
 /** Shared focus treatment so keyboard focus is always visible on interactive elements. */
@@ -43,19 +45,18 @@ export interface HeaderProps {
 }
 
 const DEFAULT_NAVIGATION: HeaderNav[] = [
-  { label: "About", href: "/about" },
-  { label: "News", href: "/news" },
-  { label: "Announcements", href: "/announcements" },
-  { label: "Knowledge", href: "/knowledge" },
-  { label: "Community", href: "/community" },
-  { label: "Donate", href: "/donate" },
-  { label: "Contact", href: "/contact" },
+  { label: "เกี่ยวกับเรา", href: "/about" },
+  { label: "ข่าวสาร", href: "/news" },
+  { label: "ประกาศ", href: "/announcements" },
+  { label: "คลังความรู้", href: "/knowledge" },
+  { label: "บริจาค", href: "/donate" },
+  { label: "ติดต่อเรา", href: "/contact" },
   {
-    label: "Webboard",
+    label: "เว็บบอร์ด",
     href: "/webboard",
     children: [
-      { label: "General", href: "/webboard/general" },
-      { label: "Youth Care", href: "/webboard/youth-care" },
+      { label: "ทั่วไป", href: "/webboard/general" },
+      { label: "ดูแลเยาวชน", href: "/webboard/youth-care" },
     ],
   },
 ];
@@ -292,7 +293,7 @@ export function Header(props: HeaderProps): ReactElement {
   ) : isAuthenticated ? (
     <Link
       href="/profile"
-      aria-label="View your profile"
+      aria-label="ดูโปรไฟล์ของคุณ"
       className={`flex items-center gap-2 rounded-full bg-accent-300/10 p-1 pr-3 ring-1 ring-accent-300 transition duration-fast ease-standard motion-reduce:transition-none hover:bg-accent-300/20 ${FOCUS_RING_DARK}`}
     >
       <span
@@ -315,13 +316,13 @@ export function Header(props: HeaderProps): ReactElement {
         href="/login"
         className={`inline-flex items-center justify-center rounded-full border border-ink-700 px-3 py-1.5 text-caption font-medium text-ink-50 transition duration-fast ease-standard motion-reduce:transition-none hover:border-ink-500 ${FOCUS_RING_DARK}`}
       >
-        Log in
+        เข้าสู่ระบบ
       </Link>
       <Link
         href="/register"
         className={`inline-flex items-center justify-center rounded-full bg-accent-300 px-4 py-1.5 text-caption font-bold text-brand-950 transition duration-fast ease-standard motion-reduce:transition-none hover:brightness-110 ${FOCUS_RING_DARK}`}
       >
-        Register
+        สมัครสมาชิก
       </Link>
     </div>
   );
@@ -332,30 +333,26 @@ export function Header(props: HeaderProps): ReactElement {
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-50 focus:rounded-lg focus:bg-brand-600 focus:px-4 focus:py-2 focus:text-body-sm focus:font-semibold focus:text-white"
       >
-        Skip to content
+        ข้ามไปที่เนื้อหา
       </a>
 
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-        {/* Logo — dashboard pattern: icon tile on `bg-ink-800/60` + wide-tracked wordmark.
-            The brand mark routes to `/`, the reference-design landing page that
-            absorbed the former `/dashboard`; anonymous visitors are forwarded on
-            to `/login` by its session restore. */}
+        {/* Logo — the owner-supplied white FityatulHaq wordmark, sized to the
+            navbar (`h-8`) on the dark `bg-brand-950/95` band. The brand mark
+            routes to `/`, the reference-design landing page that absorbed the
+            former `/dashboard`; anonymous visitors are forwarded on to `/login`
+            by its session restore. */}
         <Link
           href="/"
           aria-label="FityatulHaq — go to the homepage"
-          className={`flex items-center gap-2 rounded ${FOCUS_RING_DARK}`}
+          className={`flex items-center rounded ${FOCUS_RING_DARK}`}
         >
-          <span
-            aria-hidden="true"
-            className="flex h-8 w-8 items-center justify-center rounded bg-ink-800/60"
-          >
-            <svg viewBox="0 0 24 24" className="h-5 w-5 fill-ink-50" aria-hidden="true">
-              <path d="M4 3h14l-3 5 3 5H4V3zm0 0v18" strokeWidth="0" />
-            </svg>
-          </span>
-          <span className="text-body-sm font-extrabold uppercase tracking-widest text-ink-50">
-            FityatulHaq
-          </span>
+          <Image
+            src={fityatulhaqWhiteLogo}
+            alt="FityatulHaq"
+            priority
+            className="h-8 w-auto"
+          />
         </Link>
 
         <nav ref={desktopNavRef} aria-label="Primary" className="hidden lg:block">
@@ -444,7 +441,7 @@ export function Header(props: HeaderProps): ReactElement {
           onClick={(): void => (isDrawerOpen ? closeDrawerToHamburger() : setIsDrawerOpen(true))}
           aria-expanded={isDrawerOpen}
           aria-controls={isDrawerOpen ? "mobile-navigation" : undefined}
-          aria-label={isDrawerOpen ? "Close navigation menu" : "Open navigation menu"}
+          aria-label={isDrawerOpen ? "ปิดเมนูนำทาง" : "เปิดเมนูนำทาง"}
           className={`inline-flex h-10 w-10 items-center justify-center rounded-lg text-ink-300 transition duration-fast ease-standard motion-reduce:transition-none hover:bg-ink-800/60 hover:text-ink-50 lg:hidden ${FOCUS_RING_DARK}`}
         >
           {isDrawerOpen ? (

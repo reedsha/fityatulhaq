@@ -1,4 +1,7 @@
+import Image from "next/image";
 import type { ReactElement } from "react";
+
+import fityatulhaqWhiteLogo from "@/assets/logos/fityatulhaq-white.png";
 
 interface FooterLink {
   label: string;
@@ -22,7 +25,6 @@ const QUICK_LINKS: FooterLink[] = [
 const RESOURCE_LINKS: FooterLink[] = [
   { label: "คลังความรู้", href: "/knowledge" },
   { label: "ดูแลเยาวชน", href: "/webboard/youth-care" },
-  { label: "คำถามที่พบบ่อย", href: "/faq" },
   { label: "หนังสือและวิดีโอ", href: "/knowledge" },
 ];
 
@@ -74,7 +76,7 @@ function LinkColumn({ title, links }: { title: string; links: FooterLink[] }): R
  * Site footer, mirroring the dashboard's Section 8 exactly: vivid `#0052ff`
  * band (the one surface where the dashboard overrides the token palette),
  * four-column link grid, inline SVG social icons on `bg-white/20` tiles and
- * the oversized centred wordmark above the copyright line.
+ * the centred brand wordmark above the copyright line.
  *
  * Placement: composed at the end of the page inside a `min-h-screen flex
  * flex-col` wrapper whose `<main>` is `flex-1`, which pins the footer to the
@@ -82,7 +84,7 @@ function LinkColumn({ title, links }: { title: string; links: FooterLink[] }): R
  */
 export function Footer(): ReactElement {
   return (
-    <footer className="w-full bg-[#0052ff]" aria-label="Site footer">
+    <footer className="w-full bg-[#0052ff]" aria-label="ส่วนท้ายของเว็บไซต์">
       {/* Upper: link columns */}
       <div className="mx-auto grid max-w-6xl grid-cols-2 gap-8 px-6 py-10 sm:grid-cols-4">
         {/* Brand column */}
@@ -148,16 +150,15 @@ export function Footer(): ReactElement {
         </div>
       </div>
 
-      {/* Oversized wordmark */}
+      {/* Brand wordmark */}
       <div className="border-t border-blue-500/40 px-6 pt-6 pb-8">
-        <p
-          aria-hidden="true"
-          className="text-center font-extrabold leading-none tracking-tight text-white text-[clamp(3rem,12vw,8rem)]"
-        >
-          FITYATULHAQ
-        </p>
+        <Image
+          src={fityatulhaqWhiteLogo}
+          alt="FityatulHaq"
+          className="mx-auto block h-10 w-auto"
+        />
         <p className="mt-4 text-center text-[10px] text-blue-300">
-          © 2026 FityatulHaq. All rights reserved.
+          © 2026 FityatulHaq. สงวนลิขสิทธิ์
         </p>
       </div>
     </footer>
