@@ -25,7 +25,11 @@ export const metadata: Metadata = {
  */
 export default function RootLayout({ children }: { children: ReactNode }): ReactElement {
   return (
-    <html lang="th">
+    // `suppressHydrationWarning` keeps browser extensions (e.g. QuillBot's
+    // `data-qb-installed` attribute on <html>) from producing harmless attribute
+    // mismatch warnings during hydration. It applies to this element's
+    // attributes only — children are still strictly checked.
+    <html lang="th" suppressHydrationWarning>
       <body className="min-h-screen bg-ink-50 text-ink-900 antialiased">
         <AuthProvider>
           {children}
