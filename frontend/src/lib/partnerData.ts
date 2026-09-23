@@ -1,3 +1,5 @@
+/* MOCK — DELETE after Live API swap */
+
 /**
  * Mock partner data — plain, server-safe module (no `"use client"` directive),
  * shaped identically to what the API will return.

@@ -11,5 +11,81 @@ html {
 }
 
 body {
-  @apply bg-slate-50 text-slate-900 antialiased;
+  /* Canvas + primary text roles from the design tokens; `tailwind.config.ts`
+     maps `ink` onto the same values the reference designs use. */
+  @apply bg-ink-50 text-ink-900 antialiased;
+}
+
+@keyframes fh-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* Motion values mirror `token.duration` / `token.easing`; the rgba tints mirror
+   `token.shadow`. Duplicated here because a CSS file cannot import a TS module. */
+@keyframes fh-rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fh-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@layer utilities {
+  /**
+   * Horizontal scrollers (the news department tabs) hide their scrollbar so the
+   * pill row reads as a control rather than a second scroll surface. Scrolling
+   * itself stays available via wheel, drag and keyboard.
+   */
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .animate-fade-in {
+    animation: fh-fade-in 200ms ease-out both;
+  }
+
+  .animate-rise-in {
+    animation: fh-rise-in 400ms ease-out both;
+  }
+
+  .animate-pop-in {
+    animation: fh-pop-in 200ms ease-out both;
+  }
+
+  /* The entrance animations are decoration: a visitor who asked the operating
+     system for less motion still gets the content, just without the movement. */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-fade-in,
+    .animate-rise-in,
+    .animate-pop-in {
+      animation: none;
+    }
+  }
 }

@@ -84,7 +84,7 @@ export function VerifyEmailForm(): ReactElement {
     toast.success("Email verified.");
 
     window.setTimeout((): void => {
-      router.push("/dashboard");
+      router.push("/");
     }, REDIRECT_DELAY_MS);
   };
 
@@ -134,7 +134,7 @@ export function VerifyEmailForm(): ReactElement {
       </form>
 
       <p className="mt-5 text-center text-body-sm text-ink-600">
-        <AuthLink href="/dashboard">Continue to your dashboard</AuthLink>
+        <AuthLink href="/">Continue to your dashboard</AuthLink>
       </p>
     </AuthCard>
   );

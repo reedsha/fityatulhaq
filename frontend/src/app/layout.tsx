@@ -21,13 +21,12 @@ export const metadata: Metadata = {
  * available to every client component in the tree while the page shells below it
  * stay server-rendered. `Toaster` renders the toast host used by the auth forms.
  *
- * Phase 1 will expand this with the sticky Header + Footer shell per SRS
- * Sections 3 & 4.
+ * Phase 1 COMPLETE: AuthProvider + toast infrastructure active.
  */
 export default function RootLayout({ children }: { children: ReactNode }): ReactElement {
   return (
     <html lang="th">
-      <body className="min-h-screen bg-slate-50 text-slate-900 antialiased">
+      <body className="min-h-screen bg-ink-50 text-ink-900 antialiased">
         <AuthProvider>
           {children}
           <Toaster position="top-center" toastOptions={{ duration: 5000 }} />

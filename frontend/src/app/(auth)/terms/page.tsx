@@ -23,13 +23,13 @@ export default function TermsPage(): ReactElement {
         </>
       }
     >
-      <p className="text-sm text-slate-600">
+      <p className="text-body-sm text-ink-600">
         The full terms of service and privacy policy are still being prepared. By creating an
         account you agree to use FityatulHaq respectfully: no harassment, no spam, and no
         redistribution of members&apos; personal details.
       </p>
 
-      <p className="mt-4 text-sm text-slate-600">
+      <p className="mt-4 text-body-sm text-ink-600">
         Once the published copy is available it will replace this notice.
       </p>
     </AuthCard>

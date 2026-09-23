@@ -9,14 +9,15 @@ import { useAuth } from "@/context/AuthContext";
    CHROME NOTE — the previous inline navbar strip (Section 1) and blue footer
    (Section 8) were removed: this panel now renders content only, and the
    global `Header` / `Footer` are composited around it by `AuthAwareShell` →
-   `PageShell` in `app/dashboard/page.tsx`, exactly like every other page.
+   `PageShell` in `app/page.tsx` (the site root), exactly like every other page.
    Do not re-add header or footer markup here — it would duplicate the shell.
 ───────────────────────────────────────────────────────────────────────────── */
 
 /**
- * Placeholder dashboard for Phase 1: proves the session works end to end by
- * loading `GET /auth/me`, and gives the register/login redirects somewhere to
- * land. The real dashboard arrives in a later phase.
+ * The site's landing page: proves the session works end to end by loading
+ * `GET /auth/me`, and gives the register/login redirects somewhere to land.
+ * Promoted from `/dashboard` to `/` when the two routes were unified; the
+ * `DashboardPanel` name is kept so the promotion stays traceable in history.
  */
 export function DashboardPanel(): ReactElement {
   const router = useRouter();

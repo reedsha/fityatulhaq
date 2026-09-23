@@ -337,12 +337,12 @@ export function Header(props: HeaderProps): ReactElement {
 
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         {/* Logo — dashboard pattern: icon tile on `bg-ink-800/60` + wide-tracked wordmark.
-            The brand mark routes members to the dashboard, the default signed-in
-            destination; anonymous visitors are forwarded on to `/login` by the
-            dashboard's session restore. */}
+            The brand mark routes to `/`, the reference-design landing page that
+            absorbed the former `/dashboard`; anonymous visitors are forwarded on
+            to `/login` by its session restore. */}
         <Link
-          href="/dashboard"
-          aria-label="FityatulHaq — go to your dashboard"
+          href="/"
+          aria-label="FityatulHaq — go to the homepage"
           className={`flex items-center gap-2 rounded ${FOCUS_RING_DARK}`}
         >
           <span

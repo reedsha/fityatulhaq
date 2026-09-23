@@ -88,7 +88,7 @@ export function LoginForm(): ReactElement {
     toast.success(`Welcome back, ${result.user.fullName}.`);
 
     window.setTimeout((): void => {
-      router.push("/dashboard");
+      router.push("/");
     }, REDIRECT_DELAY_MS);
   };
 

@@ -1,6 +1,6 @@
 # 📊 FityatulHaq Public Website (Web 1) — Progress & Survival Guide
 
-> **Last Updated:** 2026-09-23 · **Current Milestone:** M0 (Foundation Infrastructure) — M0-Step 1 Done · **Source of Truth:** `Requirement.pdf` (raw text at `requirement_raw.txt`)
+> **Last Updated:** 2026-09-23 · **Current Milestone:** M0 Complete (Steps 1–3 Done) — next: M1 · **Source of Truth:** `Requirement.pdf` (raw text at `requirement_raw.txt`)
 >
 > **⚠️ THIS FILE IS THE SURVIVAL GUIDE.** Every task, decision, deletion, and deviation must be recorded here. Before touching any file, read the full Milestones section, verify prerequisites, and confirm Definition-of-Done items are satisfied.
 
@@ -61,7 +61,7 @@ Auth:        Custom JWT + httpOnly cookies (NOT NextAuth.js — deliberate choic
 
 | # | PRD URL Path | Status | Notes |
 |---|-------------|--------|-------|
-| `/` | ✅ Implemented | Home with carousel, pillars, highlights |
+| `/` | ✅ Implemented | Reference-design landing page (promoted from `/dashboard`): hero, ticker, category cards, news grid, webboard preview, stats — **auth-gated: guests redirect to `/login`** |
 | `/news` | ✅ Implemented | Dept filter, sort, pagination, keyword search — mock data |
 | `/news/[slug]` | ✅ Implemented | SSG detail view |
 | `/announcements` | ✅ Implemented | Ref numbers, dates, PDF icon — mock data |
@@ -102,20 +102,20 @@ Auth:        Custom JWT + httpOnly cookies (NOT NextAuth.js — deliberate choic
 
 | Page | Why not in PRD | Action |
 |------|---------------|--------|
-| `/dashboard` | Not in PRD sitemap | **Delete entirely.** Re-point all inbound links to `/`. |
-| `/community` | Not in PRD sitemap (added mid-build as programmes overview) | Delete page + remove inbound link |
-| `/faq` | Not in PRD sitemap (was leftover stub) | Delete page + remove unused data file |
+| ~~`/dashboard`~~ | Not in PRD sitemap | **Done 2026-09-23** — route deleted; its UI was promoted to become `/`. All inbound links re-pointed. |
+| `/community` | Not in PRD sitemap (added mid-build as programmes overview) | Delete page + remove inbound link — **not yet done; page still live** |
+| `/faq` | Not in PRD sitemap (was leftover stub) | Delete page + remove unused data file — **not yet done; page still live** |
 | `/design-system` | Dev-only debug tool | Keep as-is; exclude from production sitemap/noindex at deploy |
 
-### Links that need re-pointing after cleanup
+### Links that needed re-pointing after the `/dashboard` removal — ✅ all done 2026-09-23
 
-| Source file | Current href | Target href |
+| Source file | Was | Now |
 |---|---|---|
-| `VerifyEmailForm.tsx` line 137 | `/dashboard` | `/` |
-| `Header.tsx` logo (line ~344) | `/dashboard` | `/` |
+| `VerifyEmailForm.tsx` (router.push L86 + AuthLink L136) | `/dashboard` | `/` |
+| `Header.tsx` logo (href + aria-label + comment) | `/dashboard` | `/` |
 | `ProfilePage.tsx` footer | `/dashboard` | `/` |
-| `DashboardPanel.tsx` content area | `/community` | Deleting this panel along with `/community` |
-| `KnowledgeHubPage.tsx` "While you wait" cross-links | `/webboard/youth-care`, `/news` | *Keep — both are PRD pages* |
+| `LoginForm.tsx` post-login redirect — **found by audit, missing from the task prompt** | `/dashboard` | `/` |
+| `KnowledgeHubPage.tsx` "While you wait" cross-links | `/webboard/youth-care`, `/news` | *Kept — both are PRD pages* |
 
 ---
 
@@ -131,29 +131,51 @@ Every milestone cites its PRD sections as source of truth. Follow this order str
 **Goal:** Build authorization and signing infrastructure so no future feature has to be rewritten to support it.
 
 #### M0-Step 1: Role Schema Alignment
-- **Status:** ✅ Done
-- **Gate checks:** Backend build ✅ (`tsc` clean); FE tsc / FE build unexercised in this session but no TS changes touch frontend types.
+- **Status:** ✅ Done — all gates re-verified 2026-09-23
+- **Gate checks:** All three green. FE `npx tsc --noEmit` clean · FE `npx --no-install next build` 41/41 pages · BE `npm run build` exit 0 (`dist/index.js` 5,822 B).
 - **PRD §6.2 defines:** Three roles — `GUEST` (view-browse only), `MEMBER` (full site access), `CONTENT_MODERATOR` (approve/reject webboard posts in Youth Care board).
 - **Actions completed:**
   - Migration `20260923012900_change_roles_enum` applied — renames old enum, creates `UserRole_new`, migrates data, renames back.
   - `schema.prisma` updated from stale `@default(MEMBER)` → `@default(GUEST)` to match PRD semantics + DB column default. Registration still assigns `role = 'MEMBER'` explicitly in `authService.ts` (no behavioral change).
+  - Prisma client regenerated (`7.10.0`) after the schema edit, so the generated client no longer disagrees with the column default.
+  - Enum agreement verified across all four surfaces: DB column default (`migration.sql` L19 `SET DEFAULT 'GUEST'`), generated client, `schema.prisma` L53, and `types/index.ts`.
   - `types/index.ts` — `ROLES` constant already exports `GUEST | MEMBER | CONTENT_MODERATOR`.
   - `middleware/authenticate.ts` — populates `req.user.role` on every verified JWT.
   - `middleware/requireRole.ts` — full factory with tuple rest-spread composition + argument-time validation.
-- **Definition of Done:** Three roles defined in schema matching PRD §6.2 · Registration assigns MEMBER · Middleware populates `req.user.role` · Zero hardcoded hex/RGB values introduced
+- **⚠️ Not yet wired:** `requireRole.ts` has **zero call sites** — it is complete and correct, but nothing enforces a role yet. Expected first consumer: M1/M2 route gating. Do not mistake its existence for enforcement.
+- **Definition of Done:** Three roles defined in schema matching PRD §6.2 ✅ · Registration assigns MEMBER ✅ · Middleware populates `req.user.role` ✅ · Zero hardcoded hex/RGB values introduced — N/A, no frontend files touched in this step
 
 #### M0-Step 2: Signed URL Service Layer
-- Create `backend/src/services/signUrlService.ts`: endpoint for requesting signed asset URLs from Web 2 Internal API
-- Proxy pattern: client calls backend → backend requests token from Web 2 → returns time-limited URL to client
-- Implements the TWO-LAYER contract defined in §6.5 + §8.2: metadata API (already covered by existing backend) + asset download via signed URL
-- **Gate checks:** Same three gates
-- **Definition of Done:** Backend proxy endpoint works · Token exchange flows correctly · Zero hardcoded credential values (all from env)
+- **Status:** ✅ Done
+- **Gate checks:** All green. BE `tsc --noEmit` clean · BE `npm run build` exit 0 · FE `npx tsc --noEmit` clean · FE `next build` 41/41 pages (lint + type validity checked) · new suite `signUrlService.test.ts` 39/39 assertions pass · live smoke `POST /api/v1/assets/sign` → `401 UNAUTHORIZED` (route mounted, auth gate enforced, dev server healthy).
+- **PRD sources:** §6.5 (two-layer contract — public static path vs signed URL) + §8.2 (knowledge files stored on a Supabase Storage bucket shared with Web 2) + §9.3 (Web 1 / Web 2 secrets stay strictly separated).
+- **Actions completed:**
+  - `services/internalApiClient.ts` (new) — Web 2 transport: `x-backend-api-secret` header, `AbortController` bound (`WEB2_INTERNAL_TIMEOUT_MS`, default 5 s, clamped 100 ms–30 s), upstream status → transport codes `UPSTREAM_NOT_FOUND` / `UPSTREAM_CREDENTIALS_REJECTED` / `UPSTREAM_UNAVAILABLE`. Deliberately split from the signing logic so M6's committee sync reuses the transport without inheriting anything asset-specific.
+  - `services/signUrlService.ts` (new) — `getSignedAssetUrl(assetId, userId)`: `POST {WEB2_INTERNAL_API_URL}/internal/api/v1/assets/{id}/sign`, then constructs `…/storage/v1/object/sign/{bucket}/{path}?token=…`. TTL from `SIGNED_URL_TTL_SECONDS` (default 300, clamped 30–3600) with any shorter upstream TTL capping it. Structured logs carry `assetId`, `userId`, `latency_ms`, `outcome`.
+  - `controllers/assetController.ts` (new) + `routes/signedUrl.ts` (new) — `POST /api/v1/assets/sign`, zod body `{ assetId }`, `authenticate` middleware, own rate limiter.
+  - `config/routePrefix.ts` — added `ASSETS_ROUTE_PREFIX`, mounted in `src/index.ts`. `config/supabase.ts` now exports `SUPABASE_PROJECT_URL`. `types/index.ts` gained `SignedUrlResponse`.
+  - `__tests__/signUrlService.test.ts` (new) — 39 checks against a stubbed `fetch`; no network, no Supabase, no Web 2.
+- **⚠️ Deliberate deviations from the handover prompt (recorded, none accidental):**
+  1. `createAppError(code, message, statusCode)` replaces the prompt's bare `class …Error extends Error` types — `errorHandler` gates on `isApplicationError()`, which requires both `code` and `statusCode`, so every class as specified would have degraded to `500 INTERNAL_ERROR`.
+  2. No `app.ts` exists. Mounted in `src/index.ts` via `config/routePrefix.ts`, the declared single source of truth.
+  3. Responses use the `formatAuthResponse` envelope (`{ success: true, data }`), matching the FE's `ApiEnvelope<T>`.
+  4. Own rate limiter (`ASSET_SIGN_RATE_LIMIT_WINDOW_MS` / `..._MAX_ATTEMPTS`, default 100 / 15 min) instead of the prompt's `AUTH_RATE_LIMIT_*`: those are local, unexported consts in `authRoutes.ts`, and sharing the budget would let two document opens consume the five sign-in attempts a member is allowed.
+  5. Web 2 rejecting **our** service credential answers `SERVICE_CREDENTIALS_REJECTED` / 502, not the prompt's 401 — a wrong service secret is our misconfiguration, and a 401 would tell every member their own session had expired.
+  6. Gated assets use a **dedicated private bucket** (`SUPABASE_SIGNED_ASSETS_BUCKET`, default `signed-assets`), never `SUPABASE_STORAGE_BUCKET` ("assets"), which is the public avatar bucket. A test asserts the two cannot collide.
+  7. `WEB2_INTERNAL_API_URL` was **not** added to `REQUIRED_ENV_VARS`: doing so makes the API refuse to boot until `.env` is edited — an outage for a feature that cannot work before M6. It fails loudly and actionably at call time instead.
+  8. `.env.example` was **not** updated by the agent (blocked by the private-files guard). Values were handed over for manual paste and have since been added to both `backend/.env` and `backend/.env.example`.
+- **Carried into M6:** create the private `signed-assets` bucket · real Web 2 round-trip (the `/internal/api/v1/assets/{id}/sign` contract is ours until then) · promote `WEB2_INTERNAL_API_URL` to `REQUIRED_ENV_VARS` · confirm whether the shared bucket lives in this Supabase project or Web 2's.
+- **Definition of Done:** Backend proxy endpoint works ✅ (`POST /api/v1/assets/sign`) · Token exchange flows correctly ✅ verified against a stubbed `fetch`; the live round-trip is M6 by §8.2 · Zero hardcoded credential values ✅ (both `BACKEND_API_SECRET` and `WEB2_INTERNAL_API_URL` read from env; a test proves the header tracks the env value) · All gates green ✅
 
 #### M0-Step 3: Data Migration Strategy (mock → live)
-- All mock data files (`newsData.ts`, `announcementData.ts`, `knowledgeData.ts`, `partnerData.ts`, `communityData.ts`, `faqData.ts`) persist as runtime fallback
-- Runtime fallback pattern: if backend/data fetch fails → return mock data → log warning. This prevents silent 500 errors during transitions
-- Mock files marked with comment `/* MOCK — DELETE after Live API swap */`
-- **Definition of Done:** All mock files tagged · Runtime fallback verified via error-handling test
+- **Status:** ✅ Done — with one recorded deviation (see below)
+- **Gate checks:** FE `npx tsc --noEmit` clean · FE `next build` 40/40 pages · BE `npm run build` exit 0 · live checks: `/` → 200, `/dashboard` → 404
+- **Actions completed:**
+  - All six mock data modules tagged with `/* MOCK — DELETE after Live API swap */` as line 1: `newsData.ts`, `announcementData.ts`, `knowledgeData.ts`, `partnerData.ts`, `communityData.ts`, `faqData.ts`.
+  - Verified by grep that the tag exists exactly once per file, and that no other module carries mock data exports.
+- **⚠️ Deviation — the "runtime fallback verified via error-handling test" DoD item is not exercisable yet:** the mock modules are imported *directly* by page components (listing shells, detail shells, client pages). No fetch/service caller wraps them, because the live API layer does not exist yet. There is therefore nothing to fail over from, and no test to write — a fallback wrapper built now would be dead code. The pattern to implement at swap time (per module, in a server-safe data-access layer): `try { return await api.get…() } catch { logger.warn(…); return MOCK_DATA }`. Recorded so M2/M6 implement it rather than re-derive it.
+- **Note:** the homepage panel (`components/home/DashboardPanel.tsx`) carries its own inline content (hero copy, ticker text, news/announcement previews, stats). Those literals are *page copy*, not data-module exports, and were left as-is; if the ticker/news previews become API-fed later, extract them then.
+- **Definition of Done:** All mock files tagged ✅ · Runtime fallback verified — ⚠️ deferred to the API swap with the pattern documented above (no callers exist to fail over)
 
 ---
 
@@ -239,7 +261,7 @@ Every milestone cites its PRD sections as source of truth. Follow this order str
 2. `/search` — Unified keyword search across ALL content types: news, announcements, courses, camps, encyclopedia, biography, etc. Results grouped by type with badge labels. Guest-accessible. Debounced input. No auth required.
 3. `/privacy-policy` — Static PDPA-compliant page. Pure server component, no API calls.
 4. Move `/terms` from `/(auth)/terms/page.tsx` → `/terms/page.tsx`. Public-facing, accessible to all.
-5. Delete non-PRD pages: `/dashboard`, `/community`, `/faq`. Remove unused data files: `communityData.ts`, `faqData.ts`. Re-point all inbound links (see §2 Deletions section).
+5. Delete non-PRD pages: `/community`, `/faq` — `/dashboard` already resolved on 2026-09-23 (route deleted, UI promoted to `/`). Remove unused data files: `communityData.ts`, `faqData.ts`. Re-point all inbound links (see §2 Deletions section). **⚠️ The homepage panel is `components/home/DashboardPanel.tsx` — do not delete it during this cleanup.**
 
 ---
 
@@ -331,7 +353,8 @@ Before marking ANY step complete:
 | Auth library | NextAuth.js (PRD §10) | Custom JWT + httpOnly cookies | Tighter control over cookie lifecycle, CSRF mitigation via sameSite, avoids NextAuth.js abstraction complexity |
 | Next.js version | 16 (PRD §10) | 15.5.25 | Defer to M7 deployment per Big Mo's approval. Upgrading mid-dev introduces untested React 19 edge cases. |
 | Realtime/WebSocket | Supabase Realtime (PRD §10) | Deferred per §8.2 | Threading decisions postponed to deployment phase |
-| `/dashboard` | Not in PRD | Deleted entirely; all links → `/` | Removed per PRD compliance |
+| `/dashboard` | Not in PRD | Route deleted; its UI **promoted to `/`** (2026-09-23). The panel moved to `components/home/DashboardPanel.tsx`; all inbound links → `/` | Unified the two competing homepage implementations; `/` is now the signed-in landing page |
+| Old homepage UI | — | `components/home/` (`HomePage.tsx` + 10 sections, Phase 4 digest) **deleted** per the same prompt. Tracked in git — recoverable via `git checkout 4fd7ad5 -- frontend/src/components/home` (or any later commit containing it) | The dashboard panel is the homepage of record; two live homepage implementations would have kept drifting apart |
 | `/community` | Not in PRD | Deleted | Added mid-build outside PRD scope |
 | `/faq` | Not in PRD | Deleted | Leftover stub outside PRD scope |
 | `/design-system` | Not in PRD | Kept (dev tool) | Debug page showing all token values; excluded from prod via noindex |
@@ -342,19 +365,23 @@ Before marking ANY step complete:
 
 When deleting non-PRD pages, follow this checklist:
 
-### Delete: `/dashboard` (entirely)
-- [ ] Delete `frontend/src/app/dashboard/page.tsx` and entire directory
-- [ ] Delete `frontend/src/components/dashboard/DashboardPanel.tsx` + export from index
-- [ ] Update `VerifyEmailForm.tsx`: `href="/dashboard"` → `href="/"`
-- [ ] Update `Header.tsx` logo: `href="/dashboard"` → `href="/"`
-- [ ] Update `ProfilePage.tsx` footer: `href="/dashboard"` → `href="/"`
-- [ ] Verify no remaining imports of DashboardPanel or dashboard route
-- [ ] Verify build passes
+### Delete: `/dashboard` (entirely) — ✅ done 2026-09-23, with the promotion variant
+
+The original plan deleted the panel outright. Executed instead as **promotion**: the panel became the `/` homepage (coordinator directive, same day), so the checklist resolves as:
+- [x] ~~Delete `frontend/src/app/dashboard/page.tsx` and entire directory~~ — directory deleted; its shell (metadata + `AuthAwareShell`) became `app/page.tsx`
+- [x] ~~Delete `frontend/src/components/dashboard/DashboardPanel.tsx`~~ — **moved to `frontend/src/components/home/DashboardPanel.tsx`** instead (it is the homepage now); `components/dashboard/` directory deleted
+- [x] Update `VerifyEmailForm.tsx`: `href="/dashboard"` → `href="/"` (both the AuthLink *and* the `router.push` after verification)
+- [x] Update `Header.tsx` logo: `href="/dashboard"` → `href="/"` (+ aria-label and comment)
+- [x] Update `ProfilePage.tsx` footer: `href="/dashboard"` → `href="/"`
+- [x] **Extra, not in the original checklist:** `LoginForm.tsx` post-login `router.push("/dashboard")` → `"/"` — found by audit; without it every sign-in would have landed on a 404
+- [x] Verify no remaining imports of DashboardPanel from `@/components/dashboard` or references to the `/dashboard` route
+- [x] Verify build passes — FE `next build` 40/40, route table shows `/` at 4.88 kB and no `/dashboard`
+- [x] Verify runtime — `/` → 200, `/dashboard` → 404
 
 ### Delete: `/community`
 - [ ] Delete `frontend/src/app/community/page.tsx`
 - [ ] Delete `frontend/src/components/community/CommunityPage.tsx`
-- [ ] Update `DashboardPanel.tsx` (deleting this panel too, so link disappears naturally)
+- [ ] **⚠️ Updated 2026-09-23:** `DashboardPanel.tsx` was NOT deleted — it was promoted to the `/` homepage and now lives at `components/home/DashboardPanel.tsx`. Do **not** delete it. Instead: audit the panel's category-card CTAs for any `/community` links and re-point or remove them.
 - [ ] Delete `frontend/src/lib/communityData.ts`
 - [ ] Verify build passes
 

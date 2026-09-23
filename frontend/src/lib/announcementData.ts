@@ -1,3 +1,5 @@
+/* MOCK — DELETE after Live API swap */
+
 /**
  * Mock announcement data — the single source shared by the `/announcements`
  * listing (client component) and the `/announcements/[slug]` route shell

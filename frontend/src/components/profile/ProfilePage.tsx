@@ -278,7 +278,7 @@ export function ProfilePage(): ReactElement {
           title="Your Profile"
           subtitle="Update your photo and personal details."
           maxWidthClassName="max-w-3xl"
-          footer={<AuthLink href="/dashboard">Back to the dashboard</AuthLink>}
+          footer={<AuthLink href="/">Back to the dashboard</AuthLink>}
         >
           <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
             {/* Lime panel — the reference's profile sidebar treatment. */}

@@ -1,3 +1,5 @@
+/* MOCK — DELETE after Live API swap */
+
 /**
  * Mock news data — the single source shared by the `/news` listing (client
  * component) and the `/news/[slug]` route shell (server component, which reads

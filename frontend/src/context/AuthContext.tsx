@@ -9,18 +9,9 @@ import {
   type ReactNode,
 } from "react";
 
-import {
-  ApiError,
-  CLIENT_ERROR,
-  clearAuthTokens,
-  getAuthToken,
-  getRefreshToken,
-  request,
-  setAuthTokens,
-  type AuthTokens,
-} from "@/lib/api";
+import { request, type AccessTokenResponse } from "@/lib/api";
 
-export type { AuthTokens };
+export type { AccessTokenResponse };
 
 /** Shape of `data` from `GET /auth/me` and `data.user` from `POST /auth/login`. */
 export interface AuthUser {
@@ -49,7 +40,12 @@ export interface RegisterPayload {
   birthDate?: string;
 }
 
-export interface LoginResult extends AuthTokens {
+/**
+ * What `POST /auth/login` hands back. The tokens themselves are not part of the
+ * contract any more: they arrive as httpOnly cookies the browser stores and the
+ * server reads, so the context never holds a credential.
+ */
+export interface LoginResult {
   user: AuthUser;
   isNew: boolean;
 }
@@ -65,34 +61,32 @@ export interface AuthContextType {
   login: (payload: LoginPayload) => Promise<LoginResult>;
   register: (payload: RegisterPayload) => Promise<RegisterResult>;
   logout: () => void;
-  refresh: () => Promise<AuthTokens>;
+  refresh: () => Promise<AccessTokenResponse>;
   getMe: () => Promise<AuthUser | null>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-function storageError(): ApiError {
-  return new ApiError(
-    CLIENT_ERROR.STORAGE_UNAVAILABLE,
-    "Your browser is blocking local storage, so the session cannot be saved.",
-    0,
-  );
-}
-
-/** Persists the pair, or fails loudly — a token that cannot be stored is useless. */
-function persistTokens(tokens: AuthTokens): void {
-  if (!setAuthTokens(tokens)) {
-    throw storageError();
-  }
-}
+/** No body is required, but the JSON parser expects a parseable payload. */
+const EMPTY_JSON_BODY = JSON.stringify({});
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const logout = useCallback((): void => {
-    clearAuthTokens();
+    // Local state clears first: the user is signed out of this screen whether or
+    // not the server call lands, and the cookies are dropped by its response.
     setUser(null);
+
+    void request<{ message: string }>("/auth/logout", {
+      method: "POST",
+      body: EMPTY_JSON_BODY,
+    }).catch((error: unknown): void => {
+      // Best effort by design — the refresh row expires on its own, so a failed
+      // revocation leaves nothing but a stale database record.
+      console.warn("[AUTH_LOGOUT] The server could not revoke the session.", error);
+    });
   }, []);
 
   const getMe = useCallback(async (): Promise<AuthUser | null> => {
@@ -103,28 +97,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = useCallback(async (payload: LoginPayload): Promise<LoginResult> => {
-    const result = await request<LoginResult>("/auth/login", {
+    const result = await request<LoginResult & AccessTokenResponse>("/auth/login", {
       method: "POST",
       body: JSON.stringify(payload),
     });
 
-    persistTokens({
-      accessToken: result.accessToken,
-      refreshToken: result.refreshToken,
-    });
+    // The session cookies are already set by the response; only the profile has
+    // to be lifted into React state.
     setUser(result.user);
 
-    return result;
+    return { user: result.user, isNew: result.isNew };
   }, []);
 
   const register = useCallback(
     async (payload: RegisterPayload): Promise<RegisterResult> => {
-      const result = await request<AuthTokens>("/auth/register", {
+      await request<AccessTokenResponse>("/auth/register", {
         method: "POST",
         body: JSON.stringify(payload),
       });
-
-      persistTokens(result);
 
       // Registration signs the account in, so the profile is loaded straight away:
       // without it the first client-side navigation to the dashboard would still
@@ -132,8 +122,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         setUser(await request<AuthUser>("/auth/me"));
       } catch {
-        // The account and its tokens are valid — only the cached profile is
-        // missing, and `getMe()` lets a consumer fetch it on demand.
+        // The account and its session cookie are valid — only the cached profile
+        // is missing, and `getMe()` lets a consumer fetch it on demand.
         setUser(null);
       }
 
@@ -144,40 +134,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [],
   );
 
-  const refresh = useCallback(async (): Promise<AuthTokens> => {
-    const storedRefreshToken = getRefreshToken();
-
-    if (storedRefreshToken === null || storedRefreshToken.length === 0) {
-      throw new ApiError(
-        CLIENT_ERROR.AUTHENTICATION_EXPIRED,
-        "There is no stored session to refresh. Please sign in again.",
-        401,
-      );
-    }
-
-    const tokens = await request<AuthTokens>("/auth/refresh", {
+  const refresh = useCallback(async (): Promise<AccessTokenResponse> => {
+    // Nothing to read and nothing to send: the refresh token is an httpOnly
+    // cookie, so the browser attaches it on its own and the server answers with a
+    // rotated pair of cookies.
+    return request<AccessTokenResponse>("/auth/refresh", {
       method: "POST",
-      body: JSON.stringify({ refreshToken: storedRefreshToken }),
+      body: EMPTY_JSON_BODY,
     });
-
-    persistTokens(tokens);
-
-    return tokens;
   }, []);
 
-  // Verify the stored session once on mount: the token may have expired, or the
-  // account may have been removed since the last visit.
+  // Verify the session once on mount: the cookies may be absent, expired, or
+  // belong to an account that has since been removed.
+  //
+  // There is no local hint to check first — the cookies are httpOnly, so the only
+  // way to know whether a session exists is to ask. An anonymous visitor simply
+  // resolves to a 401.
   useEffect((): (() => void) => {
     let cancelled = false;
 
     const restoreSession = async (): Promise<void> => {
-      const token = getAuthToken();
-
-      if (token === null || token.length === 0) {
-        setIsLoading(false);
-        return;
-      }
-
       try {
         const profile = await request<AuthUser>("/auth/me");
 
@@ -185,7 +161,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUser(profile);
         }
       } catch {
-        // Expired or revoked: `request` has already cleared the stored tokens.
+        // Signed out, or the session ended: the shell treats a null user as
+        // "visitor", so there is nothing to repair here.
         if (!cancelled) {
           setUser(null);
         }
