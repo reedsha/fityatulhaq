@@ -48,12 +48,12 @@ export default function AnnouncementDetail(
 
         <div className="relative mx-auto max-w-4xl">
           {/* Breadcrumb: Home / Announcements / Reference number */}
-          <nav aria-label="Breadcrumb" className="text-caption text-ink-400">
+          <nav aria-label="เส้นทางนำทาง" className="text-caption text-ink-400">
             <Link
               href="/"
               className={`rounded-sm transition duration-fast ease-standard motion-reduce:transition-none hover:text-ink-300 ${FOCUS_RING_DARK}`}
             >
-              Home
+              หน้าแรก
             </Link>
             <span aria-hidden="true" className="mx-2">
               /
@@ -62,7 +62,7 @@ export default function AnnouncementDetail(
               href="/announcements"
               className={`rounded-sm transition duration-fast ease-standard motion-reduce:transition-none hover:text-ink-300 ${FOCUS_RING_DARK}`}
             >
-              Announcements
+              ประกาศ
             </Link>
             <span aria-hidden="true" className="mx-2">
               /
@@ -93,32 +93,32 @@ export default function AnnouncementDetail(
       </div>
 
       {/* ── Notice body ──────────────────────────────────────────────── */}
-      <section aria-label="Full announcement" className="flex-1 px-4 pb-16 pt-10 sm:px-6 lg:px-8">
+      <section aria-label="ประกาศฉบับเต็ม" className="flex-1 px-4 pb-16 pt-10 sm:px-6 lg:px-8">
         <article className="mx-auto max-w-4xl rounded-2xl bg-white p-6 shadow-card sm:p-10">
           {/* Lead paragraph — placeholder until the notice text arrives from
               the API in a later phase. */}
           <p className="text-lg leading-relaxed text-ink-700">
-            All members are notified of the following official notice issued under reference{" "}
-            {announcement.refNumber}. The full text of the circular will be published here
-            once it is transferred from the register of announcements.
+            ขอแจ้งให้สมาชิกทุกท่านทราบถึงประกาศอย่างเป็นทางการฉบับนี้ ภายใต้เลขที่อ้างอิง{" "}
+            {announcement.refNumber} ข้อความฉบับเต็มของประกาศจะถูกเผยแพร่ที่นี่
+            เมื่อได้รับการถ่ายโอนจากทะเบียนประกาศแล้ว
           </p>
 
-          <section aria-label="Notice body" className="mt-8 border-t border-ink-200 pt-8">
+          <section aria-label="เนื้อหาประกาศ" className="mt-8 border-t border-ink-200 pt-8">
             <p className="text-body-sm leading-relaxed text-ink-600">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
-              incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
-              nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+              ข้อความส่วนนี้เป็นตัวอย่างเพื่อแสดงรูปแบบและระยะห่างของเนื้อหา
+              เมื่อระบบจัดการเนื้อหาพร้อมใช้งาน ข้อความจริงจากฐานข้อมูลจะถูกแสดงแทนที่นี่โดยอัตโนมัติ
+              ขณะนี้เป็นเพียงข้อความจำลองเพื่อตรวจสอบการแสดงผลของหน้า
             </p>
             {Array.from({ length: 3 }, (_, index) => (
               <p key={index} className="mt-4 text-body-sm leading-relaxed text-ink-600">
-                Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore
-                eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,
-                sunt in culpa qui officia deserunt mollit anim id est laborum.
+                ย่อหน้าตัวอย่างสำหรับแสดงความยาวของเนื้อหาประกาศฉบับจริง
+                ซึ่งจะมาจากทะเบียนประกาศในเฟสถัดไป ข้อความทั้งหมดในส่วนนี้จะถูกแทนที่
+                เมื่อเชื่อมต่อระบบประกาศเรียบร้อยแล้ว
               </p>
             ))}
 
             <p className="mt-8 border-t border-ink-200 pt-6 text-caption text-ink-500">
-              Issued by the Committee Secretary · FityatulHaq
+              ออกโดยเลขานุการคณะกรรมการ · FityatulHaq
             </p>
           </section>
 
@@ -127,7 +127,7 @@ export default function AnnouncementDetail(
               for this phase. */}
           {hasPdf ? (
             <section
-              aria-label="Download the circular"
+              aria-label="ดาวน์โหลดประกาศ"
               className="mt-10 flex flex-wrap items-center gap-4 rounded-xl border border-ink-200 bg-brand-50 p-5"
             >
               <FileText
@@ -136,29 +136,29 @@ export default function AnnouncementDetail(
                 className="h-8 w-8 shrink-0 text-brand-700"
               />
               <p className="min-w-0 flex-1 text-body-sm font-semibold text-ink-900">
-                Download the official circular (PDF)
+                ดาวน์โหลดประกาศฉบับเต็ม (PDF)
               </p>
               <a
                 href={announcement.pdfUrl}
                 download
                 className={`inline-flex shrink-0 items-center justify-center rounded-full bg-accent-300 px-5 py-2 text-caption font-bold text-brand-950 transition duration-fast ease-standard motion-reduce:transition-none hover:brightness-110 ${FOCUS_RING}`}
               >
-                Download PDF
+                ดาวน์โหลด PDF
               </a>
             </section>
           ) : (
             <p className="mt-10 text-caption text-ink-500">
-              A document copy is not attached to this notice.
+              ประกาศนี้ไม่มีไฟล์เอกสารแนบ
             </p>
           )}
 
           {/* Back to the listing */}
-          <nav aria-label="Back to announcements" className="mt-10">
+          <nav aria-label="กลับไปหน้าประกาศ" className="mt-10">
             <Link
               href="/announcements"
               className={`inline-flex items-center gap-1 rounded-sm text-caption font-medium text-brand-700 transition duration-fast ease-standard motion-reduce:transition-none hover:text-brand-600 ${FOCUS_RING}`}
             >
-              ← Back to all announcements
+              ← กลับไปหน้าประกาศทั้งหมด
             </Link>
           </nav>
         </article>

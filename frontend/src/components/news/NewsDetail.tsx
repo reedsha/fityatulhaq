@@ -55,7 +55,9 @@ export default function NewsDetail(props: NewsDetailProps): ReactElement {
   );
 
   const shareLabel = useCallback((platform: SharePlatform): string => {
-    return platform === "Copy Link" ? "Copy the link to this article" : `Share this article on ${platform}`;
+    return platform === "Copy Link"
+      ? "คัดลอกลิงก์บทความนี้"
+      : `แบ่งปันบทความนี้บน ${platform}`;
   }, []);
 
   return (
@@ -74,12 +76,12 @@ export default function NewsDetail(props: NewsDetailProps): ReactElement {
 
         <div className="relative mx-auto max-w-4xl">
           {/* Breadcrumb: Home / News / Article title */}
-          <nav aria-label="Breadcrumb" className="text-caption text-ink-400">
+          <nav aria-label="เส้นทางนำทาง" className="text-caption text-ink-400">
             <Link
               href="/"
               className={`rounded-sm transition duration-fast ease-standard motion-reduce:transition-none hover:text-ink-300 ${FOCUS_RING_DARK}`}
             >
-              Home
+              หน้าแรก
             </Link>
             <span aria-hidden="true" className="mx-2">
               /
@@ -88,7 +90,7 @@ export default function NewsDetail(props: NewsDetailProps): ReactElement {
               href="/news"
               className={`rounded-sm transition duration-fast ease-standard motion-reduce:transition-none hover:text-ink-300 ${FOCUS_RING_DARK}`}
             >
-              News
+              ข่าวสาร
             </Link>
             <span aria-hidden="true" className="mx-2">
               /
@@ -126,7 +128,7 @@ export default function NewsDetail(props: NewsDetailProps): ReactElement {
           {article.coverUrl !== undefined ? (
             <img
               src={article.coverUrl}
-              alt={`Cover for ${article.title}`}
+              alt={`ภาพปกสำหรับ ${article.title}`}
               className="mb-8 h-64 w-full rounded-xl object-cover"
             />
           ) : null}
@@ -136,28 +138,26 @@ export default function NewsDetail(props: NewsDetailProps): ReactElement {
 
           {/* Placeholder body — replaced by rich text from the API in a
               later phase. */}
-          <section aria-label="Article body" className="mt-8 border-t border-ink-200 pt-8">
-            <h2 className="text-heading-4 text-ink-900">Article body</h2>
+          <section aria-label="เนื้อหาบทความ" className="mt-8 border-t border-ink-200 pt-8">
+            <h2 className="text-heading-4 text-ink-900">เนื้อหาบทความ</h2>
             <p className="mt-3 text-body-sm leading-relaxed text-ink-600">
-              Full article body placeholder. In production this will be rendered from rich
-              text stored in the database (see future phase API design). Lorem ipsum dolor sit
-              amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et
-              dolore magna aliqua.
+              ตัวอย่างเนื้อหาบทความฉบับเต็ม ในรุ่นจริงจะถูกแสดงจากข้อความ Rich Text
+              ที่จัดเก็บในฐานข้อมูล (ดูการออกแบบ API ในเฟสถัดไป) ข้อความส่วนนี้จะถูกแทนที่ด้วย
+              เนื้อหาจริงเมื่อเชื่อมต่อระบบจัดการเนื้อหาเรียบร้อย
             </p>
             {Array.from({ length: 3 }, (_, index) => (
               <p key={index} className="mt-4 text-body-sm leading-relaxed text-ink-600">
-                Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-                aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in
-                voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
-                occaecat cupidatat non proident.
+                ย่อหน้าตัวอย่างสำหรับแสดงความยาวของเนื้อหาจริง ซึ่งจะมาจากฐานข้อมูลในภายหลัง
+                ขณะนี้เป็นเพียงข้อความจำลองเพื่อตรวจสอบรูปแบบและระยะห่างของตัวอักษรบนหน้า
+                เมื่อระบบจัดการเนื้อหาพร้อมใช้งานแล้ว ข้อความทั้งหมดจะถูกแทนที่โดยอัตโนมัติ
               </p>
             ))}
           </section>
 
           {/* Share */}
-          <section aria-label="Share this article" className="mt-10 border-t border-ink-200 pt-8">
+          <section aria-label="แบ่งปันบทความนี้" className="mt-10 border-t border-ink-200 pt-8">
             <h2 className="text-caption font-bold uppercase tracking-wider text-ink-500">
-              Share this article
+              แบ่งปันบทความนี้
             </h2>
             <div className="mt-4 flex gap-3">
               {SHARE_PLATFORMS.map((platform) => (
@@ -175,12 +175,12 @@ export default function NewsDetail(props: NewsDetailProps): ReactElement {
           </section>
 
           {/* Back to listings */}
-          <nav aria-label="Back to news" className="mt-10">
+          <nav aria-label="กลับไปหน้าข่าวสาร" className="mt-10">
             <Link
               href="/news"
               className={`inline-flex items-center gap-1 rounded-sm text-caption font-medium text-brand-700 transition duration-fast ease-standard motion-reduce:transition-none hover:text-brand-600 ${FOCUS_RING}`}
             >
-              ← Back to all news
+              ← กลับไปหน้าข่าวสารทั้งหมด
             </Link>
           </nav>
         </article>

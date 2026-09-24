@@ -14,9 +14,9 @@ import DonatePage from "@/components/donate/DonatePage";
  * `#main-content` skip-link target and the footer.
  */
 export const metadata: Metadata = {
-  title: "Support Our Work",
+  title: "สนับสนุนงานของเรา",
   description:
-    "Give to FityatulHaq — every donation funds study materials, camps and community service for young members.",
+    "ร่วมบริจาคให้ FityatulHaq — ทุกยอดบริจาคสนับสนุนอุปกรณ์การเรียน ค่าย และจิตอาสาชุมชนสำหรับสมาชิกรุ่นใหม่",
 };
 
 export default function DonateRoute(): ReactElement {
