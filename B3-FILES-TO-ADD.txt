@@ -1,0 +1,8 @@
+Please add the full contents of the page components used by these routes, if they exist:
+
+- News listing and news article detail (`/news` and `/news/[slug]`)
+- Announcements listing and announcement detail (`/announcements` and `/announcements/[slug]`)
+- Contact (`/contact`)
+- Partners (`/partners`)
+
+The exact component paths aren't visible in the files shared so far, so please add the components imported by those route files rather than guessing filenames. The corresponding route shells and mock data files have already been identified.
