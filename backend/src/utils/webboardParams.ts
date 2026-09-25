@@ -17,12 +17,13 @@ import { isBoardKey } from "./webboardTaxonomy";
 export const MAX_ID_LENGTH = 200;
 
 /** What a missing id is *of* — the 404 has to name the right resource. */
-export type MissingResource = "thread" | "comment" | "report";
+export type MissingResource = "thread" | "comment" | "report" | "notification";
 
 const NOT_FOUND: Record<MissingResource, { code: string; message: string }> = {
   thread: { code: "THREAD_NOT_FOUND", message: "Thread not found" },
   comment: { code: "COMMENT_NOT_FOUND", message: "Comment not found" },
   report: { code: "REPORT_NOT_FOUND", message: "Report not found" },
+  notification: { code: "NOTIFICATION_NOT_FOUND", message: "Notification not found" },
 };
 
 export function readIdParam(raw: unknown, resource: MissingResource): string {

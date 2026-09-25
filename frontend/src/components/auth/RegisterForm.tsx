@@ -308,7 +308,8 @@ export function RegisterForm(): ReactElement {
               className="mt-0.5 h-4 w-4 rounded border-ink-300 text-brand-700 focus:ring-2 focus:ring-brand-300"
             />
             <label htmlFor={TERMS_FIELD} className="text-body-sm text-ink-700">
-              ยอมรับ <AuthLink href="/terms">ข้อกำหนดการใช้งาน</AuthLink> และนโยบายความเป็นส่วนตัว
+              ยอมรับ <AuthLink href="/terms">ข้อกำหนดการใช้งาน</AuthLink> และ{" "}
+              <AuthLink href="/privacy-policy">นโยบายความเป็นส่วนตัว</AuthLink>
             </label>
           </div>
 

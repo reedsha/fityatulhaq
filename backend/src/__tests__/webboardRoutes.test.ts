@@ -150,6 +150,48 @@ async function run(): Promise<void> {
     );
 
     // -----------------------------------------------------------------------
+    // §5.4.5 — the caller's own activity is member-only, unlike every read above
+    // -----------------------------------------------------------------------
+
+    const anonymousThreads = await probe("GET", "/me/threads", null);
+    check(
+      "GET /me/threads without a session is 401",
+      anonymousThreads.status === 401,
+      `status=${anonymousThreads.status}`,
+    );
+
+    const guestThreads = await probe(
+      "GET",
+      "/me/threads",
+      tokenFor(ROLES.GUEST, "probe-guest-6"),
+    );
+    check(
+      "GET /me/threads as GUEST is 403",
+      guestThreads.status === 403 && guestThreads.errorCode === "FORBIDDEN",
+      `status=${guestThreads.status} code=${guestThreads.errorCode ?? "none"}`,
+    );
+
+    const guestComments = await probe(
+      "GET",
+      "/me/comments",
+      tokenFor(ROLES.GUEST, "probe-guest-7"),
+    );
+    check(
+      "GET /me/comments as GUEST is 403",
+      guestComments.status === 403 && guestComments.errorCode === "FORBIDDEN",
+      `status=${guestComments.status} code=${guestComments.errorCode ?? "none"}`,
+    );
+
+    // The `me` segment must not be swallowed by `/boards/:board/...`: were it
+    // captured, a guest would see BOARD_NOT_FOUND instead of FORBIDDEN.
+    const guestThreadsCode = guestThreads.errorCode;
+    check(
+      "the me-routes are not matched as a board name",
+      guestThreadsCode !== "BOARD_NOT_FOUND",
+      `code=${guestThreadsCode ?? "none"}`,
+    );
+
+    // -----------------------------------------------------------------------
     // Writes — §6.4: posting and reporting are member actions
     // -----------------------------------------------------------------------
 

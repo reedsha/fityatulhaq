@@ -11,6 +11,7 @@ import { disconnectPrisma, initPrisma } from "./config/database";
 import {
   ASSETS_ROUTE_PREFIX,
   AUTH_ROUTE_PREFIX,
+  NOTIFICATION_ROUTE_PREFIX,
   USER_ROUTE_PREFIX,
   WEBBOARD_ROUTE_PREFIX,
 } from "./config/routePrefix";
@@ -21,6 +22,7 @@ import { errorHandler, toErrorMessage } from "./middleware/errorFormatter";
 import { logger } from "./middleware/logger";
 import { sanitizeBody } from "./middleware/sanitizeBody";
 import authRoutes from "./routes/authRoutes";
+import notificationRoutes from "./routes/notificationRoutes";
 import signedUrlRoutes from "./routes/signedUrl";
 import userRoutes from "./routes/userRoutes";
 import webboardRoutes from "./routes/webboardRoutes";
@@ -133,6 +135,7 @@ app.use(AUTH_ROUTE_PREFIX, authRoutes);
 app.use(USER_ROUTE_PREFIX, userRoutes);
 app.use(ASSETS_ROUTE_PREFIX, signedUrlRoutes);
 app.use(WEBBOARD_ROUTE_PREFIX, webboardRoutes);
+app.use(NOTIFICATION_ROUTE_PREFIX, notificationRoutes);
 
 app.use("*", (_req: express.Request, res: express.Response): void => {
   res.status(404).json({

@@ -6,6 +6,7 @@ import {
   ChevronDown,
   LogOut,
   Menu,
+  Search,
   Settings,
   User,
   X,
@@ -23,8 +24,10 @@ import {
 
 import fityatulhaqWhiteLogo from "@/assets/logos/fityatulhaq-white.png";
 import { useAuth, type AuthUser } from "@/context/AuthContext";
+import { ACTIVITIES_PATH, NOTIFICATIONS_PATH } from "@/lib/activitiesApi";
 import { initialsOf } from "@/lib/avatar";
 import { getUnreadNotificationCount } from "@/lib/notificationData";
+import { SEARCH_PATH } from "@/lib/searchIndex";
 
 /** Shared focus treatment so keyboard focus is always visible on interactive elements. */
 export const FOCUS_RING =
@@ -161,7 +164,7 @@ const ACCOUNT_ITEM_DISABLED_CLASSES = `${ACCOUNT_ITEM_BASE_CLASSES} cursor-not-a
 
 const ACCOUNT_MENU_ID = "account-menu";
 
-/** Marks a menu entry whose screen is still a placeholder (D9, and no settings page yet). */
+/** Marks a menu entry whose screen is still a placeholder (no settings page yet). */
 function ComingSoonBadge(): ReactElement {
   return (
     <span className="ml-auto rounded-full bg-ink-800/80 px-2 py-0.5 text-caption font-medium text-ink-400">
@@ -172,15 +175,21 @@ function ComingSoonBadge(): ReactElement {
 
 /**
  * Signed-in controls on the desktop rail: the notification bell and the avatar
- * are two triggers for one account menu (§3.3).
+ * are two entries for one account menu (§3.3).
+ *
+ * The avatar is the disclosure trigger; the bell is a real link that navigates to
+ * the notifications tab of `/profile/activities`. It became a link in M5, when
+ * that tab and the notifications endpoint arrived: a bell that opened the account
+ * menu promised a feed it could not show, whereas "where can I see these?" now
+ * has an answer. Only one trigger remains, so there is no trigger ref to swap.
  *
  * Self-contained rather than driven from `Header`'s open/close state, because
  * the mobile drawer renders its own member row: the two must never share a panel
- * or a trigger ref. Escape restores focus to whichever trigger opened the menu,
- * and a press outside the group closes it — the same contract the desktop nav
- * dropdowns follow, including the deliberate choice of a labelled disclosure
- * over `role="menu"`: the APG menu widget promises arrow-key navigation, and a
- * panel that does not implement it is worse for assistive tech than a plain one.
+ * or a trigger ref. Escape restores focus to the avatar, and a press outside the
+ * group closes the menu — the same contract the desktop nav dropdowns follow,
+ * including the deliberate choice of a labelled disclosure over `role="menu"`:
+ * the APG menu widget promises arrow-key navigation, and a panel that does not
+ * implement it is worse for assistive tech than a plain one.
  */
 function AccountMenu(props: {
   user: AuthUser;
@@ -196,7 +205,6 @@ function AccountMenu(props: {
 
   const groupRef = useRef<HTMLDivElement | null>(null);
   const avatarButtonRef = useRef<HTMLButtonElement | null>(null);
-  const bellButtonRef = useRef<HTMLButtonElement | null>(null);
   const lastTriggerRef = useRef<HTMLButtonElement | null>(null);
 
   // The badge starts at 0 on the server and on the first client render, so the
@@ -276,18 +284,14 @@ function AccountMenu(props: {
 
   return (
     <div ref={groupRef} className="relative flex items-center gap-2">
-      <button
-        type="button"
-        ref={bellButtonRef}
-        onClick={(): void => toggleFrom(bellButtonRef.current)}
-        aria-expanded={isOpen}
-        aria-haspopup="true"
-        aria-controls={isOpen ? ACCOUNT_MENU_ID : undefined}
+      <Link
+        href={NOTIFICATIONS_PATH}
         aria-label={
           unreadCount > 0
             ? `การแจ้งเตือน (ยังไม่ได้อ่าน ${unreadCount} รายการ)`
             : "การแจ้งเตือน"
         }
+        onClick={onOpen}
         className={`relative inline-flex h-10 w-10 items-center justify-center rounded-full text-ink-300 transition duration-fast ease-standard motion-reduce:transition-none hover:bg-ink-800/60 hover:text-ink-50 ${FOCUS_RING_DARK}`}
       >
         <Bell aria-hidden="true" className="h-5 w-5" />
@@ -297,7 +301,7 @@ function AccountMenu(props: {
             className="absolute right-2.5 top-2.5 h-2.5 w-2.5 rounded-full bg-state-error-500 ring-2 ring-brand-950"
           />
         ) : null}
-      </button>
+      </Link>
 
       <button
         type="button"
@@ -334,14 +338,16 @@ function AccountMenu(props: {
             </Link>
           </li>
 
-          {/* `/profile/activities` is not built yet (D9, M5), so the entry
-              lands on the profile screen with a "coming soon" marker rather
-              than linking to a 404. */}
+          {/* `/profile/activities` was a "coming soon" placeholder throughout M3
+              and M4 (debt D9); M5 built the screen, so this is now a real link. */}
           <li>
-            <Link href="/profile" onClick={closeMenu} className={ACCOUNT_ITEM_CLASSES}>
+            <Link
+              href={ACTIVITIES_PATH}
+              onClick={closeMenu}
+              className={ACCOUNT_ITEM_CLASSES}
+            >
               <CalendarDays aria-hidden="true" className="h-4 w-4 shrink-0" />
               กิจกรรมของฉัน
-              <ComingSoonBadge />
             </Link>
           </li>
 
@@ -748,7 +754,25 @@ export function Header(props: HeaderProps): ReactElement {
           </ul>
         </nav>
 
-        <div className="hidden items-center gap-3 lg:flex">{desktopAuthActions}</div>
+        <div className="hidden items-center gap-3 lg:flex">
+          {/* §5.2.12 is a page (§5.2's own group), not a section, so it is not a
+              nav entry: a search affordance beside the account controls is the
+              conventional place, and it keeps the seven-label rail from growing. */}
+          <Link
+            href={SEARCH_PATH}
+            aria-label="ค้นหา"
+            aria-current={isActiveRoute(SEARCH_PATH, pathname) ? "page" : undefined}
+            className={`inline-flex h-10 w-10 items-center justify-center rounded-full transition duration-fast ease-standard motion-reduce:transition-none ${
+              isActiveRoute(SEARCH_PATH, pathname)
+                ? "bg-ink-800/60 text-accent-300"
+                : "text-ink-300 hover:bg-ink-800/60 hover:text-ink-50"
+            } ${FOCUS_RING_DARK}`}
+          >
+            <Search aria-hidden="true" className="h-5 w-5" />
+          </Link>
+
+          {desktopAuthActions}
+        </div>
 
         <button
           type="button"
@@ -776,6 +800,22 @@ export function Header(props: HeaderProps): ReactElement {
         >
           <nav aria-label="เมนูหลักบนมือถือ" className="px-4 py-4 sm:px-6">
             <ul className="space-y-1">
+              <li>
+                <Link
+                  href={SEARCH_PATH}
+                  aria-current={isActiveRoute(SEARCH_PATH, pathname) ? "page" : undefined}
+                  onClick={closeDrawer}
+                  className={`flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-body font-medium transition duration-fast ease-standard motion-reduce:transition-none ${
+                    isActiveRoute(SEARCH_PATH, pathname)
+                      ? "bg-ink-800/60 text-accent-300"
+                      : "text-ink-300 hover:bg-ink-800/60 hover:text-ink-50"
+                  } ${FOCUS_RING_DARK}`}
+                >
+                  <Search aria-hidden="true" className="h-4 w-4 shrink-0" />
+                  ค้นหา
+                </Link>
+              </li>
+
               {navigation.map((entry) => {
                 const isActive = isNavEntryActive(entry, pathname);
 

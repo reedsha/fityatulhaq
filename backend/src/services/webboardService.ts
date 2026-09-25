@@ -18,6 +18,9 @@ import {
   type CreatedCommentView,
   type CreatedThreadView,
   type MemberAuthorView,
+  type ModerationStatusValue,
+  type MyCommentView,
+  type MyThreadView,
   type ReactionResultView,
   type ReportReasonValue,
   type ThreadDetailView,
@@ -29,6 +32,7 @@ import { deriveAuthorCode } from "../utils/anonymity";
 import { findProfanityTerms } from "../utils/profanity";
 import { BOARD_RULES, isKnownTagSlug, resolveTagSlugs } from "../utils/webboardTaxonomy";
 import { toExcerpt } from "../utils/webboardQuery";
+import { createYouthCareAnsweredNotification } from "./notificationService";
 
 /**
  * Webboard read/write service — SRS §5.3 plus the abuse limits of §7.3.
@@ -479,6 +483,158 @@ export async function listThreads(
   return { threads: rows.map((row) => projectThreadSummary(row, liked)), total };
 }
 
+// ---------------------------------------------------------------------------
+// §5.4.5 — the member's own activity
+// ---------------------------------------------------------------------------
+
+/**
+ * Columns the author's own thread list needs.
+ *
+ * `moderation` and `moderationNote` are in the payload precisely because this
+ * list is *not* filtered to PUBLISHED: §7.1 routes the author's view of their
+ * own pending Youth Care question through `/profile/activities`, and a rejected
+ * thread has to carry the reason back to its author.
+ */
+const MY_THREAD_SELECT = {
+  id: true,
+  board: true,
+  title: true,
+  body: true,
+  moderation: true,
+  moderationNote: true,
+  answeredAt: true,
+  createdAt: true,
+  _count: { select: { comments: { where: { moderation: PUBLISHED } }, reactions: true } },
+} as const;
+
+/** Columns the author's own reply list needs, including the thread it sits in. */
+const MY_COMMENT_SELECT = {
+  id: true,
+  body: true,
+  moderation: true,
+  moderationNote: true,
+  isOfficial: true,
+  createdAt: true,
+  post: { select: { id: true, board: true, title: true } },
+  _count: { select: { reactions: true } },
+} as const;
+
+interface MyThreadRow {
+  id: string;
+  board: BoardKey;
+  title: string;
+  body: string;
+  moderation: ModerationStatusValue;
+  moderationNote: string | null;
+  answeredAt: Date | null;
+  createdAt: Date;
+  _count: { comments: number; reactions: number };
+}
+
+interface MyCommentRow {
+  id: string;
+  body: string;
+  moderation: ModerationStatusValue;
+  moderationNote: string | null;
+  isOfficial: boolean;
+  createdAt: Date;
+  post: { id: string; board: BoardKey; title: string };
+  _count: { reactions: number };
+}
+
+/**
+ * §5.4.5 "กระทู้ที่ตั้ง" / "คำถาม Youth Care ที่ถาม" — the caller's own threads
+ * on both boards, newest first.
+ *
+ * Deliberately without a moderation filter. Every other list in this module
+ * exists for a public reader, but this one is scoped by `authorId` to the caller,
+ * so surfacing their own PENDING or REJECTED rows discloses nothing about anyone
+ * else. This is the one screen where §7.1's pre-moderation gate is lifted, and
+ * it is lifted only for the row's own author.
+ */
+export async function listMyThreads(input: {
+  authorId: string;
+  skip: number;
+  take: number;
+}): Promise<{ threads: MyThreadView[]; total: number }> {
+  const where = { authorId: input.authorId };
+
+  const [rows, total] = await Promise.all([
+    prisma.post.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip: input.skip,
+      take: input.take,
+      select: MY_THREAD_SELECT,
+    }) as Promise<MyThreadRow[]>,
+    prisma.post.count({ where }),
+  ]);
+
+  return {
+    threads: rows.map((row) => ({
+      id: row.id,
+      board: row.board,
+      title: row.title,
+      excerpt: toExcerpt(row.body),
+      moderation: row.moderation,
+      moderationNote: row.moderationNote,
+      isAnswered: row.answeredAt !== null,
+      commentCount: row._count.comments,
+      likeCount: row._count.reactions,
+      createdAt: row.createdAt.toISOString(),
+    })),
+    total,
+  };
+}
+
+/**
+ * §5.4.5 "คอมเมนต์ของฉัน" — the caller's own replies, newest first.
+ *
+ * Scoped to replies on PUBLISHED threads: a reply whose thread has since been
+ * hidden cannot be opened, so listing it would only offer a dead link, and a
+ * comment can never exist on a thread that was never published (M4 refuses that
+ * write). The reply's own `moderation` is *not* filtered — a PENDING Youth Care
+ * reply must appear with its status, which is exactly why M4 recorded the audit
+ * columns on `Comment` in the first place.
+ */
+export async function listMyComments(input: {
+  authorId: string;
+  skip: number;
+  take: number;
+}): Promise<{ comments: MyCommentView[]; total: number }> {
+  const where = {
+    authorId: input.authorId,
+    post: { moderation: PUBLISHED },
+  };
+
+  const [rows, total] = await Promise.all([
+    prisma.comment.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip: input.skip,
+      take: input.take,
+      select: MY_COMMENT_SELECT,
+    }) as Promise<MyCommentRow[]>,
+    prisma.comment.count({ where }),
+  ]);
+
+  return {
+    comments: rows.map((row) => ({
+      id: row.id,
+      threadId: row.post.id,
+      threadTitle: row.post.title,
+      board: row.post.board,
+      excerpt: toExcerpt(row.body),
+      moderation: row.moderation,
+      moderationNote: row.moderationNote,
+      isOfficial: row.isOfficial,
+      likeCount: row._count.reactions,
+      createdAt: row.createdAt.toISOString(),
+    })),
+    total,
+  };
+}
+
 /**
  * §5.3.4 — one thread with its reply tree.
  *
@@ -674,7 +830,7 @@ export async function createComment(
       board: input.board,
       moderation: { in: acceptedModeration },
     },
-    select: { id: true, moderation: true },
+    select: { id: true, moderation: true, authorId: true },
   });
 
   if (thread === null) {
@@ -732,6 +888,16 @@ export async function createComment(
             ? { moderatedById: input.authorId, moderatedAt: new Date() }
             : {}),
         },
+      });
+
+      // §5.3.2 promises the asker a notification when someone answers, and §7.1
+      // makes this feed the only place they see their own question's status
+      // (debt D22). Written in the same transaction as the answer so the two
+      // cannot disagree; the helper itself refuses to notify self-answers.
+      await createYouthCareAnsweredNotification(tx, {
+        postId: input.postId,
+        recipientId: thread.authorId,
+        actorId: input.authorId,
       });
     }
 

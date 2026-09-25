@@ -15,3 +15,5 @@ export const USER_ROUTE_PREFIX = `${API_V1_PREFIX}/users`;
 export const ASSETS_ROUTE_PREFIX = `${API_V1_PREFIX}/assets`;
 
 export const WEBBOARD_ROUTE_PREFIX = `${API_V1_PREFIX}/webboard`;
+
+export const NOTIFICATION_ROUTE_PREFIX = `${API_V1_PREFIX}/notifications`;

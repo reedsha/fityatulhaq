@@ -267,6 +267,26 @@ const FIELD_ERRORS: Record<string, FieldError> = {
     message: "ตอบกลับอย่างเป็นทางการไม่สำเร็จ กรุณาลองอีกครั้ง",
     field: "form",
   },
+  WEBBOARD_ACTIVITY_FAILED: {
+    message: "โหลดกิจกรรมของคุณไม่สำเร็จ กรุณาลองอีกครั้ง",
+    field: "form",
+  },
+  NOTIFICATIONS_LIST_FAILED: {
+    message: "โหลดการแจ้งเตือนไม่สำเร็จ กรุณาลองอีกครั้ง",
+    field: "form",
+  },
+  NOTIFICATIONS_COUNT_FAILED: {
+    message: "นับจำนวนการแจ้งเตือนที่ยังไม่ได้อ่านไม่สำเร็จ กรุณาลองอีกครั้ง",
+    field: "form",
+  },
+  NOTIFICATION_READ_FAILED: {
+    message: "ทำเครื่องหมายว่าอ่านแล้วไม่สำเร็จ กรุณาลองอีกครั้ง",
+    field: "form",
+  },
+  NOTIFICATION_NOT_FOUND: {
+    message: "ไม่พบการแจ้งเตือนนี้ อาจถูกลบไปแล้ว",
+    field: "form",
+  },
   [CLIENT_ERROR.AUTHENTICATION_EXPIRED]: {
     message: "เซสชันของคุณหมดอายุแล้ว กรุณาเข้าสู่ระบบอีกครั้ง",
     field: "form",

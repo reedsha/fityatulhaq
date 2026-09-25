@@ -1,23 +1,23 @@
+import { request } from "@/lib/api";
+
 /**
- * Notification source for the header's bell (§3.3, §5.4.5).
+ * Notification source for the header's bell (§3.3).
  *
- * ⚠️ PLACEHOLDER — Web 1 has no notifications endpoint yet. The profile
- * activities tab that will list them, and the thread-level notification controls
- * that will produce them, arrive with M5; the Web 2 sync lands in M6. Until then
- * this module stands in for the API so the bell and its unread indicator can be
- * built and reviewed.
+ * Reads `GET /notifications/unread-count`, which is member-only — and the bell
+ * only ever renders inside the signed-in account menu, so there is no guest path
+ * to serve. Failures propagate: `AccountMenu` already treats a failed count as
+ * "render the bell without its dot", and swallowing here as well would leave two
+ * places deciding what a failure means.
  *
- * To wire the real thing: replace the body of `getUnreadNotificationCount` with
- * a `GET /notifications/unread-count` request and delete
- * `PLACEHOLDER_UNREAD_NOTIFICATION_COUNT` (debt D18).
- *
- * It returns a count rather than a list on purpose: the header only ever renders
- * the badge, and the list belongs to the notifications tab that owns it.
+ * Previously a hardcoded placeholder (debt D18, `PLACEHOLDER_UNREAD_NOTIFICATION_COUNT`);
+ * the real endpoint arrived with M5's notifications work, which also produces the
+ * rows (debt D22). The list itself belongs to the notifications tab and lives in
+ * `lib/activitiesApi.ts`; this module answers only the one question the bell asks,
+ * because the header renders a count and never a feed.
  */
 
-/** Mock unread total. Deliberately non-zero so the indicator path is visible. */
-export const PLACEHOLDER_UNREAD_NOTIFICATION_COUNT = 2;
-
 export async function getUnreadNotificationCount(): Promise<number> {
-  return PLACEHOLDER_UNREAD_NOTIFICATION_COUNT;
+  const payload = await request<{ count: number }>("/notifications/unread-count");
+
+  return payload.count;
 }

@@ -191,7 +191,7 @@ export function DashboardPanel(): ReactElement {
               <div className="h-12 rounded-lg bg-tertiary-300/40" />
             </div>
             <a
-              href="/community"
+              href="/about"
               className="mt-4 self-start rounded-full bg-brand-600 px-5 py-2 text-caption font-bold text-ink-50 transition hover:bg-brand-500"
             >
               ดูรายละเอียด
@@ -200,7 +200,7 @@ export function DashboardPanel(): ReactElement {
         </div>
       </section>
 
-      {/* ── 5. NEWS + ANNOUNCEMENTS GRID ─────────────────────────────── */}
+      {/* ── 5. NEWS + ANNOUNCEMENTS GRID ────────────────────────────── */}
       <section
         aria-label="ข่าวสารและประกาศ"
         className="bg-[#0c1017] px-6 pb-12"

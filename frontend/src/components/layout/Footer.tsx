@@ -28,6 +28,17 @@ const RESOURCE_LINKS: FooterLink[] = [
   { label: "หนังสือและวิดีโอ", href: "/knowledge" },
 ];
 
+/**
+ * §5.5 groups these as "หน้าอื่น ๆ (Footer Pages)": neither is a section of the
+ * site, so they belong in the chrome rather than the main navigation. Rendered as
+ * a quiet row beside the copyright instead of a fourth column, which keeps the
+ * four-column grid above at its designed rhythm.
+ */
+const LEGAL_LINKS: FooterLink[] = [
+  { label: "นโยบายความเป็นส่วนตัว", href: "/privacy-policy" },
+  { label: "ข้อกำหนดการใช้งาน", href: "/terms" },
+];
+
 const SOCIAL_LINKS: SocialLink[] = [
   {
     label: "FityatulHaq บน Facebook",
@@ -157,6 +168,19 @@ export function Footer(): ReactElement {
           alt="FityatulHaq"
           className="mx-auto block h-10 w-auto"
         />
+
+        <nav aria-label="นโยบายและข้อกำหนด" className="mt-5 flex flex-wrap justify-center gap-x-5 gap-y-2">
+          {LEGAL_LINKS.map((link) => (
+            <a
+              key={link.href}
+              href={link.href}
+              className="text-xs text-blue-200 transition duration-fast ease-standard hover:text-white hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            >
+              {link.label}
+            </a>
+          ))}
+        </nav>
+
         <p className="mt-4 text-center text-[10px] text-blue-300">
           © 2026 FityatulHaq. สงวนลิขสิทธิ์
         </p>

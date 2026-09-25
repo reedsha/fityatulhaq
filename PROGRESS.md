@@ -1,10 +1,10 @@
 # 📊 FityatulHaq Public Website (Web 1) — Progress & Survival Guide
 
-> **Last Updated:** 2026-09-26 · **Current Milestone:** M4 Webboard — ✅ **Done** (2026-09-26), all gates green — next: M5 (profile activities + search + legal) · **Source of Truth:** `Requirement.pdf` (raw text at `requirement_raw.txt`)
+> **Last Updated:** 2026-09-26 · **Current Milestone:** M5 Profile Activities + Search + Legal — ✅ **Done** (2026-09-26), all gates green — next: M6 (Web 2 integration) · **Source of Truth:** `Requirement.pdf` (raw text at `requirement_raw.txt`)
 >
 > **⚠️ THIS FILE IS THE SURVIVAL GUIDE.** Every task, decision, deletion, and deviation must be recorded here. Before touching any file, read the full Milestones section, verify prerequisites, and confirm Definition-of-Done items are satisfied.
 >
-> **Repo state 2026-09-26:** M0–M2 work plus M2.5 (Batches 1, 1.5, B2, B3 and B4), M3 and the D11 debt fix are committed. `AGENTS.md` / `IDENTITY.md` / `SOUL.md` / `USER.md` were **deliberately deleted and committed as deletions** (commit `5c32eeb`, owner decision 2026-09-24) — they are not to be restored. The code-review gate now runs from the repo-root `CODE_REVIEW_SKILL.md`; the old `deep-code-review` skill path is dead and must not be restored.
+> **Repo state 2026-09-26:** M0–M2 work plus M2.5 (Batches 1, 1.5, B2, B3 and B4), M3, the D11 debt fix, M4 (webboard) and M5 (profile activities + search + legal) are committed. `AGENTS.md` / `IDENTITY.md` / `SOUL.md` / `USER.md` were **deliberately deleted and committed as deletions** (commit `5c32eeb`, owner decision 2026-09-24) — they are not to be restored. The code-review gate now runs from the repo-root `CODE_REVIEW_SKILL.md`; the old `deep-code-review` skill path is dead and must not be restored. Live DB has 5 migrations applied.
 
 ---
 
@@ -54,7 +54,7 @@ cd backend; npm run build       # tsc compilation
 ```
 Frontend:    Next.js 15.5.25 App Router (PRD target: 16 — deferred to M7 deployment)
 Backend:     Express.js 5 + TypeScript + Prisma 7 ORM
-Database:    PostgreSQL (Supabase) — tables: User (role MEMBER|ADMIN|SUPERADMIN), RefreshToken, OtpCode
+Database:    PostgreSQL (Supabase) — tables: User (role GUEST|MEMBER|CONTENT_MODERATOR), RefreshToken, OtpCode, Post, Comment, Reaction, Report, Notification
 Storage:     Supabase Storage (bucket `fityatulhaq-assets`, folder `avatars/`)
 Deployment:  Cloudflare Workers (frontend) + Docker (backend) — not yet implemented
 Realtime:    Deferred per PRD (§8.2)
@@ -86,7 +86,7 @@ Auth:        Custom JWT + httpOnly cookies (NOT NextAuth.js — deliberate choic
 | `/knowledge/books` | ✅ Implemented | Public catalogue; download is member-only via signed URL — 503 until M6 (M2) |
 | `/knowledge/videos` | ✅ Implemented | Public thumbnails; playback member-only, placeholder embeds (M2) |
 | `/knowledge/recommended` | ✅ Implemented | Public curated list, real links only (M2) |
-| `/search` | ❌ Missing | Global unified keyword search across all types |
+| `/search` | ✅ Implemented | Unified keyword search across all content types, grouped with type badges; guest-accessible, debounced, type filters; member-only hits show a lock (M5) |
 | `/webboard` | ✅ Implemented | Hub: two board cards with live counts + latest threads across both; "ตั้งกระทู้ใหม่" for members, login link for guests (M4) |
 | `/webboard/general` | ✅ Implemented | Public thread list with tags and latest/popular/most-replied sort; post-moderated (§7.2) (M4) |
 | `/webboard/youth-care` | ✅ Implemented | Public list of *approved* questions, "รอตอบ / ทีมงานตอบแล้ว" toggle, always-anonymous bylines, pre-moderated (§7.1) (M4) |
@@ -100,17 +100,17 @@ Auth:        Custom JWT + httpOnly cookies (NOT NextAuth.js — deliberate choic
 | `/verify-reset-code` | ✅ Implemented | OTP verification on reset |
 | `/register/success` | ✅ Implemented | Registration confirmation |
 | `/profile` | ✅ Implemented | Edit profile + avatar upload |
-| `/profile/activities` | ❌ Missing | Member-only activity feed (tabs) — comes in M5 |
-| `/privacy-policy` | ❌ Missing | PDPA static page — comes in M5 |
-| `/terms` | ⚠️ Partially placed | Exists at `/(auth)/terms` — must move to `/terms` (guest-facing) |
+| `/profile/activities` | ✅ Implemented | Member-only activity tabs: my threads (incl. own PENDING/REJECTED with status + reason per §7.1), my comments, bookmarks placeholder, notifications (M5) |
+| `/privacy-policy` | ✅ Implemented | PDPA static page — pure server component, no API calls (M5) |
+| `/terms` | ✅ Implemented | Moved out of `/(auth)` to `src/app/terms/page.tsx`; public static page, footer-linked (M5) |
 
 ### Non-PRD pages currently live
 
 | Page | Why not in PRD | Action |
 |------|---------------|--------|
 | ~~`/dashboard`~~ | Not in PRD sitemap | **Done 2026-09-23** — route deleted; its UI was promoted to become `/`. All inbound links re-pointed. |
-| `/community` | Not in PRD sitemap (added mid-build as programmes overview) | Delete page + remove inbound link — **not yet done; page still live** |
-| `/faq` | Not in PRD sitemap (was leftover stub) | Delete page + remove unused data file — **not yet done; page still live** |
+| ~~`/community`~~ | Not in PRD sitemap (added mid-build as programmes overview) | **Done 2026-09-23 (M2.5 B2)** — page, components and `communityData.ts` deleted; the single inbound link in `DashboardPanel.tsx` was found still live during M5 verification and re-pointed to `/about` |
+| ~~`/faq`~~ | Not in PRD sitemap (was leftover stub) | **Done 2026-09-23 (M2.5 B2)** — page, components and `faqData.ts` deleted; Header/Footer entries removed. Re-verified clean in M5 |
 | `/design-system` | Dev-only debug tool | Keep as-is; exclude from production sitemap/noindex at deploy |
 
 ### Links that needed re-pointing after the `/dashboard` removal — ✅ all done 2026-09-23
@@ -453,7 +453,7 @@ Batches (each ends with the three gates + a leftover-English spot check):
 
 ---
 
-### M5: Profile Activities + Search + Legal (§5.4.5, §5.2.12, §5.5)
+### M5: Profile Activities + Search + Legal (§5.4.5, §5.2.12, §5.5) — ✅ Done 2026-09-26
 
 **PRD sources:** §5.4.5, §5.2.12, §5.5.1, §5.5.2  
 **Depends on:** M2 (knowledge data for search index), M4 (webboard threads for activities tab)
@@ -464,6 +464,41 @@ Batches (each ends with the three gates + a leftover-English spot check):
 3. `/privacy-policy` — Static PDPA-compliant page. Pure server component, no API calls.
 4. Move `/terms` from `/(auth)/terms/page.tsx` → `/terms/page.tsx`. Public-facing, accessible to all.
 5. Delete non-PRD pages: `/community`, `/faq` — `/dashboard` already resolved on 2026-09-23 (route deleted, UI promoted to `/`). Remove unused data files: `communityData.ts`, `faqData.ts`. Re-point all inbound links (see §2 Deletions section). **⚠️ The homepage panel is `components/home/DashboardPanel.tsx` — do not delete it during this cleanup.**
+
+> **Scope-item 5 was already done** in M2.5 Batch 2 (2026-09-23). M5 treated it as a *verification* task, not a build task — see the note below. Its "see §2 Deletions section" cross-reference is dangling: there is no §2 Deletions section in this file. Do not go looking for it.
+
+#### Status: ✅ **Done** (2026-09-26) — all gates green
+
+**What shipped:**
+
+1. **`/profile/activities`** — member-only, URL-addressed tabs (`?tab=`), full APG tablist (roving `tabIndex`, Arrow/Home/End with focus follow-through; **not** a half-declared `role="tab"`).
+   - "กระทู้ของฉัน" and "ความคิดเห็นของฉัน" are **real backend data** (`GET /webboard/me/threads`, `GET /webboard/me/comments`, both MEMBER-gated), paginated through the shared `Pager`.
+   - **§7.1 is the reason the tab exists:** `me/threads` deliberately has *no* moderation filter, so the author sees their own PENDING/REJECTED/HIDDEN rows with a Thai status chip and, when a moderator rejected it, the `moderationNote` — the only screen where the pre-moderation gate is lifted, and only for the row's own author. `me/comments` keeps `post.moderation = PUBLISHED` so every row has an openable target, but does *not* filter the reply's own state, so a pending Youth Care reply shows its status (this is what M4 recorded the comment audit columns for).
+   - "เนื้อหาที่บันทึกไว้" is an **honest empty state** (`เร็ว ๆ นี้`); "การแจ้งเตือน" is real, with per-row mark-as-read.
+2. **`/search`** — guest-accessible, debounced (300 ms), type-filter chips, results grouped by type with badge labels, `aria-live` count. Member-only hits are listed with a lock badge (§5.2.12: show that they exist to encourage sign-up) and route a settled guest through the M1.5 `loginReturnHref` flow.
+3. **`/privacy-policy`** — public static server component, no API calls. Written to the PDPA shape §5.5.1 names (categories held, purposes, legal bases, retention, disclosure, data-subject rights) and describing what `schema.prisma` actually stores.
+4. **`/terms` moved** `(auth)/terms/page.tsx` → `app/terms/page.tsx`, rewritten as a public document (the auth group's layout is the sign-in canvas — wrong chrome for a page anyone may read). Closes **D3**. The register form now links both documents.
+5. **Notifications built properly** (not a placeholder): new `Notification` model + migration `20260926100000_add_notifications`, a producer inside the official-answer transaction, and `GET /notifications`, `GET /notifications/unread-count`, `PATCH /notifications/:id/read`. Closes **D18** and **D22**; the header bell is now a real link to the notifications tab instead of a second trigger for the account menu.
+
+**Deviations / decisions:**
+
+- **Search is client-side, over the static modules** (`lib/searchIndex.ts`). The backend has no content tables at all, so there is nothing for a search endpoint to query; building the index from `newsData` / `announcementData` / `knowledgeItemsData` / `partnerData` is the only coherent option and keeps a public page session-free. **Webboard threads are absent although §5.2.12 names "กระทู้"** — threads are live rows rendered client-side (D21), so indexing them needs a backend text-search endpoint that does not exist. Recorded as debt rather than faked.
+- **Bookmarks is a stated placeholder, not a scope dodge.** §5.4.5 lists the tab and §6.4 lists the feature, but there is no `Bookmark` model and, more decisively, **no producer**: the bookmarkable content lives in frontend constants with no durable identity, and no page in the app has a save affordance. A table nothing can write to would be scaffolding; the honest empty state plus a debt row is the truthful alternative.
+- **Notification rows point at `Post` rather than copying the thread title**, so the list joins for board + title and a deleted question cascades its notifications away. The enum has one value; adding a producer is a value plus a helper, never a reshape.
+- **The self-answer guard lives in the producer helper** (`notificationService.createYouthCareAnsweredNotification`), not at the call site, so every future caller inherits it. The member-facing comment route hard-codes `official: false`, so a member cannot trigger a notification at all.
+- **`markRead` is scoped by `userId` and answers 404 — not 403 — for another member's row**, so the two cases are indistinguishable. Idempotent: re-reading returns the original timestamp rather than moving it.
+- **A shared `Pager`/`totalPagesOf` was extracted into `webboardUi.tsx`** and M4's `BoardThreadList` switched to it, because the M5 tabs needed identical pagination. One control, one wording ("หน้า X จาก Y", "ก่อนหน้า", "ถัดไป").
+- **Scope item 5 re-verified, not rebuilt.** No `/community` or `/faq` route, component or data module remains, and no inbound link survives — **except one straggler the earlier pass missed**: `DashboardPanel.tsx` card 3 (สำนักงานการสตรี) still pointed at `/community`, i.e. a dead link on the homepage. Re-pointed to `/about`. (Card 2's TMYDA CTA had already been re-pointed to `/knowledge`.)
+
+**Review gate (repo-root `CODE_REVIEW_SKILL.md`):** one pass over the whole M5 diff, scoped to React/TypeScript + the universal-quality guides. Verdict 🔄 *Request Changes* with **one blocker**, now fixed:
+
+- **Must-fix:** `/profile/activities` listed the author's own PENDING/REJECTED threads (correct, §7.1) but linked each title to the public thread route, which 404s for exactly those rows — the flagship tab contradicted itself. Fixed by rendering an unreviewed title as plain text, leaving the status chip and the moderator's note to carry the message. (The alternative — a `viewerId === authorId` exemption in `getThread` — was rejected: it widens the §7.1 gate and needs its own tests.)
+- **Also fixed from the same pass:** `searchIndex`'s haystack comment claimed a title-weighting that no code implemented (the title was repeated three times against an `includes()` that repetition cannot influence), and per-group truncation was invisible. Now the title is kept in a separate haystack used for a real rank, groups carry a `total`, and the UI says "แสดง N จาก M รายการ" when capped. `Pager` extraction, the tabpanel's `tabIndex`, a Back/Forward page-reset, and a factually wrong route-ordering comment were corrected too.
+- **Accepted and recorded, not fixed:** the footer's `bg-[#0052ff]` / `text-blue-200` literals (the whole footer band is a pre-existing sanctioned exception to the token rule; M5's new legal row follows it rather than widening it).
+
+**Definition of Done:** all five scope items satisfied ✅ (item 5 by verification) · `/profile/activities` shows the member's own PENDING question with status **and** reason ✅ · search is guest-accessible, debounced, grouped with badges, and honest about member-only hits ✅ · privacy policy is a pure server component with no API calls ✅ · `/terms` is public and footer-linked ✅ · no hardcoded colours in any new component (footer exception noted) ✅ · keyboard contract kept (APG tablist, `aria-pressed` filters, `aria-live` counts, real links for navigation, no `role="menu"`) ✅ · all gates green ✅
+
+**Gates run:** `frontend` `tsc --noEmit` clean · `npm run build` **55/55 pages** (was 52 after M4) · `backend` `npm run build` clean · backend suites **126 checks, 0 failures** (`webboard` 47, `webboardRoutes` 27, `notificationRoutes` 8, `signUrlService` 41, `assetSignRole` 3) · a **temporary in-process harness against the live DB** ran 17 assertions on the new paths (PENDING visibility to its author only, `getThread` still 404s it, the producer landing in the same transaction as `answeredAt`, the self-answer guard, cross-member `markRead` → 404, idempotency, `me/comments` dropping a hidden thread, pagination totals) and confirmed **zero leftover rows**; the script was then deleted.
 
 ---
 
@@ -581,27 +616,29 @@ The original plan deleted the panel outright. Executed instead as **promotion**:
 - [x] Verify runtime — `/` → 200, `/dashboard` → 404
 - [x] **Re-verified 2026-09-23 on a clean rebuild after clearing `.next`** — `/` → 200 serving the panel (not the old stub), `/dashboard` → 404, and the rebuilt route manifest is free of `dashboard`
 
-### Delete: `/community` — pulled forward to M2.5-1 (2026-09-23, owner decision D-T4)
-- [ ] Delete `frontend/src/app/community/page.tsx`
-- [ ] Delete `frontend/src/components/community/CommunityPage.tsx`
-- [ ] **⚠️ Updated 2026-09-23:** `DashboardPanel.tsx` was NOT deleted — it was promoted to the `/` homepage and now lives at `components/home/DashboardPanel.tsx`. Do **not** delete it. Its category-card CTA (`href="/community"`, the SDU TMYDA card) must be re-pointed to `/knowledge` — matching the sibling TMYDA card's CTA.
-- [ ] Delete `frontend/src/lib/communityData.ts`
-- [ ] Header `DEFAULT_NAVIGATION`: remove the `Community` entry
-- [ ] Verify build passes
+### Delete: `/community` — ✅ done M2.5-1 (2026-09-23), **re-verified and finished in M5** (2026-09-26)
+- [x] Delete `frontend/src/app/community/page.tsx`
+- [x] Delete `frontend/src/components/community/CommunityPage.tsx`
+- [x] **⚠️ `DashboardPanel.tsx` was NOT deleted** — promoted to the `/` homepage at `components/home/DashboardPanel.tsx`. Do **not** delete it.
+- [x] Card 2 (TMYDA) CTA re-pointed `/community` → `/knowledge` (M2.5)
+- [x] **Card 3 (สำนักงานการสตรี) CTA re-pointed `/community` → `/about` (M5)** — the M2.5 pass missed this second instance: the homepage carried *two* `/community` links, and card 3's was left pointing at the deleted route, i.e. a dead link. Found by M5's scope-item-5 verification, which is exactly what that step was for. `/about` (not `/knowledge`) because the card describes an organisational body, matching card 1's destination.
+- [x] Delete `frontend/src/lib/communityData.ts`
+- [x] Header `DEFAULT_NAVIGATION`: remove the `Community` entry (7 Thai entries remain)
+- [x] Verify build passes — and M5 re-grepped all of `src/**` for `community`: the only hit left is a partner's *name* in `partnerData.ts` ("Springfield Community Centre")
 
-### Delete: `/faq` — pulled forward to M2.5-1 (2026-09-23, owner decision D-T4)
-- [ ] Delete `frontend/src/app/faq/page.tsx`
-- [ ] Delete `frontend/src/components/faq/FaqPage.tsx`
-- [ ] Delete `frontend/src/lib/faqData.ts`
-- [ ] Verify no remaining imports of `FaqPage` or `FAQ_ITEMS`
-- [ ] Footer `คำถามที่พบบ่อย` link entry removed
-- [ ] Verify build passes
+### Delete: `/faq` — ✅ done M2.5-1 (2026-09-23), re-verified clean in M5
+- [x] Delete `frontend/src/app/faq/page.tsx`
+- [x] Delete `frontend/src/components/faq/FaqPage.tsx`
+- [x] Delete `frontend/src/lib/faqData.ts`
+- [x] Verify no remaining imports of `FaqPage` or `FAQ_ITEMS`
+- [x] Footer `คำถามที่พบบ่อย` link entry removed
+- [x] Verify build passes
 
-### Note: `/terms` relocation (not deletion)
-- [ ] Move `frontend/src/app/(auth)/terms/page.tsx` → `frontend/src/app/terms/page.tsx`
-- [ ] Verify terms page accessible at `/terms` without auth wrapper
-- [ ] Update any imports referencing old group path
-- [ ] Verify build passes
+### Note: `/terms` relocation (not deletion) — ✅ done 2026-09-26 (M5)
+- [x] Move `frontend/src/app/(auth)/terms/page.tsx` → `frontend/src/app/terms/page.tsx`
+- [x] Verify terms page accessible at `/terms` without auth wrapper (public document, own `max-w-3xl` container; the auth group's sign-in canvas no longer wraps it)
+- [x] Update any imports referencing old group path (the register form's `AuthLink href="/terms"` was already URL-based, so it resolved unchanged; it now also links `/privacy-policy`)
+- [x] Verify build passes (55/55 pages) — plus both legal pages linked from a new footer `นโยบายและข้อกำหนด` row
 
 ---
 
@@ -614,7 +651,7 @@ The original plan deleted the panel outright. Executed instead as **promotion**:
 | D0 | SMTP credentials not verified | `SMTP_HOST=localhost` in `.env.example`. Real SMTP needed for OTP/email delivery (§6.3). Non-fatal: app continues without email, but OTP resets impossible. | Obtain real SMTP creds → set in `.env` → restart → verify transport works | None |
 | D1 | Bucket name consistency | Tests hardcode `"assets"` in some assertions. PRD + `.env` say `"fityatulhaq-assets"`. Must align test expectations to actual bucket name used in prod/dev | Confirm bucket name against dashboard, then fix test stubs in `imageValidation.test.ts` lines that assert bucket strings | M0 completion |
 | D2 | E2E smoke test never run | register → login → profile cycle against live Dev PG not formally executed | Manual end-to-end: register via API, login, verify session cookie, navigate to profile, upload avatar, confirm 200 on public URL | D1 resolved |
-| D3 | `/terms` mislocated | Currently under `/(auth)/terms` (authenticated group). Should be public at `/terms` per PRD §5.5.2 | Move to `src/app/terms/page.tsx` | M5 |
+| D3 | `/terms` mislocated | Currently under `/(auth)/terms` (authenticated group). Should be public at `/terms` per PRD §5.5.2 | ✅ Resolved 2026-09-26 — moved to `frontend/src/app/terms/page.tsx` and rewritten as a public document; the register form links it, and the footer gained a `นโยบายและข้อกำหนด` row linking both legal pages |
 
 ### 🟠 HIGH
 
@@ -624,15 +661,24 @@ The original plan deleted the panel outright. Executed instead as **promotion**:
 | D5 | Committee data static | §5.1.7 says Web 2 API sync with `publicDisplay` flag. Currently hardcoded. | Open — deferred to M6 |
 | D6 | Donate placeholders | Bank details and QR codes are obviously-placeholder values. Real data needed for launch. Impact-tile currency switched to `฿` in B4 (amounts still mock). | Open — defer to M7 |
 | D7 | Knowledge sub-routes absent (§5.2.2–§5.2.11). | ✅ Resolved — M2 built all ten routes; B4 localised them (2026-09-25) |
-| D8 | Search endpoint missing | Global unified search absent (§5.2.12). | Open — M5 |
-| D9 | Profile activities missing | `/profile/activities` absent (§5.4.5). | Open — M5 |
-| D10 | Privacy policy missing | `/privacy-policy` absent (§5.5.1). | Open — M5 |
+| D8 | Search endpoint missing | Global unified search absent (§5.2.12). | ✅ Resolved 2026-09-26 (M5) — `/search` shipped as a **client-side** index over the static content modules, with type filters, badges and lock labels for member-only hits. Not a backend endpoint: Web 1 has no content tables. Caveats → **D24**. |
+| D9 | Profile activities missing | `/profile/activities` absent (§5.4.5). | ✅ Resolved 2026-09-26 (M5) — four tabs; threads and comments are real backend data (`GET /webboard/me/*`), notifications are real (D18/D22 closed). Bookmarks remain a placeholder → **D23**. |
+| D10 | Privacy policy missing | `/privacy-policy` absent (§5.5.1). | ✅ Resolved 2026-09-26 (M5) — public static server component, no API calls, written to the PDPA shape §5.5.1 names. Contact details are the footer's placeholders (see D6). |
 | D11 | Role enum unrecorded | ✅ Resolved 2026-09-26 — the original description was stale: `schema.prisma`, the generated Prisma client, `types/index.ts`, `requireRole.ts` and the live DB enum were **all** already `GUEST|MEMBER|CONTENT_MODERATOR`. The real fault was bookkeeping: migration `20260923012900_change_roles_enum` was never **recorded** in `_prisma_migrations`, so `migrate status` reported it pending and any `migrate deploy` would have re-run the rename/cast. Reconciled with `prisma migrate resolve --applied` after `prisma migrate diff --from-config-datasource --to-schema` confirmed **zero drift**. | ✅ Resolved (2026-09-26) |
-| D18 | Notifications API missing | The header bell's unread badge is mock (`PLACEHOLDER_UNREAD_NOTIFICATION_COUNT = 2` in `lib/notificationData.ts`, §3.3). No `/notifications` endpoint exists, so the red dot is a placeholder until the activity feed / Web 2 supply real items. | Open — M5 (activity tabs) / M6 (Web 2) |
+| D18 | Notifications API missing | The header bell's unread badge is mock (`PLACEHOLDER_UNREAD_NOTIFICATION_COUNT = 2` in `lib/notificationData.ts`, §3.3). No `/notifications` endpoint exists, so the red dot is a placeholder until the activity feed / Web 2 supply real items. | ✅ Resolved 2026-09-26 (M5) — `Notification` model + migration `20260926100000_add_notifications`, `GET /notifications`, `GET /notifications/unread-count`, `PATCH /notifications/:id/read`. `lib/notificationData.ts` now calls the real endpoint; the placeholder constant and its docstring are gone. The bell navigates to the notifications tab. Caveat → **D25**. |
 | D19 | Profanity screen is deliberately basic | §7.3 asks only for a "basic" filter (คำหยาบเบื้องต้น). Matching is a curated substring list for both scripts, so it catches compounds (`shithead`) at the price of documented collisions (`Scunthorpe` → `cunt`), and it does not defeat deliberate evasion (leet spellings, spaced letters). Two obvious Thai candidates were removed to keep false positives near zero (`สัด`→`สัดส่วน`, `แม่ง`→`แม่งาน`). | Open — by design; revisit only if the board is actually abused |
 | D20 | Webboard sort order can disagree with the displayed count | `sort=popular` / `most-replied` order by Prisma relation counts, which cannot be filtered to PUBLISHED the way `_count` can. A hidden reply can therefore influence the ordering while being excluded from the number shown beside it. | Open — cosmetic, and only after a moderator hides something |
 | D21 | Webboard content is client-rendered | Thread and board text arrives via `fetch` after mount, so it is not in the initial HTML. §9.4's SEO requirement names news, articles and courses rather than the board, and the pages need the session for their "you liked this" state; a session-blind SSR path would be a second fetch route to keep in step. | Open — revisit if organic search matters for the board |
-| D22 | No notification when a Youth Care question is answered | §5.3.2 promises the asker a notification when someone replies, and the status view for their own question is `/profile/activities` (§7.1). Both need the activity feed and the notifications endpoint that D18 already tracks; the webboard records `answeredAt` and the author of every post, so nothing is lost in the meantime. | Open — M5 (activity tabs) with D18 |
+| D22 | No notification when a Youth Care question is answered | §5.3.2 promises the asker a notification when someone replies, and the status view for their own question is `/profile/activities` (§7.1). Both need the activity feed and the notifications endpoint that D18 already tracks; the webboard records `answeredAt` and the author of every post, so nothing is lost in the meantime. | ✅ Resolved 2026-09-26 (M5) — the producer runs **inside the official answer's `$transaction`** (`notificationService.createYouthCareAnsweredNotification`, called from `webboardService.createComment` when `official: true`), so a rolled-back answer cannot leave a phantom row. Self-answers write nothing; the guard lives in the helper, not the call site. The member-facing comment route hard-codes `official: false`, so a member cannot trigger one. |
+
+### 🟠 HIGH — added by M5
+
+| # | Debt | Detail | Status |
+|---|------|--------|--------|
+| D23 | Bookmarks are unimplemented | §5.4.5 lists a "เนื้อหาที่บันทึกไว้" tab and §6.4 lists Bookmark as a member feature, but there is no `Bookmark` model **and no producer**: bookmarkable content lives in frontend constants with no durable id, and no page has a save affordance. The tab is an honest `เร็ว ๆ นี้` empty state rather than a table nothing can write to. | Open — needs a content model first (see D24) |
+| D24 | Search covers only static content, not the webboard | `/search` indexes the mock modules under `frontend/src/lib/`. §5.2.12 names "กระทู้" among the categories, but threads are live database rows rendered client-side (D21), so indexing them needs a backend text-search endpoint that does not exist. The index also cannot survive the move to DB-backed content without being replaced. | Open — revisit with D21 / when content moves to the DB |
+| D25 | The bell badge does not live-update | `AccountMenu` fetches `unread-count` once, keyed on `[user.id]`. Marking a notification read in the notifications tab reloads that list but nothing tells the header, so the red dot stays lit until a full page load. There is no shared client store for it. | Open — needs a small notification context/event, or acceptance |
+| D26 | The new activity queries have no DB-backed test | `webboardRoutes.test.ts` and `notificationRoutes.test.ts` prove the 401/403 route gate only, by design (no DB in the suites). The correctness-critical parts — `listMyThreads`/`listMyComments` scoping, and the in-transaction producer with its self-answer guard — were verified by a temporary live-DB harness that was then deleted, not by a committed test. | Open — consistent with the repo's no-DB test approach; a committed DB-backed suite would need an isolated schema |
 
 ### 🟡 MEDIUM — Non-functional gating
 
@@ -649,12 +695,12 @@ The original plan deleted the panel outright. Executed instead as **promotion**:
 
 ## 🤖 COORDINATION PROTOCOL
 
-- **Coordinator (this AI):** Engineers prompts, runs deep-code-review gate, updates this file
+- **Coordinator (this AI):** Engineers prompts, runs the `CODE_REVIEW_SKILL.md` gate, updates this file
 - **Zed (execution coder):** Writes code following prompts. One continuous thread per milestone
 - **Big Mo (project owner):** Bridges coordinator ↔ Zed. Final authority on acceptance
 - **Model routing:** DeepSeek Flash = complex logic/architecture. GLM Flash = scaffolding/UI/large files
 - **Prompt hygiene:** Single-copyable markdown blocks; anticipate side effects 3 steps ahead; zero-rework philosophy
-- **Verification gates:** Non-negotiable. `tsc --noEmit` → `npm run build` (FE) → `npm run build` (BE) → deep-code-review. All three must pass before marking any step done
+- **Verification gates:** Non-negotiable. `tsc --noEmit` → `npm run build` (FE) → `npm run build` (BE) → repo-root `CODE_REVIEW_SKILL.md`. All three must pass before marking any step done
 - **Accessibility floor:** Semantic landmarks, `aria-expanded/current/modal`, Escape-dismiss modals, focus trapping, `prefers-reduced-motion` — house standard, never break
 
 ---
@@ -680,7 +726,7 @@ The original plan deleted the panel outright. Executed instead as **promotion**:
 - Backend boot logs SMTP warning until real credentials set — EXPECTED, not a breakage
 - Cookie auth + 0 localStorage refs verified
 - Mock data files persist as runtime fallback until manual removal confirmed
-- Code-review gate: run the repo-root `CODE_REVIEW_SKILL.md`. The old `deep-code-review` skill path (`C:\Users\muham\.openclaw\`) was deleted 2026-09-23 and **must not be restored** (owner decision 2026-09-24) — M2.5 B4 and M3 were both reviewed from the repo-root skill.
+- Code-review gate: run the repo-root `CODE_REVIEW_SKILL.md`. The old `deep-code-review` skill path (`C:\Users\muham\.openclaw\`) was deleted 2026-09-23 and **must not be restored** (owner decision 2026-09-24) — M2.5 B4, M3, M4 (two passes) and M5 were all reviewed from the repo-root skill.
 - Stale `.next` serves a previous version of a page (blank output or outdated UI) after a route change or a build/dev collision; the same cache produces phantom `TS2307` errors for deleted routes. Recovery protocol is under HOW TO RUN — deleting `.next` is always safe, and the fix is never in source.
 - Gitignored scratch that will reappear in `git status` if the rules are ever lost: `.tmp.driveupload/` (OneDrive upload staging), `memory/` and `.openclaw/` (coordinator runtime state). `.previews/` is tracked on purpose.
 - **Never run two `next dev` instances on the same checkout** — they share one `.next` and corrupt each other (2026-09-23: a second instance on :3001 sat alongside the detached one on :3000; both were killed and a single fresh instance started). One server, or none.
@@ -693,7 +739,8 @@ The original plan deleted the panel outright. Executed instead as **promotion**:
 
 1. Read this whole file (milestones section first, then debt register, then quick reference)
 2. Run the verification chain: `tsc --noEmit` (FE) → `npm run build` (FE) → `npm run build` (BE). If a deleted route raises a phantom `TS2307`, delete `.next` first — see HOW TO RUN
-3. M2.5 and M3 are complete (M2.5 Batches 1, 1.5, B2, B3, B4 plus M3 — all gated green). The next work is **M4: Webboard — Real Content** (§5.3 + §7 moderation), whose scope is listed under M4 above. M5 (search/activities/legal), M6 (Web 2 integration) and M7 (NFR + deploy) follow.
-4. After each step: update this file, update Last Updated timestamp, record gates passed
-5. Never claim done without all three gates passing
-6. This file is the only handover surface — the coordinator's `memory/` notes and `.zedignore` are gitignored machine state, not documentation
+3. **M0–M5 are complete, all gated green** (M2.5 Batches 1, 1.5, B2, B3, B4; M3; the D11 debt fix; M4 webboard; M5 profile activities + search + legal). The next work is **M6: Web 2 Integration** (§8.2), scope listed under M6 above — committee sync with its live/fallback toggle, knowledge-asset signed URLs, and `/about/committee` switching from local data to the live API. M7 (NFR + deploy) follows.
+4. **Live DB note:** 5 migrations applied and `prisma migrate status` reports "up to date". M5 added `20260926100000_add_notifications`. The Prisma 7 migration workflow and its traps are recorded under M4's notes — in particular, `--from-schema-datasource` is removed and `--to-migrations` fails without a shadow DB; use `migrate diff --from-config-datasource --to-schema` then `migrate deploy`.
+5. After each step: update this file, update Last Updated timestamp, record gates passed
+6. Never claim done without all three gates passing
+7. This file is the only handover surface — the coordinator's `memory/` notes and `.zedignore` are gitignored machine state, not documentation

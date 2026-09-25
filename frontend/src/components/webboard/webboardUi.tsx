@@ -183,13 +183,75 @@ function CountBadge({
   );
 }
 
-/** A full date, for a thread header where "3 ชั่วโมงที่แล้ว" is too vague. */
+/**
+ * A full date, for a thread header where "3 ชั่วโมงที่แล้ว" is too vague.
+ */
 export function FullDate({ iso }: { iso: string }): ReactElement {
   return (
     <time dateTime={iso} className="text-caption text-ink-500">
       {formatDate(iso)}
     </time>
   );
+}
+
+/**
+ * Previous/next pager for a paginated list.
+ *
+ * Extracted from the board list when the M5 activity tabs needed the same
+ * control: the label wording ("หน้า X จาก Y", "ก่อนหน้า", "ถัดไป"), the
+ * `QUIET_BUTTON_CLASSES` styling and the `aria-label="แบ่งหน้า"` landmark are part
+ * of the house contract, and two copies would eventually disagree about one of
+ * them. Buttons rather than links because the caller owns the page number in
+ * component state — the URL is not the source of truth for a board list.
+ */
+export function Pager({
+  page,
+  totalPages,
+  onChange,
+}: {
+  page: number;
+  totalPages: number;
+  onChange: (next: number) => void;
+}): ReactElement | null {
+  if (totalPages <= 1) {
+    return null;
+  }
+
+  return (
+    <nav aria-label="แบ่งหน้า" className="flex items-center justify-between gap-4">
+      <button
+        type="button"
+        disabled={page <= 1}
+        onClick={(): void => onChange(Math.max(1, page - 1))}
+        className={QUIET_BUTTON_CLASSES}
+      >
+        ก่อนหน้า
+      </button>
+
+      <p className="text-caption text-ink-600">{`หน้า ${page} จาก ${totalPages}`}</p>
+
+      <button
+        type="button"
+        disabled={page >= totalPages}
+        onClick={(): void => onChange(Math.min(totalPages, page + 1))}
+        className={QUIET_BUTTON_CLASSES}
+      >
+        ถัดไป
+      </button>
+    </nav>
+  );
+}
+
+/**
+ * Total pages for a pager block, floored at 1 so an empty list still reports
+ * "หน้า 1 จาก 1" rather than a zero the caller would have to guard.
+ */
+export function totalPagesOf(pagination: { total: number; limit: number } | null): number {
+  if (pagination === null || pagination.limit <= 0) {
+    return 1;
+  }
+
+  return Math.max(1, Math.ceil(pagination.total / pagination.limit));
 }
 
 // ---------------------------------------------------------------------------

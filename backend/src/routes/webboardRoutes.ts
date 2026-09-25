@@ -86,6 +86,19 @@ router.get(
 );
 
 // ---------------------------------------------------------------------------
+// §5.4.5 — the member's own activity, consumed by `/profile/activities`
+//
+// Mounted among the member-only routes rather than with the public reads below,
+// because unlike them nothing here is readable without a session. There is no
+// shadowing risk from `/boards/:board/...` — that pattern is namespaced under
+// `/boards/`, so a `me` segment can never be read as a board name — but keeping
+// the two `/me/*` routes adjacent documents that they are a pair.
+// ---------------------------------------------------------------------------
+
+router.get("/me/threads", ...MEMBER_ONLY, webboardController.listMyThreads);
+router.get("/me/comments", ...MEMBER_ONLY, webboardController.listMyComments);
+
+// ---------------------------------------------------------------------------
 // Writes — member only, rate limited per account
 // ---------------------------------------------------------------------------
 

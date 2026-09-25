@@ -155,6 +155,46 @@ export const YOUTH_CARE_FILTERS = {
 export type YouthCareFilter =
   (typeof YOUTH_CARE_FILTERS)[keyof typeof YOUTH_CARE_FILTERS];
 
+// ---------------------------------------------------------------------------
+// Notifications — §3.3 (header bell) + §5.4.5 (notifications tab)
+// ---------------------------------------------------------------------------
+
+/** Why a notification exists; mirrors the Prisma `NotificationType` enum. */
+export const NOTIFICATION_TYPES = {
+  YOUTH_CARE_ANSWERED: "YOUTH_CARE_ANSWERED",
+} as const;
+
+export type NotificationTypeValue =
+  (typeof NOTIFICATION_TYPES)[keyof typeof NOTIFICATION_TYPES];
+
+/** The thread a notification points at — just enough to render a link. */
+export interface NotificationThreadView {
+  id: string;
+  board: BoardKey;
+  title: string;
+}
+
+/** One row in the notifications tab (§5.4.5); the bell counts the unread ones. */
+export interface NotificationView {
+  id: string;
+  type: NotificationTypeValue;
+  /** Null while unread. */
+  readAt: string | null;
+  createdAt: string;
+  thread: NotificationThreadView;
+}
+
+/** `GET /notifications/unread-count` — the header bell's badge (§3.3). */
+export interface UnreadNotificationCountView {
+  count: number;
+}
+
+/** `PATCH /notifications/:notificationId/read` result. */
+export interface ReadNotificationView {
+  id: string;
+  readAt: string;
+}
+
 /** A member as the general board renders them. */
 export interface MemberAuthorView {
   id: string;
@@ -308,6 +348,44 @@ export interface ModerationQueueView {
   pendingThreadTotal: number;
   pendingCommentTotal: number;
   openReportTotal: number;
+}
+
+/**
+ * `GET /webboard/me/threads` — one of the caller's own threads (§5.4.5).
+ *
+ * Unlike `ThreadSummaryView` this carries no `author` (the reader *is* the
+ * author) and it does **not** filter to PUBLISHED: §7.1 routes the author's
+ * view of their own pending Youth Care question through `/profile/activities`,
+ * which is the whole reason the tab exists. `moderation` + `moderationNote`
+ * are therefore part of the payload rather than hidden.
+ */
+export interface MyThreadView {
+  id: string;
+  board: BoardKey;
+  title: string;
+  excerpt: string;
+  moderation: ModerationStatusValue;
+  /** Why a moderator rejected or hid it; null unless someone did (§7.1). */
+  moderationNote: string | null;
+  isAnswered: boolean;
+  commentCount: number;
+  likeCount: number;
+  createdAt: string;
+}
+
+/** `GET /webboard/me/comments` — one of the caller's own replies (§5.4.5). */
+export interface MyCommentView {
+  id: string;
+  threadId: string;
+  threadTitle: string;
+  board: BoardKey;
+  excerpt: string;
+  moderation: ModerationStatusValue;
+  moderationNote: string | null;
+  /** The Youth Care team's official answer (§7.1). */
+  isOfficial: boolean;
+  likeCount: number;
+  createdAt: string;
 }
 
 /**

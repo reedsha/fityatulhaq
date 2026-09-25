@@ -139,6 +139,11 @@ const REPORT_FALLBACK = {
   message: "Unable to file the report",
 } as const;
 
+const MY_ACTIVITY_FALLBACK = {
+  code: "WEBBOARD_ACTIVITY_FAILED",
+  message: "Unable to load your activity",
+} as const;
+
 /** §5.3.3 tag catalogue, served so the board chips and the API cannot drift. */
 export function listTags(_req: Request, res: Response): void {
   res.status(200).json(formatAuthResponse({ tags: BOARD_TAGS }));
@@ -202,6 +207,62 @@ export async function getThread(
     res.status(200).json(formatAuthResponse(thread));
   } catch (error) {
     next(toHttpError(error, THREAD_READ_FALLBACK));
+  }
+}
+
+// ---------------------------------------------------------------------------
+// §5.4.5 — the member's own activity (profile/activities)
+//
+// These read webboard rows but are not part of §5.3's public surface: they are
+// scoped to the caller, and the route table gates them to MEMBER. That is why
+// they live here rather than in a separate service — the projections, the
+// `toExcerpt` helper and the PUBLISHED constant are all shared with the lists
+// above, and a second copy would drift.
+// ---------------------------------------------------------------------------
+
+/** §5.4.5 "กระทู้ที่ตั้ง" — the caller's own threads, including unreviewed ones. */
+export async function listMyThreads(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const { page, limit, skip } = parsePagination(req.query);
+
+    const result = await webboardService.listMyThreads({
+      authorId: requireUserId(req),
+      skip,
+      take: limit,
+    });
+
+    res
+      .status(200)
+      .json(formatAuthResponse(result.threads, { page, limit, total: result.total }));
+  } catch (error) {
+    next(toHttpError(error, MY_ACTIVITY_FALLBACK));
+  }
+}
+
+/** §5.4.5 "คอมเมนต์ของฉัน" — the caller's own replies, including pending ones. */
+export async function listMyComments(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const { page, limit, skip } = parsePagination(req.query);
+
+    const result = await webboardService.listMyComments({
+      authorId: requireUserId(req),
+      skip,
+      take: limit,
+    });
+
+    res
+      .status(200)
+      .json(formatAuthResponse(result.comments, { page, limit, total: result.total }));
+  } catch (error) {
+    next(toHttpError(error, MY_ACTIVITY_FALLBACK));
   }
 }
 

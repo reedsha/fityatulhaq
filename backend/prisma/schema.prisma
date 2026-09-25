@@ -73,6 +73,8 @@ model User {
   reportsFiled     Report[]   @relation("ReportReporter")
   reportsResolved  Report[]   @relation("ReportResolver")
 
+  notifications    Notification[]
+
   @@index([syncStatus])
 }
 
@@ -192,6 +194,7 @@ model Post {
   comments  Comment[]
   reactions Reaction[]
   reports   Report[]
+  notifications Notification[]
 
   /// Web 2 sync prep (SRS §8.2): null = created locally in Web 1.
   sourceId   String?
@@ -264,6 +267,15 @@ model Reaction {
   @@index([commentId])
 }
 
+/// Why a notification exists (§3.3 bell, §5.4.5 notifications tab).
+/// One value today — the enum is the seam for more producers (M6) without
+/// reshaping the table or the payload.
+enum NotificationType {
+  /// The Youth Care team posted the official answer to a member's question
+  /// (§5.3.2 "รับการแจ้งเตือนเมื่อมีคนตอบ").
+  YOUTH_CARE_ANSWERED
+}
+
 /// An "inappropriate content" report from §7.2, filed from any thread or
 /// comment and reviewed in the moderation queue.
 ///
@@ -296,4 +308,33 @@ model Report {
   @@index([postId])
   @@index([commentId])
   @@index([syncStatus])
+}
+
+/// A member-facing notification.
+///
+/// Produced in Web 1 today by one event: the Youth Care team's official answer
+/// on a member's question (see `NotificationType`). §5.3.2 promises the asker a
+/// notification when someone replies, and §7.1 routes their view of their own
+/// question's status through `/profile/activities` — so the row has to exist in
+/// the database rather than being derived at render time.
+///
+/// The row points at the thread rather than copying its title: the notification
+/// list joins `Post` for the board and title, so a retitled thread (there is no
+/// rename today, but there may be) cannot leave a stale copy behind. Deleting
+/// the question cascades its notifications away with it.
+model Notification {
+  id        String           @id @default(cuid(2))
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  postId    String
+  post      Post             @relation(fields: [postId], references: [id], onDelete: Cascade)
+  /// Null while unread. The bell's badge counts the nulls; the tab offers a
+  /// per-row "mark read" rather than clearing the whole feed on open, so a
+  /// member who glances at the bell does not lose the markers.
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  @@index([userId, createdAt])
+  @@index([userId, readAt])
 }

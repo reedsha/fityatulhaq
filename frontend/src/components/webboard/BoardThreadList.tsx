@@ -24,9 +24,10 @@ import {
   ErrorState,
   LoadingBlock,
   MemberActionLink,
+  Pager,
   PRIMARY_BUTTON_CLASSES,
-  QUIET_BUTTON_CLASSES,
   ThreadCard,
+  totalPagesOf,
 } from "./webboardUi";
 
 /**
@@ -91,10 +92,7 @@ export function BoardThreadList({ board }: { board: BoardKey }): ReactElement {
 
   const threads = threadsResource.data?.data ?? [];
   const pagination = threadsResource.data?.pagination ?? null;
-  const totalPages =
-    pagination === null || pagination.limit === 0
-      ? 1
-      : Math.max(1, Math.ceil(pagination.total / pagination.limit));
+  const totalPages = totalPagesOf(pagination);
 
   return (
     <div className="space-y-6">
@@ -236,33 +234,7 @@ export function BoardThreadList({ board }: { board: BoardKey }): ReactElement {
         </ul>
       ) : null}
 
-      {totalPages > 1 ? (
-        <nav aria-label="แบ่งหน้า" className="flex items-center justify-between gap-4">
-          <button
-            type="button"
-            disabled={page <= 1}
-            onClick={(): void => {
-              setPage((current) => Math.max(1, current - 1));
-            }}
-            className={QUIET_BUTTON_CLASSES}
-          >
-            ก่อนหน้า
-          </button>
-
-          <p className="text-caption text-ink-600">{`หน้า ${page} จาก ${totalPages}`}</p>
-
-          <button
-            type="button"
-            disabled={page >= totalPages}
-            onClick={(): void => {
-              setPage((current) => Math.min(totalPages, current + 1));
-            }}
-            className={QUIET_BUTTON_CLASSES}
-          >
-            ถัดไป
-          </button>
-        </nav>
-      ) : null}
+      <Pager page={page} totalPages={totalPages} onChange={setPage} />
     </div>
   );
 }
