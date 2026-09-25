@@ -1,9 +1,18 @@
 "use client";
 
-import { ChevronDown, Menu, X } from "lucide-react";
+import {
+  Bell,
+  CalendarDays,
+  ChevronDown,
+  LogOut,
+  Menu,
+  Settings,
+  User,
+  X,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   useCallback,
   useEffect,
@@ -13,7 +22,9 @@ import {
 } from "react";
 
 import fityatulhaqWhiteLogo from "@/assets/logos/fityatulhaq-white.png";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth, type AuthUser } from "@/context/AuthContext";
+import { initialsOf } from "@/lib/avatar";
+import { getUnreadNotificationCount } from "@/lib/notificationData";
 
 /** Shared focus treatment so keyboard focus is always visible on interactive elements. */
 export const FOCUS_RING =
@@ -93,6 +104,270 @@ const NAV_LINK_IDLE_CLASSES =
 
 const NAV_LINK_ACTIVE_CLASSES = "border-accent-300 text-ink-50";
 
+/** Circle sizes for the header avatar: the desktop trigger and the drawer row. */
+const AVATAR_SIZES = {
+  sm: { className: "h-7 w-7", px: 28, text: "text-caption" },
+  md: { className: "h-10 w-10", px: 40, text: "text-body-sm" },
+} as const;
+
+/**
+ * The member's uploaded photo, or their initials when no photo is stored.
+ *
+ * Rendered as a plain `<img>` rather than `next/image`: avatars are served from
+ * the Supabase storage host, which would otherwise have to be added to
+ * `images.remotePatterns`, and the optimiser buys nothing for an image that is
+ * already stored at display size. The alt text is empty because every call site
+ * labels the avatar itself — the button's accessible name, or the member name
+ * printed beside it in the drawer.
+ */
+function AvatarCircle(props: {
+  fullName: string;
+  avatarUrl: string | null;
+  size: keyof typeof AVATAR_SIZES;
+}): ReactElement {
+  const { fullName, avatarUrl, size } = props;
+  const dimensions = AVATAR_SIZES[size];
+
+  if (avatarUrl !== null && avatarUrl.length > 0) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={avatarUrl}
+        alt=""
+        width={dimensions.px}
+        height={dimensions.px}
+        className={`${dimensions.className} shrink-0 rounded-full object-cover`}
+      />
+    );
+  }
+
+  return (
+    <span
+      aria-hidden="true"
+      className={`flex ${dimensions.className} shrink-0 items-center justify-center rounded-full bg-brand-600`}
+    >
+      <span className={`${dimensions.text} font-bold text-white`}>{initialsOf(fullName)}</span>
+    </span>
+  );
+}
+
+const ACCOUNT_ITEM_BASE_CLASSES =
+  "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-body-sm";
+
+const ACCOUNT_ITEM_CLASSES = `${ACCOUNT_ITEM_BASE_CLASSES} text-ink-300 transition duration-fast ease-standard motion-reduce:transition-none hover:bg-ink-800/60 hover:text-ink-50 ${FOCUS_RING_DARK}`;
+
+/** A destination that is reachable but whose screen has not been built yet. */
+const ACCOUNT_ITEM_DISABLED_CLASSES = `${ACCOUNT_ITEM_BASE_CLASSES} cursor-not-allowed text-ink-400/70`;
+
+const ACCOUNT_MENU_ID = "account-menu";
+
+/** Marks a menu entry whose screen is still a placeholder (D9, and no settings page yet). */
+function ComingSoonBadge(): ReactElement {
+  return (
+    <span className="ml-auto rounded-full bg-ink-800/80 px-2 py-0.5 text-caption font-medium text-ink-400">
+      เร็ว ๆ นี้
+    </span>
+  );
+}
+
+/**
+ * Signed-in controls on the desktop rail: the notification bell and the avatar
+ * are two triggers for one account menu (§3.3).
+ *
+ * Self-contained rather than driven from `Header`'s open/close state, because
+ * the mobile drawer renders its own member row: the two must never share a panel
+ * or a trigger ref. Escape restores focus to whichever trigger opened the menu,
+ * and a press outside the group closes it — the same contract the desktop nav
+ * dropdowns follow, including the deliberate choice of a labelled disclosure
+ * over `role="menu"`: the APG menu widget promises arrow-key navigation, and a
+ * panel that does not implement it is worse for assistive tech than a plain one.
+ */
+function AccountMenu(props: {
+  user: AuthUser;
+  onSignOut: () => void;
+  /** Runs before the panel opens, so `Header` can dismiss any other open layer. */
+  onOpen: () => void;
+}): ReactElement {
+  const { user, onSignOut, onOpen } = props;
+  const pathname = usePathname();
+
+  const [isOpen, setIsOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const groupRef = useRef<HTMLDivElement | null>(null);
+  const avatarButtonRef = useRef<HTMLButtonElement | null>(null);
+  const bellButtonRef = useRef<HTMLButtonElement | null>(null);
+  const lastTriggerRef = useRef<HTMLButtonElement | null>(null);
+
+  // The badge starts at 0 on the server and on the first client render, so the
+  // two markups can never disagree during hydration; the count arrives after.
+  useEffect((): (() => void) => {
+    let cancelled = false;
+
+    void getUnreadNotificationCount()
+      .then((count): void => {
+        if (!cancelled) {
+          setUnreadCount(count);
+        }
+      })
+      .catch((): void => {
+        // A badge that fails to load is not worth interrupting the header for:
+        // the bell simply renders without its dot.
+      });
+
+    return (): void => {
+      cancelled = true;
+    };
+  }, [user.id]);
+
+  // Navigating dismisses the menu, as it does every other header layer.
+  useEffect((): void => {
+    setIsOpen(false);
+  }, [pathname]);
+
+  useEffect(
+    (): (() => void) | undefined => {
+      if (!isOpen) {
+        return undefined;
+      }
+
+      const handleKeyDown = (event: KeyboardEvent): void => {
+        if (event.key !== "Escape") {
+          return;
+        }
+
+        setIsOpen(false);
+        lastTriggerRef.current?.focus();
+      };
+
+      const handlePointerDown = (event: PointerEvent): void => {
+        const group = groupRef.current;
+
+        if (group !== null && event.target instanceof Node && !group.contains(event.target)) {
+          setIsOpen(false);
+        }
+      };
+
+      document.addEventListener("keydown", handleKeyDown);
+      document.addEventListener("pointerdown", handlePointerDown);
+
+      return (): void => {
+        document.removeEventListener("keydown", handleKeyDown);
+        document.removeEventListener("pointerdown", handlePointerDown);
+      };
+    },
+    [isOpen],
+  );
+
+  const toggleFrom = (trigger: HTMLButtonElement | null): void => {
+    if (isOpen) {
+      setIsOpen(false);
+      return;
+    }
+
+    onOpen();
+    lastTriggerRef.current = trigger;
+    setIsOpen(true);
+  };
+
+  const closeMenu = useCallback((): void => {
+    setIsOpen(false);
+  }, []);
+
+  return (
+    <div ref={groupRef} className="relative flex items-center gap-2">
+      <button
+        type="button"
+        ref={bellButtonRef}
+        onClick={(): void => toggleFrom(bellButtonRef.current)}
+        aria-expanded={isOpen}
+        aria-haspopup="true"
+        aria-controls={isOpen ? ACCOUNT_MENU_ID : undefined}
+        aria-label={
+          unreadCount > 0
+            ? `การแจ้งเตือน (ยังไม่ได้อ่าน ${unreadCount} รายการ)`
+            : "การแจ้งเตือน"
+        }
+        className={`relative inline-flex h-10 w-10 items-center justify-center rounded-full text-ink-300 transition duration-fast ease-standard motion-reduce:transition-none hover:bg-ink-800/60 hover:text-ink-50 ${FOCUS_RING_DARK}`}
+      >
+        <Bell aria-hidden="true" className="h-5 w-5" />
+        {unreadCount > 0 ? (
+          <span
+            aria-hidden="true"
+            className="absolute right-2.5 top-2.5 h-2.5 w-2.5 rounded-full bg-state-error-500 ring-2 ring-brand-950"
+          />
+        ) : null}
+      </button>
+
+      <button
+        type="button"
+        ref={avatarButtonRef}
+        onClick={(): void => toggleFrom(avatarButtonRef.current)}
+        aria-expanded={isOpen}
+        aria-haspopup="true"
+        aria-controls={isOpen ? ACCOUNT_MENU_ID : undefined}
+        aria-label={`บัญชีของคุณ ${user.fullName}`}
+        className={`flex items-center gap-2 rounded-full bg-accent-300/10 p-1 pr-3 ring-1 ring-accent-300 transition duration-fast ease-standard motion-reduce:transition-none hover:bg-accent-300/20 ${FOCUS_RING_DARK}`}
+      >
+        <AvatarCircle fullName={user.fullName} avatarUrl={user.avatarUrl} size="sm" />
+        {/* `max-w-24` from the spec emits nothing on Tailwind 3.4 (its max-width
+            scale carries no spacing steps), hence the arbitrary width. */}
+        <span className="hidden max-w-[10rem] truncate text-caption text-ink-300 sm:inline">
+          {user.fullName}
+        </span>
+      </button>
+
+      {isOpen ? (
+        <ul
+          id={ACCOUNT_MENU_ID}
+          aria-label="เมนูบัญชี"
+          className="absolute right-0 top-full z-50 mt-2 w-56 rounded-xl border border-ink-700 bg-brand-950 p-2 shadow-floating"
+        >
+          <li>
+            <Link
+              href="/profile"
+              onClick={closeMenu}
+              className={ACCOUNT_ITEM_CLASSES}
+            >
+              <User aria-hidden="true" className="h-4 w-4 shrink-0" />
+              โปรไฟล์
+            </Link>
+          </li>
+
+          {/* `/profile/activities` is not built yet (D9, M5), so the entry
+              lands on the profile screen with a "coming soon" marker rather
+              than linking to a 404. */}
+          <li>
+            <Link href="/profile" onClick={closeMenu} className={ACCOUNT_ITEM_CLASSES}>
+              <CalendarDays aria-hidden="true" className="h-4 w-4 shrink-0" />
+              กิจกรรมของฉัน
+              <ComingSoonBadge />
+            </Link>
+          </li>
+
+          <li>
+            {/* Not a link and not a button: there is nowhere to go yet, and a
+                focusable dead control would be worse than plain text beside
+                the badge that says so. */}
+            <span className={ACCOUNT_ITEM_DISABLED_CLASSES}>
+              <Settings aria-hidden="true" className="h-4 w-4 shrink-0" />
+              ตั้งค่าบัญชี
+              <ComingSoonBadge />
+            </span>
+          </li>
+
+          <li className="mt-1 border-t border-ink-800/60 pt-1">
+            <button type="button" onClick={onSignOut} className={ACCOUNT_ITEM_CLASSES}>
+              <LogOut aria-hidden="true" className="h-4 w-4 shrink-0" />
+              ออกจากระบบ
+            </button>
+          </li>
+        </ul>
+      ) : null}
+    </div>
+  );
+}
+
 /** Collapsible sub-navigation inside the mobile drawer. */
 function DrawerDisclosure(props: {
   entry: HeaderNav;
@@ -170,7 +445,8 @@ function DrawerDisclosure(props: {
 export function Header(props: HeaderProps): ReactElement {
   const { navigation = DEFAULT_NAVIGATION } = props;
   const pathname = usePathname();
-  const { user, isAuthenticated, isLoading } = useAuth();
+  const router = useRouter();
+  const { user, isAuthenticated, isLoading, logout } = useAuth();
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [openMenuLabel, setOpenMenuLabel] = useState<string | null>(null);
@@ -192,6 +468,16 @@ export function Header(props: HeaderProps): ReactElement {
   const toggleMenu = useCallback((label: string): void => {
     setOpenMenuLabel((current) => (current === label ? null : label));
   }, []);
+
+  // Signing out closes every header layer first, then clears the session and
+  // returns to the public landing page: no member-only screen should keep
+  // rendering behind a session that has just ended.
+  const handleSignOut = useCallback((): void => {
+    setIsDrawerOpen(false);
+    setOpenMenuLabel(null);
+    logout();
+    router.push("/");
+  }, [logout, router]);
 
   // Navigating dismisses every transient layer of the header.
   useEffect((): void => {
@@ -279,38 +565,20 @@ export function Header(props: HeaderProps): ReactElement {
     }
   }, [isDrawerOpen]);
 
-  /* Auth actions use the dashboard's action vocabulary. Signed-in members get
-     an avatar pill (initial on `bg-brand-600` inside a lime ring) linking to
-     `/profile`; anonymous visitors see the bordered Log in pill and the lime
-     Register pill. While the session restores, a neutral skeleton holds the
-     space so server and client markup agree. */
-  const authActions = isLoading ? (
+  /* Guests get the dashboard's action vocabulary: a bordered Log in pill and the
+     lime Register pill. Signed-in members get `AccountMenu` on the desktop rail
+     and the drawer's own avatar row, so neither state can ever render the other's
+     controls. While the session restores, a neutral skeleton holds the space so
+     the server-rendered markup and the first client render stay identical. */
+  const sessionSkeleton = (
     <span
       aria-hidden="true"
       role="presentation"
-      className="h-9 w-40 animate-pulse rounded-full bg-ink-800/60"
+      className="h-9 w-40 animate-pulse rounded-full bg-ink-800/60 motion-reduce:animate-none"
     />
-  ) : isAuthenticated ? (
-    <Link
-      href="/profile"
-      aria-label="ดูโปรไฟล์ของคุณ"
-      className={`flex items-center gap-2 rounded-full bg-accent-300/10 p-1 pr-3 ring-1 ring-accent-300 transition duration-fast ease-standard motion-reduce:transition-none hover:bg-accent-300/20 ${FOCUS_RING_DARK}`}
-    >
-      <span
-        aria-hidden="true"
-        className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-600"
-      >
-        <span className="text-caption font-bold text-white">
-          {user?.fullName?.charAt(0)?.toUpperCase() ?? "U"}
-        </span>
-      </span>
-      {/* `max-w-24` from the spec emits nothing on Tailwind 3.4 (its max-width
-          scale carries no spacing steps), hence the arbitrary width. */}
-      <span className="hidden max-w-[10rem] truncate text-caption text-ink-300 sm:inline">
-        {user?.fullName ?? ""}
-      </span>
-    </Link>
-  ) : (
+  );
+
+  const guestActions = (
     <div className="flex items-center gap-3">
       <Link
         href="/login"
@@ -325,6 +593,53 @@ export function Header(props: HeaderProps): ReactElement {
         สมัครสมาชิก
       </Link>
     </div>
+  );
+
+  const desktopAuthActions = isLoading ? (
+    sessionSkeleton
+  ) : isAuthenticated && user !== null ? (
+    <AccountMenu
+      user={user}
+      onSignOut={handleSignOut}
+      onOpen={(): void => setOpenMenuLabel(null)}
+    />
+  ) : (
+    guestActions
+  );
+
+  /* §3.4 asks the drawer to carry the avatar and a sign-out control with the
+     navigation. It is deliberately not the desktop account menu: a nested
+     disclosure is the one thing a drawer exists to avoid, so the avatar, the
+     member's name and the sign-out button are laid out directly. */
+  const drawerAuthActions = isLoading ? (
+    sessionSkeleton
+  ) : isAuthenticated && user !== null ? (
+    <div className="flex items-center justify-between gap-3">
+      <Link
+        href="/profile"
+        onClick={closeDrawer}
+        className={`flex min-w-0 flex-1 items-center gap-3 rounded-lg py-1 ${FOCUS_RING_DARK}`}
+      >
+        <AvatarCircle fullName={user.fullName} avatarUrl={user.avatarUrl} size="md" />
+        <span className="min-w-0">
+          <span className="block truncate text-body-sm font-semibold text-ink-50">
+            {user.fullName}
+          </span>
+          <span className="block truncate text-caption text-ink-400">{user.email}</span>
+        </span>
+      </Link>
+
+      <button
+        type="button"
+        onClick={handleSignOut}
+        aria-label="ออกจากระบบ"
+        className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-ink-300 transition duration-fast ease-standard motion-reduce:transition-none hover:bg-ink-800/60 hover:text-ink-50 ${FOCUS_RING_DARK}`}
+      >
+        <LogOut aria-hidden="true" className="h-5 w-5" />
+      </button>
+    </div>
+  ) : (
+    guestActions
   );
 
   return (
@@ -433,7 +748,7 @@ export function Header(props: HeaderProps): ReactElement {
           </ul>
         </nav>
 
-        <div className="hidden items-center gap-3 lg:flex">{authActions}</div>
+        <div className="hidden items-center gap-3 lg:flex">{desktopAuthActions}</div>
 
         <button
           type="button"
@@ -496,7 +811,7 @@ export function Header(props: HeaderProps): ReactElement {
               })}
             </ul>
 
-            <div className="mt-4 border-t border-ink-800/40 pt-4">{authActions}</div>
+            <div className="mt-4 border-t border-ink-800/40 pt-4">{drawerAuthActions}</div>
           </nav>
         </div>
       ) : null}

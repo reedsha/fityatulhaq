@@ -4,6 +4,7 @@ import { Loader2 } from "lucide-react";
 import { useEffect, useRef, useState, type ChangeEvent, type ReactElement } from "react";
 import toast from "react-hot-toast";
 
+import { initialsOf } from "@/lib/avatar";
 import { resolveUnknownError } from "@/lib/errorMessages";
 import { uploadAvatar } from "@/lib/profileApi";
 import { AVATAR_ACCEPT_ATTRIBUTE, validateAvatarFile } from "@/lib/validation";
@@ -17,19 +18,6 @@ export interface AvatarUploaderProps {
 }
 
 const AVATAR_INPUT_ID = "avatar-file-input";
-
-/** Falls back to the member's initials when there is no photo to show. */
-function initialsOf(fullName: string): string {
-  const parts = fullName
-    .trim()
-    .split(" ")
-    .filter((part) => part.length > 0);
-
-  const first = parts[0] ?? "";
-  const last = parts.length > 1 ? parts[parts.length - 1] ?? "" : "";
-
-  return `${first.slice(0, 1)}${last.slice(0, 1)}`.toUpperCase() || "?";
-}
 
 /**
  * Avatar picker: current photo, file selection, local preview and upload.

@@ -1,10 +1,10 @@
 # 📊 FityatulHaq Public Website (Web 1) — Progress & Survival Guide
 
-> **Last Updated:** 2026-09-25 · **Current Milestone:** M2.5 Thai localisation — ✅ **Done**. Batches 1, 1.5, B2, B3 and B4 all complete, all gates green — next: M3 (Header logged-in state) · **Source of Truth:** `Requirement.pdf` (raw text at `requirement_raw.txt`)
+> **Last Updated:** 2026-09-26 · **Current Milestone:** M3 Header logged-in state — ✅ **Done** (2026-09-26), all gates green — next: M4 (webboard real content + moderation) · **Source of Truth:** `Requirement.pdf` (raw text at `requirement_raw.txt`)
 >
 > **⚠️ THIS FILE IS THE SURVIVAL GUIDE.** Every task, decision, deletion, and deviation must be recorded here. Before touching any file, read the full Milestones section, verify prerequisites, and confirm Definition-of-Done items are satisfied.
 >
-> **Repo state 2026-09-25:** M0–M2 work plus M2.5 Batches 1, 1.5, B2, B3 and B4 are committed and the working tree is clean. `AGENTS.md` / `IDENTITY.md` / `SOUL.md` / `USER.md` were **deliberately deleted and committed as deletions** (commit `5c32eeb`, owner decision 2026-09-24) — they are not to be restored. The code-review gate now runs from the repo-root `CODE_REVIEW_SKILL.md`; the old `deep-code-review` skill path is dead and must not be restored.
+> **Repo state 2026-09-26:** M0–M2 work plus M2.5 (Batches 1, 1.5, B2, B3 and B4) and M3 are committed and the working tree is clean. `AGENTS.md` / `IDENTITY.md` / `SOUL.md` / `USER.md` were **deliberately deleted and committed as deletions** (commit `5c32eeb`, owner decision 2026-09-24) — they are not to be restored. The code-review gate now runs from the repo-root `CODE_REVIEW_SKILL.md`; the old `deep-code-review` skill path is dead and must not be restored.
 
 ---
 
@@ -98,8 +98,8 @@ Auth:        Custom JWT + httpOnly cookies (NOT NextAuth.js — deliberate choic
 | `/verify-reset-code` | ✅ Implemented | OTP verification on reset |
 | `/register/success` | ✅ Implemented | Registration confirmation |
 | `/profile` | ✅ Implemented | Edit profile + avatar upload |
-| `/profile/activities` | ❌ Missing | Member-only activity feed (tabs) — comes in M6 |
-| `/privacy-policy` | ❌ Missing | PDPA static page — comes in M6 |
+| `/profile/activities` | ❌ Missing | Member-only activity feed (tabs) — comes in M5 |
+| `/privacy-policy` | ❌ Missing | PDPA static page — comes in M5 |
 | `/terms` | ⚠️ Partially placed | Exists at `/(auth)/terms` — must move to `/terms` (guest-facing) |
 
 ### Non-PRD pages currently live
@@ -364,7 +364,7 @@ Batches (each ends with the three gates + a leftover-English spot check):
 
 ---
 
-### M3: Header Complete — Logged-in State (§3.3, §3.4)
+### M3: Header Complete — Logged-in State (§3.3, §3.4) — ✅ Done 2026-09-26
 
 **PRD sources:** §3.2 (navigation), §3.3 (member state), §3.4 (mobile drawer)  
 **Depends on:** M0-1 (role schema for moderator-specific items)  
@@ -377,7 +377,29 @@ Batches (each ends with the three gates + a leftover-English spot check):
 4. Dropdown menu (avatar click or bell click): Profile → `/profile`, Activities → `/profile/activities`, Account Settings (future placeholder), Logout
 5. Mobile drawer §3.4: Hamburger drawer includes Avatar + sign-out option alongside navigation
 
-#### Gate checks: FE tsc, FE build. Pass before M4/M5.
+**Status:** ✅ **Done 2026-09-26** — all gates green
+**Gate checks:** FE `npx tsc --noEmit` exit 0 · FE `npm run build` exit 0 (**50/50 static pages**, lint + type validity checked) · BE `npm run build` exit 0 (no backend change) · review gate 💬 *Comment* → every raised item addressed, gates re-run green.
+
+#### Completion note (2026-09-26)
+
+- **Steps 1–2 already existed** (the `useAuth()` state and the avatar pill with its initials fallback were built earlier) and were kept — this milestone implemented **steps 3, 4 and 5**.
+- **Desktop rail:** new `AccountMenu` component — a notification bell (red dot, with the unread count in its accessible name) and the avatar, rendered as **two triggers for one account panel**, which is the literal wording of step 4. The bell therefore opens the same panel rather than a separate notifications list: there is no notifications screen yet to put in one.
+- **Panel items:** `โปรไฟล์` → `/profile` · `กิจกรรมของฉัน` → `/profile` with a `เร็ว ๆ นี้` badge · `ตั้งค่าบัญชี` — a non-interactive placeholder row with the same badge · `ออกจากระบบ` → sign-out. Lucide icons throughout.
+- **Drawer (§3.4):** a flat member row — avatar (photo or initials), full name, email, and a sign-out button — laid out beside the navigation rather than a nested dropdown.
+- **Sign-out** closes every header layer, calls `logout()`, and returns to `/`, so no member-only screen keeps rendering behind an ended session.
+- **Shared logic extracted:** new `lib/avatar.ts` `initialsOf()` now serves both the profile uploader and the header (the uploader's private copy was deleted), so the two circles cannot disagree. New `lib/notificationData.ts` is the notification source.
+- **Avatar rendering** in the header uses a plain `<img>` with `alt=""` (decorative — both call sites label the avatar themselves), matching the `AvatarUploader` precedent for Supabase-hosted URLs, so `images.remotePatterns` is never touched.
+
+**Deviations / decisions (both approved before the work started):**
+
+- `Activities` points at `/profile` with a `เร็ว ๆ นี้` badge instead of `/profile/activities`, which does not exist yet (D9, M5) — avoids shipping a dead link. `โปรไฟล์` and `กิจกรรมของฉัน` therefore land on the same screen for now.
+- **Account Settings** is a non-interactive row (there is nowhere to navigate yet), marked with the same badge.
+- **The bell's unread count is MOCK** — `PLACEHOLDER_UNREAD_NOTIFICATION_COUNT = 2` in `lib/notificationData.ts`, loudly commented — because Web 1 has no notifications endpoint; recorded as new debt **D18**. The badge reads `0` during SSR and the first client render and is filled after mount, so hydration can never mismatch; swap the module body for `GET /notifications/unread-count` when the endpoint exists.
+- The header avatar now shows the member's **two** initials (first + last word) where it previously showed one, so it matches the `/profile` circle; the drawer's larger circle uses the same helper. Partner monograms are a different algorithm and keep their own helper (`PartnersPage.tsx`).
+
+**Review gate (repo-root `CODE_REVIEW_SKILL.md`):** the independent review of the M3 diff returned 💬 *Comment* — no blockers; hydration safety, the mock, sign-out ordering, effect dependencies and the `initialsOf` extraction were all verified. Addressed: (1) the panel originally carried `role="menu"`/`role="menuitem"`, which promises the APG menu keyboard contract (arrow keys, focus-on-open) that the implementation does not provide — reverted to a plain labelled disclosure (`aria-expanded` + `aria-haspopup="true"` + conditional `aria-controls`), matching the desktop nav dropdowns; (2) the session skeleton gained `motion-reduce:animate-none`; (3) `initialsOf` now takes its initial by code point, so a non-BMP character cannot be split. **Declined with reason:** `PartnersPage`'s own `initialsOf` is deliberately a *different* algorithm (first two words → organisation monograms) and is not merged. **Accepted residual (🟢):** `AccountMenu` registers its own document `keydown`, so a keyboard user could briefly have a nav dropdown and the account panel open at once; opening the account panel now dismisses the nav dropdown, and Escape closes both.
+
+**Definition of Done:** steps 1–5 all implemented ✅ · sticky header, desktop nav dropdowns and hamburger behaviour unchanged ✅ · no hardcoded colours — semantic tokens only ✅ · keyboard contract kept (Escape restores focus to the opening trigger, outside-pointerdown closes, focus-visible rings, reduced motion honoured) ✅ · all gates green ✅
 
 ---
 
@@ -571,6 +593,7 @@ The original plan deleted the panel outright. Executed instead as **promotion**:
 | D9 | Profile activities missing | `/profile/activities` absent (§5.4.5). | Open — M5 |
 | D10 | Privacy policy missing | `/privacy-policy` absent (§5.5.1). | Open — M5 |
 | D11 | Role enum mismatch | `MEMBER|ADMIN|SUPERADMIN` ≠ PRD's `GUEST|MEMBER|CONTENT_MODERATOR`. Schema column exists but enum values wrong. | Open — M0-1 fixes this |
+| D18 | Notifications API missing | The header bell's unread badge is mock (`PLACEHOLDER_UNREAD_NOTIFICATION_COUNT = 2` in `lib/notificationData.ts`, §3.3). No `/notifications` endpoint exists, so the red dot is a placeholder until the activity feed / Web 2 supply real items. | Open — M5 (activity tabs) / M6 (Web 2) |
 
 ### 🟡 MEDIUM — Non-functional gating
 
@@ -618,7 +641,7 @@ The original plan deleted the panel outright. Executed instead as **promotion**:
 - Backend boot logs SMTP warning until real credentials set — EXPECTED, not a breakage
 - Cookie auth + 0 localStorage refs verified
 - Mock data files persist as runtime fallback until manual removal confirmed
-- `deep-code-review` skill: **path is dead** — `C:\Users\muham\.openclaw\` was deleted 2026-09-23. Restore the skill before running the next deep-code-review gate.
+- Code-review gate: run the repo-root `CODE_REVIEW_SKILL.md`. The old `deep-code-review` skill path (`C:\Users\muham\.openclaw\`) was deleted 2026-09-23 and **must not be restored** (owner decision 2026-09-24) — M2.5 B4 and M3 were both reviewed from the repo-root skill.
 - Stale `.next` serves a previous version of a page (blank output or outdated UI) after a route change or a build/dev collision; the same cache produces phantom `TS2307` errors for deleted routes. Recovery protocol is under HOW TO RUN — deleting `.next` is always safe, and the fix is never in source.
 - Gitignored scratch that will reappear in `git status` if the rules are ever lost: `.tmp.driveupload/` (OneDrive upload staging), `memory/` and `.openclaw/` (coordinator runtime state). `.previews/` is tracked on purpose.
 - **Never run two `next dev` instances on the same checkout** — they share one `.next` and corrupt each other (2026-09-23: a second instance on :3001 sat alongside the detached one on :3000; both were killed and a single fresh instance started). One server, or none.
@@ -631,7 +654,7 @@ The original plan deleted the panel outright. Executed instead as **promotion**:
 
 1. Read this whole file (milestones section first, then debt register, then quick reference)
 2. Run the verification chain: `tsc --noEmit` (FE) → `npm run build` (FE) → `npm run build` (BE). If a deleted route raises a phantom `TS2307`, delete `.next` first — see HOW TO RUN
-3. M2.5 is complete (Batches 1, 1.5, B2, B3, B4 all gated green). The next work is **M3: Header Complete — Logged-in State** (§3.3, §3.4), whose scope is listed under M3 above. M4+ (webboard content + moderation), M5 (search/activities/legal), M6 (Web 2 integration) and M7 (NFR + deploy) follow. Thai localisation was deliberately done before M3 so those milestones ship Thai natively
+3. M2.5 and M3 are complete (M2.5 Batches 1, 1.5, B2, B3, B4 plus M3 — all gated green). The next work is **M4: Webboard — Real Content** (§5.3 + §7 moderation), whose scope is listed under M4 above. M5 (search/activities/legal), M6 (Web 2 integration) and M7 (NFR + deploy) follow.
 4. After each step: update this file, update Last Updated timestamp, record gates passed
 5. Never claim done without all three gates passing
 6. This file is the only handover surface — the coordinator's `memory/` notes and `.zedignore` are gitignored machine state, not documentation
