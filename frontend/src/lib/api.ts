@@ -24,15 +24,17 @@ export interface ApiErrorEnvelope {
   message: string;
 }
 
+export interface Pagination {
+  page: number;
+  limit: number;
+  total: number;
+}
+
 export interface ApiEnvelope<T> {
   success: boolean;
   data?: T;
   error?: ApiErrorEnvelope;
-  pagination?: {
-    page: number;
-    limit: number;
-    total: number;
-  };
+  pagination?: Pagination;
 }
 
 /**
@@ -142,11 +144,10 @@ async function send(fullUrl: string, options: RequestInit): Promise<Response> {
  *   `AUTHENTICATION_EXPIRED` for a session that simply ended.
  * - Other 4xx/5xx responses raise `ApiError` carrying the backend's `error.code`.
  *
- * A data-less success resolves to null.
+ * Split out of `unwrap` so the paginated transport below enforces exactly the
+ * same rules; two copies would eventually disagree about 401.
  */
-async function unwrap<T>(response: Response): Promise<T> {
-  const envelope = await readEnvelope(response);
-
+function assertResponseOk(response: Response, envelope: ApiEnvelope<unknown> | null): void {
   if (response.status === 401) {
     const code = envelope?.error?.code;
     const message = envelope?.error?.message;
@@ -180,6 +181,15 @@ async function unwrap<T>(response: Response): Promise<T> {
       response.status,
     );
   }
+}
+
+/**
+ * Unwraps the success envelope. A data-less success resolves to null.
+ */
+async function unwrap<T>(response: Response): Promise<T> {
+  const envelope = await readEnvelope(response);
+
+  assertResponseOk(response, envelope);
 
   return (envelope?.data ?? null) as T;
 }
@@ -216,4 +226,45 @@ export async function requestMultipart<T>(endpoint: string, formData: FormData):
   });
 
   return unwrap<T>(response);
+}
+
+/** A list response: the rows plus where they sit in the whole set. */
+export interface PaginatedResponse<T> {
+  data: T;
+  /**
+   * Null when the endpoint answered without a pager block. Callers should treat
+   * that as "these are all the rows", never as "page 1 of unknown" — inventing a
+   * total would let the UI offer a next page that does not exist.
+   */
+  pagination: Pagination | null;
+}
+
+/**
+ * Performs a JSON request against a paginated list endpoint.
+ *
+ * Separate from `request` only because the envelope's `pagination` block has to
+ * survive: `request` resolves to `data` alone, which is the right shape for a
+ * single resource and lossy for a page of them.
+ */
+export async function requestPaginated<T>(
+  endpoint: string,
+  options: RequestInit = {},
+): Promise<PaginatedResponse<T>> {
+  const headers = requestHeaders(options.headers);
+  headers.set("Content-Type", "application/json");
+
+  const response = await send(`${API_BASE_URL}${endpoint}`, {
+    ...options,
+    headers,
+    credentials: "include",
+  });
+
+  const envelope = await readEnvelope(response);
+
+  assertResponseOk(response, envelope);
+
+  return {
+    data: (envelope?.data ?? null) as T,
+    pagination: envelope?.pagination ?? null,
+  };
 }

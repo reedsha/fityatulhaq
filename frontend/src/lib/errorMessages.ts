@@ -170,6 +170,103 @@ const FIELD_ERRORS: Record<string, FieldError> = {
     message: "จัดเก็บรูปภาพไม่สำเร็จในขณะนี้ กรุณาลองอีกครั้ง",
     field: "form",
   },
+  // Phase 4 — webboard (§5.3 + §7). Backend codes stay English; this is the
+  // human layer, so every code a member can actually provoke has an entry.
+  BOARD_NOT_FOUND: {
+    message: "ไม่พบบอร์ดที่คุณกำลังมองหา",
+    field: "form",
+  },
+  THREAD_NOT_FOUND: {
+    // One message for both causes on purpose: a pre-moderated post must not
+    // reveal that it exists but is waiting (§7.1).
+    message: "ไม่พบกระทู้นี้ หรือกระทู้ยังไม่ผ่านการตรวจสอบ",
+    field: "form",
+  },
+  COMMENT_NOT_FOUND: {
+    message: "ไม่พบความคิดเห็นนี้ อาจถูกลบไปแล้ว",
+    field: "form",
+  },
+  PARENT_COMMENT_NOT_FOUND: {
+    message: "ไม่พบความคิดเห็นที่ต้องการตอบกลับ อาจถูกลบไปแล้ว",
+    field: "form",
+  },
+  INVALID_TAG: {
+    message: "แท็กที่เลือกไม่ถูกต้อง กรุณาเลือกใหม่",
+    field: "form",
+  },
+  INVALID_REACTION_TARGET: {
+    message: "ไม่พบเนื้อหาที่ต้องการกดถูกใจ",
+    field: "form",
+  },
+  INVALID_REPORT_TARGET: {
+    message: "ข้อมูลการรายงานไม่ครบถ้วน กรุณาลองใหม่",
+    field: "form",
+  },
+  ALREADY_REPORTED: {
+    message: "คุณได้รายงานเนื้อหานี้แล้ว ทีมงานกำลังตรวจสอบ",
+    field: "form",
+  },
+  REPORT_NOT_FOUND: {
+    message: "ไม่พบรายงานนี้ อาจถูกจัดการไปแล้ว",
+    field: "form",
+  },
+  CONTENT_FLAGGED: {
+    message: "ข้อความมีถ้อยคำที่ไม่เหมาะสม กรุณาแก้ไขแล้วลองอีกครั้ง",
+    field: "form",
+  },
+  POSTING_RESTRICTED: {
+    message:
+      "บัญชีของคุณถูกจำกัดการตั้งกระทู้ชั่วคราว เนื่องจากมีรายงานเนื้อหาหลายครั้ง กรุณารอการตรวจสอบจากทีมงาน",
+    field: "form",
+  },
+  MODERATION_REASON_REQUIRED: {
+    message: "กรุณาระบุเหตุผลก่อนปฏิเสธเนื้อหา",
+    field: "form",
+  },
+  WEBBOARD_OVERVIEW_FAILED: {
+    message: "โหลดข้อมูลเว็บบอร์ดไม่สำเร็จ กรุณาลองอีกครั้ง",
+    field: "form",
+  },
+  WEBBOARD_LIST_FAILED: {
+    message: "โหลดรายการกระทู้ไม่สำเร็จ กรุณาลองอีกครั้ง",
+    field: "form",
+  },
+  WEBBOARD_THREAD_FAILED: {
+    message: "โหลดกระทู้ไม่สำเร็จ กรุณาลองอีกครั้ง",
+    field: "form",
+  },
+  WEBBOARD_THREAD_CREATE_FAILED: {
+    message: "ตั้งกระทู้ไม่สำเร็จในขณะนี้ กรุณาลองอีกครั้ง",
+    field: "form",
+  },
+  WEBBOARD_COMMENT_CREATE_FAILED: {
+    message: "ส่งความคิดเห็นไม่สำเร็จในขณะนี้ กรุณาลองอีกครั้ง",
+    field: "form",
+  },
+  WEBBOARD_REACTION_FAILED: {
+    message: "บันทึกการกดถูกใจไม่สำเร็จ กรุณาลองอีกครั้ง",
+    field: "form",
+  },
+  WEBBOARD_REPORT_FAILED: {
+    message: "ส่งรายงานไม่สำเร็จในขณะนี้ กรุณาลองอีกครั้ง",
+    field: "form",
+  },
+  WEBBOARD_QUEUE_FAILED: {
+    message: "โหลดคิวตรวจสอบไม่สำเร็จ กรุณาลองอีกครั้ง",
+    field: "form",
+  },
+  WEBBOARD_MODERATE_FAILED: {
+    message: "ดำเนินการไม่สำเร็จ กรุณาลองอีกครั้ง",
+    field: "form",
+  },
+  WEBBOARD_REPORT_RESOLVE_FAILED: {
+    message: "ปิดรายงานไม่สำเร็จ กรุณาลองอีกครั้ง",
+    field: "form",
+  },
+  WEBBOARD_ANSWER_FAILED: {
+    message: "ตอบกลับอย่างเป็นทางการไม่สำเร็จ กรุณาลองอีกครั้ง",
+    field: "form",
+  },
   [CLIENT_ERROR.AUTHENTICATION_EXPIRED]: {
     message: "เซสชันของคุณหมดอายุแล้ว กรุณาเข้าสู่ระบบอีกครั้ง",
     field: "form",

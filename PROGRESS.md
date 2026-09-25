@@ -1,10 +1,10 @@
 # 📊 FityatulHaq Public Website (Web 1) — Progress & Survival Guide
 
-> **Last Updated:** 2026-09-26 · **Current Milestone:** M3 Header logged-in state — ✅ **Done** (2026-09-26), all gates green — next: M4 (webboard real content + moderation) · **Source of Truth:** `Requirement.pdf` (raw text at `requirement_raw.txt`)
+> **Last Updated:** 2026-09-26 · **Current Milestone:** M4 Webboard — ✅ **Done** (2026-09-26), all gates green — next: M5 (profile activities + search + legal) · **Source of Truth:** `Requirement.pdf` (raw text at `requirement_raw.txt`)
 >
 > **⚠️ THIS FILE IS THE SURVIVAL GUIDE.** Every task, decision, deletion, and deviation must be recorded here. Before touching any file, read the full Milestones section, verify prerequisites, and confirm Definition-of-Done items are satisfied.
 >
-> **Repo state 2026-09-26:** M0–M2 work plus M2.5 (Batches 1, 1.5, B2, B3 and B4) and M3 are committed and the working tree is clean. `AGENTS.md` / `IDENTITY.md` / `SOUL.md` / `USER.md` were **deliberately deleted and committed as deletions** (commit `5c32eeb`, owner decision 2026-09-24) — they are not to be restored. The code-review gate now runs from the repo-root `CODE_REVIEW_SKILL.md`; the old `deep-code-review` skill path is dead and must not be restored.
+> **Repo state 2026-09-26:** M0–M2 work plus M2.5 (Batches 1, 1.5, B2, B3 and B4), M3 and the D11 debt fix are committed. `AGENTS.md` / `IDENTITY.md` / `SOUL.md` / `USER.md` were **deliberately deleted and committed as deletions** (commit `5c32eeb`, owner decision 2026-09-24) — they are not to be restored. The code-review gate now runs from the repo-root `CODE_REVIEW_SKILL.md`; the old `deep-code-review` skill path is dead and must not be restored.
 
 ---
 
@@ -87,10 +87,12 @@ Auth:        Custom JWT + httpOnly cookies (NOT NextAuth.js — deliberate choic
 | `/knowledge/videos` | ✅ Implemented | Public thumbnails; playback member-only, placeholder embeds (M2) |
 | `/knowledge/recommended` | ✅ Implemented | Public curated list, real links only (M2) |
 | `/search` | ❌ Missing | Global unified keyword search across all types |
-| `/webboard` | ⚠️ Stub | Placeholder card — real threads come in M5 |
-| `/webboard/general` | ⚠️ Stub | Guest-read/member-post — comes in M5 |
-| `/webboard/youth-care` | ⚠️ Stub | Anonymous display + pending review — comes in M5 |
-| `/webboard/[board]/[postId]` | ❌ Missing | Thread + nested comments — comes in M5 |
+| `/webboard` | ✅ Implemented | Hub: two board cards with live counts + latest threads across both; "ตั้งกระทู้ใหม่" for members, login link for guests (M4) |
+| `/webboard/general` | ✅ Implemented | Public thread list with tags and latest/popular/most-replied sort; post-moderated (§7.2) (M4) |
+| `/webboard/youth-care` | ✅ Implemented | Public list of *approved* questions, "รอตอบ / ทีมงานตอบแล้ว" toggle, always-anonymous bylines, pre-moderated (§7.1) (M4) |
+| `/webboard/[board]/[postId]` | ✅ Implemented | Thread + nested replies, like/report; guest composer locked per §5.3.4 (M4) |
+| `/webboard/new` | ✅ Implemented | Board picker + thread/question form; member-only with `?next=` return; `?board=` preselects (M4) |
+| `/webboard/moderation` | ✅ Implemented | CONTENT_MODERATOR queue: pending questions, pending replies, open reports (M4) |
 | `/register` | ✅ Implemented | Self-service registration with OTP |
 | `/login` | ✅ Implemented | Cookie-based login |
 | `/forgot-password` | ✅ Implemented | Email OTP flow |
@@ -403,7 +405,10 @@ Batches (each ends with the three gates + a leftover-English spot check):
 
 ---
 
-### M4: Webboard — Real Content (§5.3 + §7 Moderation)
+### M4: Webboard — Real Content (§5.3 + §7 Moderation) — ✅ Done 2026-09-26
+
+**Status:** ✅ **Done 2026-09-26** — all gates green
+**Gate checks:** FE `npx tsc --noEmit` exit 0 · FE `npm run build` exit 0 (**52/52 static pages**, up from 50) · BE `npm run build` exit 0 · BE suites `webboard.test.ts` (all pass) + `webboardRoutes.test.ts` (23 checks) + `signUrlService.test.ts` + `imageValidation.test.ts` all pass · live-database end-to-end harness over the real router: 33 + 11 + 3 checks pass (temporary scripts, deleted after running; verified to leave zero rows behind) · review gate run twice, every raised item fixed, gates re-run green.
 
 **PRD sources:** §5.3.1–§5.3.4, §7.1–§7.3  
 **Depends on:** M0-1 (role schema), M0-3 (fallback)  
@@ -415,6 +420,36 @@ Batches (each ends with the three gates + a leftover-English spot check):
 3. `/webboard/general` — Tags, sort (Latest/Popular/Most Replied), instant moderation
 4. `/webboard/[board]/[postId]` — Thread view, nested comments, report button. Guests: read-only. Members: comment + react + report
 5. Moderation queue: accessible to CONTENT_MODERATOR role, per §7.1–§7.3 — approve/reject with reason, profanity filter, rate limiting
+
+#### Completion note (2026-09-26)
+
+- **The three stub pages were extended, not rebuilt** (`/webboard`, `/webboard/general`, `/webboard/youth-care` kept their Thai metadata and shells). Three routes are new: `/webboard/new`, `/webboard/moderation`, `/webboard/[board]/[postId]`.
+- **Backend:** `Post` / `Comment` / `Reaction` / `Report` + five enums, added by two migrations (`20260926090000_add_webboard_core`, `20260926093000_add_comment_moderation_audit`) — both authored with `prisma migrate diff` and applied with `migrate deploy`. `sourceId` / `syncStatus` were added to all four models because §8.2 explicitly asks for that prep. Router at `WEBBOARD_ROUTE_PREFIX`; reads are public (a new `optionalAuthenticate` attaches the caller when a session exists, which is what lets a list show "you liked this" without making the page protected), writes are `requireRole(ROLES.MEMBER, ROLES.CONTENT_MODERATOR)`, the queue is `requireRole(ROLES.CONTENT_MODERATOR)`.
+- **The two boards are one implementation driven by a rules table.** `BOARD_RULES` (`utils/webboardTaxonomy.ts`) is the single place that says Youth Care is pre-moderated + anonymous + tag-free and general is not; services and projections read it, so a new rule cannot be applied to one board and forgotten on the other.
+- **§7.1 anonymity is enforced in the type system, not by remembering.** Public payloads carry `AuthorView`, a discriminated union whose `anonymous` branch has no field that could hold an id, name, username or avatar. The digest is an HMAC over `(member, board[, item])`, so it cannot be reversed by enumerating ids, and the author row is not even *fetched* on the Youth Care board's own queries.
+- **Two moderation regimes, and the boundary is documented:** Youth Care pre-moderates questions *and* replies (nothing on that board is visible before a moderator has read it); the general board posts immediately and relies on the §7.2 report button plus the §7.3 filters. Both pending lists appear in the queue.
+- **§7.3 is three mechanisms, each independently tested:** a curated profanity screen that rejects before saving, a per-account write budget (default 5/min, env-tunable), and a posting restriction *derived* from ACTIONED reports in a rolling window (default 3 reports / 30 days) rather than a flag on `User` — so it cannot drift and lifts on its own.
+- **Frontend:** `lib/webboardApi.ts` (transport + the board vocabulary), `hooks/useWebboardResource.ts` (the shared loading/error/retry/cancel contract), and nine components under `components/webboard/`. Shared refinements: `lib/api.ts` gained `requestPaginated` (the plain `request` resolves to `data` alone, which loses the pager block), `auth/FormField.tsx` gained an optional `multiline` so the thread/comment boxes reuse the same label + error + `aria-describedby` wiring as the auth forms, and `AuthAwareShell` gained an optional `returnTo` so a guest hitting `/webboard/new` or `/webboard/moderation` directly still comes back after signing in.
+
+**Deviations / decisions:**
+
+- **§5.3.2 and §7.1 disagree, and §7.1 wins.** §5.3.2 offers a "ต้องการปกปิดตัวตนอย่างเข้มงวด" option that hides the *username* (implying the default shows it); §7.1 forbids showing the name or username publicly **always**, for the asker's safety, "ไม่ว่าผู้ถามจะเลือกโหมดนิรนามหรือไม่ก็ตาม". Identity is therefore never shown on Youth Care, and the toggle instead controls whether the pseudonym is per-post (strict — nothing links two posts) or per-(member, board) (default — one recurring voice). Reworded in the UI accordingly.
+- **The §6.4 access matrix's webboard row is unreadable in the source** (the table's columns are lost in extraction and it appears to say guests are redirected). §5.3's prose is explicit and is the authority: "ทุกกระดานจะเปิดให้ Guest อ่านได้ตามปกติ". Reads are public; posting, commenting, reacting and reporting are member actions.
+- **The moderation queue is built in Web 1** although §8.1 places those screens in Web 2 — with M6 unwired, the alternative was a pre-moderation gate nothing could operate. M6 will connect Web 2 to it; the queue's services are the seam.
+- **No mock/fallback data for the webboard** (this is the M0-3 dependency's resolution): the knowledge hub's fallback is static content, but a forum's is user-generated, and rendering invented threads and replies on a real board would be misrepresentation rather than resilience. The fallback here is an honest empty state or an error with a retry.
+- **`ensureMember(returnTo)` was not built**, although M1.5 recorded M4 as its first likely consumer. The behaviour it described is delivered by `MemberActionLink`, which renders a real `<a>` whose `href` is either the action or `/login?next=<action>` — a link is the accessible shape for navigation (focusable, announces its destination, respects modifier-clicks), whereas a click handler that pushes the login route is not. The M1.5 plan is superseded rather than pending.
+- **Boards and tags are code-defined, not tables.** §8.1 gives Web 2 no module for either, so there is nothing an administrator could add later; this matches how the knowledge categories are defined. Board *rules* live authoritatively in the backend and are *presented* by a second copy in `webboardApi.ts` (`BOARD_META`) — a drift there can only remove a badge, never open a gate, because the backend decides.
+- **Two spellings of a board, deliberately:** the site's own URLs use the segment (`/webboard/youth-care`) while every API path and the `?board=` value use the canonical key (`YOUTH_CARE`). One spelling per layer is what makes the server able to validate a single form.
+- **Reply moderation is recorded, not just logged.** `Comment` carries the same audit columns as `Post` (`moderationNote`, `moderatedById`, `moderatedAt`); nothing reads a reply's rejection reason yet, but M5's activity list will, and an audit trail cannot be backfilled.
+- **Webboard content is client-fetched**, so thread text is not in the initial HTML. §9.4's SEO requirement names news/articles/courses and not the board, and the page needs the session for its "you liked this" state, so this is recorded as debt (D21) rather than solved with a second, session-blind fetch path.
+
+**Review gate (repo-root `CODE_REVIEW_SKILL.md`):** two independent passes.
+
+- **Pass 1** (whole diff) returned 💬 *Comment* with 2 must-fixes: `newThreadPath` emitted the route segment where `boardFromKey` expects the canonical key (so "ตั้งกระทู้ใหม่" from `/webboard/general` silently preselected Youth Care), and the comment-parent lookup omitted the `PUBLISHED` filter, letting a member reply to an unreviewed comment and turning the endpoint into an existence oracle. Both fixed; the second is what led to pending replies being reviewable at all.
+- **Pass 2** (focused on the fixes) returned 💬 *Comment* with a further blocker and must-fix: `"แม่ง"` substring-matched the ordinary word `"แม่งาน"` (foreman) — removed, exactly as `"สัด"` had been for `"สัดส่วน"` — and the queue's envelope `total` summed three independently-paginated lists, so the pager offered pages that could never contain anything (now the longest list). Its nit — that `moderateComment` persisted nothing but the new state — was accepted and fixed with the audit columns above.
+- **Declined with reason:** an index on `Comment.parentId`. No M4 query filters by it (a thread's replies are fetched by `postId`, which is indexed, and the tree is assembled in memory), so it would serve only the cascade. Recorded rather than silently skipped.
+
+**Definition of Done:** all five scope items implemented ✅ · guests can read every board, and every member action routes a guest through `/login?next=…` ✅ · Youth Care never exposes an identity, and pending content is invisible to everyone but the queue ✅ · approve/reject-with-reason, profanity screen and rate limiting all present and tested ✅ · no hardcoded colours — semantic tokens only ✅ · keyboard contract kept (real links for guest affordances, `aria-pressed`/`aria-expanded` on toggles, `aria-live` on filter results, reduced motion honoured, no `role="menu"`) ✅ · all gates green ✅
 
 ---
 
@@ -594,6 +629,10 @@ The original plan deleted the panel outright. Executed instead as **promotion**:
 | D10 | Privacy policy missing | `/privacy-policy` absent (§5.5.1). | Open — M5 |
 | D11 | Role enum unrecorded | ✅ Resolved 2026-09-26 — the original description was stale: `schema.prisma`, the generated Prisma client, `types/index.ts`, `requireRole.ts` and the live DB enum were **all** already `GUEST|MEMBER|CONTENT_MODERATOR`. The real fault was bookkeeping: migration `20260923012900_change_roles_enum` was never **recorded** in `_prisma_migrations`, so `migrate status` reported it pending and any `migrate deploy` would have re-run the rename/cast. Reconciled with `prisma migrate resolve --applied` after `prisma migrate diff --from-config-datasource --to-schema` confirmed **zero drift**. | ✅ Resolved (2026-09-26) |
 | D18 | Notifications API missing | The header bell's unread badge is mock (`PLACEHOLDER_UNREAD_NOTIFICATION_COUNT = 2` in `lib/notificationData.ts`, §3.3). No `/notifications` endpoint exists, so the red dot is a placeholder until the activity feed / Web 2 supply real items. | Open — M5 (activity tabs) / M6 (Web 2) |
+| D19 | Profanity screen is deliberately basic | §7.3 asks only for a "basic" filter (คำหยาบเบื้องต้น). Matching is a curated substring list for both scripts, so it catches compounds (`shithead`) at the price of documented collisions (`Scunthorpe` → `cunt`), and it does not defeat deliberate evasion (leet spellings, spaced letters). Two obvious Thai candidates were removed to keep false positives near zero (`สัด`→`สัดส่วน`, `แม่ง`→`แม่งาน`). | Open — by design; revisit only if the board is actually abused |
+| D20 | Webboard sort order can disagree with the displayed count | `sort=popular` / `most-replied` order by Prisma relation counts, which cannot be filtered to PUBLISHED the way `_count` can. A hidden reply can therefore influence the ordering while being excluded from the number shown beside it. | Open — cosmetic, and only after a moderator hides something |
+| D21 | Webboard content is client-rendered | Thread and board text arrives via `fetch` after mount, so it is not in the initial HTML. §9.4's SEO requirement names news, articles and courses rather than the board, and the pages need the session for their "you liked this" state; a session-blind SSR path would be a second fetch route to keep in step. | Open — revisit if organic search matters for the board |
+| D22 | No notification when a Youth Care question is answered | §5.3.2 promises the asker a notification when someone replies, and the status view for their own question is `/profile/activities` (§7.1). Both need the activity feed and the notifications endpoint that D18 already tracks; the webboard records `answeredAt` and the author of every post, so nothing is lost in the meantime. | Open — M5 (activity tabs) with D18 |
 
 ### 🟡 MEDIUM — Non-functional gating
 

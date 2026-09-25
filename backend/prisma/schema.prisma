@@ -62,6 +62,17 @@ model User {
 
   refreshTokens   RefreshToken[]
 
+  // Webboard (SRS 5.3 + 7) — a member authors threads and comments on both
+  // boards, may moderate either as CONTENT_MODERATOR, and may file/resolve
+  // reports. Named relations because User is on both ends of each pair.
+  threadsAuthored  Post[]     @relation("PostAuthor")
+  threadsModerated Post[]     @relation("PostModerator")
+  comments         Comment[]
+  commentsModerated Comment[] @relation("CommentModerator")
+  reactions        Reaction[]
+  reportsFiled     Report[]   @relation("ReportReporter")
+  reportsResolved  Report[]   @relation("ReportResolver")
+
   @@index([syncStatus])
 }
 
@@ -100,4 +111,189 @@ model OtpCode {
 
   @@unique([identifier, purpose])
   @@index([identifier])
+}
+
+// ============================================================
+//  Webboard — SRS 5.3 (boards, threads, comments, reactions)
+//  + SRS 7 (moderation: pre-moderation queue, reports, abuse)
+// ============================================================
+
+/// The two boards SRS §5.3 defines. A code-defined set rather than a table:
+/// the taxonomy is fixed by the PRD, and §8.1 gives Web 2 no "manage boards"
+/// module, so there is nothing for an admin to add later.
+enum BoardKey {
+  YOUTH_CARE
+  GENERAL
+}
+
+/// Moderation states a thread or comment can hold.
+/// Youth Care is pre-moderated (PENDING until a CONTENT_MODERATOR approves,
+/// §7.1); the general board is post-moderated (PUBLISHED immediately, §7.2).
+enum ModerationStatus {
+  PENDING
+  PUBLISHED
+  REJECTED
+  HIDDEN
+}
+
+/// Reason a member picked when reporting a thread or comment (§7.2).
+/// The first three mirror the rules §7.2 names for `/terms`.
+enum ReportReason {
+  PROFANITY
+  ADVERTISING
+  PERSONAL_INFO
+  SPAM
+  OTHER
+}
+
+/// Where a report sits in the staff review queue (§7.2).
+enum ReportStatus {
+  OPEN
+  DISMISSED
+  ACTIONED
+}
+
+/// SRS §5.3.3/§5.3.4 say "like/reaction"; only one kind ships in Web 1, and the
+/// enum is the seam for adding more without reshaping the table.
+enum ReactionType {
+  LIKE
+}
+
+/// A thread. `board` selects the moderation regime, so the same table serves
+/// both without a discriminator column.
+///
+/// Anonymity (§7.1): `authorId` is ALWAYS recorded — the public payload is what
+/// hides it, never the row. `anonymous` is the "strict concealment" option from
+/// §5.3.2 and only changes which pseudonym the public payload derives.
+model Post {
+  id             String           @id @default(cuid(2))
+  board          BoardKey
+  authorId       String
+  author         User             @relation("PostAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  title          String
+  body           String
+  /// Tag slugs drawn from the code-defined catalogue in `utils/webboardTags.ts`.
+  /// A scalar list rather than a join table: §8.1 gives Web 2 no tag manager, so
+  /// tags are a fixed site taxonomy like the knowledge categories.
+  tags           String[]         @default([])
+  anonymous      Boolean          @default(false)
+  moderation     ModerationStatus @default(PENDING)
+  /// Why a moderator rejected or hid this — shown back to the author (§7.1).
+  moderationNote String?
+  moderatedById  String?
+  moderator      User?            @relation("PostModerator", fields: [moderatedById], references: [id], onDelete: SetNull)
+  moderatedAt    DateTime?
+  /// Set when Youth Care staff post the official answer, so the list can show
+  /// the "ทีมงานตอบแล้ว" chip without counting comments per row.
+  answeredAt     DateTime?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  comments  Comment[]
+  reactions Reaction[]
+  reports   Report[]
+
+  /// Web 2 sync prep (SRS §8.2): null = created locally in Web 1.
+  sourceId   String?
+  syncStatus SyncStatus @default(SYNCED)
+
+  @@index([board, moderation, createdAt])
+  @@index([authorId])
+  @@index([syncStatus])
+}
+
+/// A reply. `parentId` makes the tree — any comment may answer any other, and
+/// the service pins the parent to the same thread.
+///
+/// `isOfficial` marks the Youth Care team's answer (§7.1); creating one sets
+/// `Post.answeredAt`.
+model Comment {
+  id         String           @id @default(cuid(2))
+  postId     String
+  post       Post             @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId   String
+  author     User             @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parentId   String?
+  parent     Comment?         @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies    Comment[]        @relation("CommentReplies")
+  body       String
+  anonymous  Boolean          @default(false)
+  isOfficial Boolean          @default(false)
+  moderation ModerationStatus @default(PUBLISHED)
+  /// Mirrors `Post`: who decided, when, and why. The reason is what a rejected
+  /// reply's author would be shown once a screen lists their replies.
+  moderationNote String?
+  moderatedById  String?
+  moderator      User?            @relation("CommentModerator", fields: [moderatedById], references: [id], onDelete: SetNull)
+  moderatedAt    DateTime?
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  reactions Reaction[]
+  reports   Report[]
+
+  /// Web 2 sync prep (SRS §8.2): null = created locally in Web 1.
+  sourceId   String?
+  syncStatus SyncStatus @default(SYNCED)
+
+  @@index([postId, moderation, createdAt])
+  @@index([authorId])
+  @@index([syncStatus])
+}
+
+/// One reaction per member per target per kind.
+///
+/// Exactly one of `postId` / `commentId` is set; the service enforces that,
+/// since Prisma cannot express the CHECK constraint. The two unique keys still
+/// hold on Postgres: a NULL column never collides, so a comment reaction
+/// (`postId = NULL`) cannot block another one.
+model Reaction {
+  id        String       @id @default(cuid(2))
+  type      ReactionType @default(LIKE)
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  postId    String?
+  post      Post?        @relation(fields: [postId], references: [id], onDelete: Cascade)
+  commentId String?
+  comment   Comment?     @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  createdAt DateTime     @default(now())
+
+  @@unique([userId, type, postId])
+  @@unique([userId, type, commentId])
+  @@index([postId])
+  @@index([commentId])
+}
+
+/// An "inappropriate content" report from §7.2, filed from any thread or
+/// comment and reviewed in the moderation queue.
+///
+/// Repeated reports against one author restrict that author's posting (§7.3).
+/// The restriction is derived from ACTIONED reports rather than stored on
+/// `User`, so it cannot drift and lifts on its own as reports age out.
+model Report {
+  id           String       @id @default(cuid(2))
+  reporterId   String
+  reporter     User         @relation("ReportReporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  postId       String?
+  post         Post?        @relation(fields: [postId], references: [id], onDelete: Cascade)
+  commentId    String?
+  comment      Comment?     @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  reason       ReportReason
+  detail       String?
+  status       ReportStatus @default(OPEN)
+  resolvedById String?
+  resolvedBy   User?        @relation("ReportResolver", fields: [resolvedById], references: [id], onDelete: SetNull)
+  resolvedAt   DateTime?
+  createdAt    DateTime     @default(now())
+
+  /// Web 2 sync prep (SRS §8.2): null = created locally in Web 1.
+  sourceId   String?
+  syncStatus SyncStatus @default(SYNCED)
+
+  @@unique([reporterId, postId])
+  @@unique([reporterId, commentId])
+  @@index([status, createdAt])
+  @@index([postId])
+  @@index([commentId])
+  @@index([syncStatus])
 }

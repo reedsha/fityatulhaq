@@ -8,7 +8,8 @@ export interface FormFieldProps {
   id: string;
   name: string;
   label: string;
-  type: string;
+  /** Ignored when `multiline` is set — a textarea has no type. */
+  type?: string;
   value: string;
   onChange: (name: string, value: string) => void;
   onBlur?: (name: string) => void;
@@ -21,6 +22,9 @@ export interface FormFieldProps {
   placeholder?: string;
   inputMode?: FieldInputMode;
   maxLength?: number;
+  /** Renders a `<textarea>` instead of an `<input>`, with the same wiring. */
+  multiline?: boolean;
+  rows?: number;
 }
 
 const BASE_INPUT_CLASSES =
@@ -34,13 +38,18 @@ const ERROR_INPUT_CLASSES = "border-state-error-300 focus:border-state-error-600
 /**
  * Labelled input that renders its validation message directly above the input
  * it belongs to (requirement 9), wired up for assistive technology.
+ *
+ * `multiline` swaps the control for a `<textarea>` while keeping the label,
+ * error and `aria-describedby` wiring identical — the webboard's thread and
+ * comment boxes need the same contract as the auth forms, and two
+ * implementations of it would eventually disagree.
  */
 export function FormField(props: FormFieldProps): ReactElement {
   const {
     id,
     name,
     label,
-    type,
+    type = "text",
     value,
     onChange,
     onBlur,
@@ -53,6 +62,8 @@ export function FormField(props: FormFieldProps): ReactElement {
     placeholder,
     inputMode,
     maxLength,
+    multiline = false,
+    rows = 6,
   } = props;
 
   const hasError = error !== undefined && error.length > 0;
@@ -70,6 +81,10 @@ export function FormField(props: FormFieldProps): ReactElement {
   }
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
+    onChange(name, event.target.value);
+  };
+
+  const handleTextareaChange = (event: ChangeEvent<HTMLTextAreaElement>): void => {
     onChange(name, event.target.value);
   };
 
@@ -94,23 +109,41 @@ export function FormField(props: FormFieldProps): ReactElement {
         </p>
       ) : null}
 
-      <input
-        id={id}
-        name={name}
-        type={type}
-        value={value}
-        required={required}
-        disabled={disabled}
-        autoComplete={autoComplete}
-        placeholder={placeholder}
-        inputMode={inputMode}
-        maxLength={maxLength}
-        onChange={handleChange}
-        onBlur={handleBlur}
-        aria-invalid={hasError}
-        aria-describedby={describedByIds.length > 0 ? describedByIds.join(" ") : undefined}
-        className={`${BASE_INPUT_CLASSES} ${hasError ? ERROR_INPUT_CLASSES : NORMAL_INPUT_CLASSES}`}
-      />
+      {multiline ? (
+        <textarea
+          id={id}
+          name={name}
+          value={value}
+          required={required}
+          disabled={disabled}
+          placeholder={placeholder}
+          maxLength={maxLength}
+          rows={rows}
+          onChange={handleTextareaChange}
+          onBlur={handleBlur}
+          aria-invalid={hasError}
+          aria-describedby={describedByIds.length > 0 ? describedByIds.join(" ") : undefined}
+          className={`${BASE_INPUT_CLASSES} ${hasError ? ERROR_INPUT_CLASSES : NORMAL_INPUT_CLASSES}`}
+        />
+      ) : (
+        <input
+          id={id}
+          name={name}
+          type={type}
+          value={value}
+          required={required}
+          disabled={disabled}
+          autoComplete={autoComplete}
+          placeholder={placeholder}
+          inputMode={inputMode}
+          maxLength={maxLength}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          aria-invalid={hasError}
+          aria-describedby={describedByIds.length > 0 ? describedByIds.join(" ") : undefined}
+          className={`${BASE_INPUT_CLASSES} ${hasError ? ERROR_INPUT_CLASSES : NORMAL_INPUT_CLASSES}`}
+        />
+      )}
 
       {hint !== undefined ? (
         <p id={hintId} className="mt-1 text-caption text-ink-500">

@@ -65,3 +65,36 @@ export function authenticate(req: Request, _res: Response, next: NextFunction): 
 
   next();
 }
+
+/**
+ * Attaches the caller when a valid token is present, and does nothing otherwise.
+ *
+ * The webboard reads are public (§5.3), but a signed-in member should still see
+ * their own state on them — whether they have already liked a thread. This is
+ * the difference between "public page" and "anonymous page".
+ *
+ * An expired or malformed token is not an error here: on a page that anyone may
+ * read, the visitor simply resolves to a guest instead of being bounced to the
+ * login screen.
+ */
+export function optionalAuthenticate(req: Request, _res: Response, next: NextFunction): void {
+  const token = extractAccessToken(req);
+
+  if (token === null) {
+    next();
+    return;
+  }
+
+  const payload = verifyAccessToken(token);
+
+  if (
+    payload !== null &&
+    typeof payload.sub === "string" &&
+    payload.sub.length > 0 &&
+    typeof payload.role === "string"
+  ) {
+    req.user = { id: payload.sub, role: payload.role };
+  }
+
+  next();
+}

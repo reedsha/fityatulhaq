@@ -8,7 +8,12 @@ import helmet from "helmet";
 import morgan from "morgan";
 
 import { disconnectPrisma, initPrisma } from "./config/database";
-import { ASSETS_ROUTE_PREFIX, AUTH_ROUTE_PREFIX, USER_ROUTE_PREFIX } from "./config/routePrefix";
+import {
+  ASSETS_ROUTE_PREFIX,
+  AUTH_ROUTE_PREFIX,
+  USER_ROUTE_PREFIX,
+  WEBBOARD_ROUTE_PREFIX,
+} from "./config/routePrefix";
 // Imported for its side effect: booting fails loudly if the privileged Supabase
 // key is missing, and the client is ready for the Phase 2 storage work.
 import "./config/supabase";
@@ -18,6 +23,7 @@ import { sanitizeBody } from "./middleware/sanitizeBody";
 import authRoutes from "./routes/authRoutes";
 import signedUrlRoutes from "./routes/signedUrl";
 import userRoutes from "./routes/userRoutes";
+import webboardRoutes from "./routes/webboardRoutes";
 
 const REQUIRED_ENV_VARS = [
   "DATABASE_URL",
@@ -126,6 +132,7 @@ app.use(sanitizeBody);
 app.use(AUTH_ROUTE_PREFIX, authRoutes);
 app.use(USER_ROUTE_PREFIX, userRoutes);
 app.use(ASSETS_ROUTE_PREFIX, signedUrlRoutes);
+app.use(WEBBOARD_ROUTE_PREFIX, webboardRoutes);
 
 app.use("*", (_req: express.Request, res: express.Response): void => {
   res.status(404).json({

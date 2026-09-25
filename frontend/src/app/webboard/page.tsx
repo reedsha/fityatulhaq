@@ -1,47 +1,26 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { AuthAwareShell } from "@/components/layout/AuthAwareShell";
+import { WebboardHub } from "@/components/webboard/WebboardHub";
 
 export const metadata: Metadata = {
   title: "เว็บบอร์ด",
-  description: "บอร์ดสนทนาชุมชนสำหรับสมาชิก FityatulHaq",
+  description: "บอร์ดสนทนาชุมชนสำหรับสมาชิก FityatulHaq — ตั้งคำถาม แลกเปลี่ยนประสบการณ์",
 };
 
 /**
- * `/webboard` stub — placeholder so the header, footer and homepage links
- * resolve while the real forum hub is built. Pure server component: no hooks,
- * no data fetching.
+ * `/webboard` — SRS §5.3.1. Server shell for the hub; the board cards, activity
+ * counts and recent threads come from `GET /webboard/overview` in the client,
+ * where the session (and therefore the "you liked this" state) is available.
  */
 export default function WebboardPage(): ReactElement {
   return (
     <AuthAwareShell
       title="เว็บบอร์ด"
-      description="บอร์ดสนทนาชุมชน — ถามคำถามและแลกเปลี่ยนประสบการณ์"
+      description="รวมบอร์ดสนทนาสำหรับสมาชิก — ตั้งคำถาม แลกเปลี่ยนประสบการณ์ และติดตามคำตอบจากทีมงาน"
     >
-      <article className="mx-auto max-w-prose">
-        <section className="mt-8 space-y-4">
-          <div className="rounded-xl border border-ink-200 bg-white p-4 shadow-card">
-            <div className="flex items-center justify-between gap-4">
-              <span className="text-heading-4 text-ink-900">ตัวอย่างหัวข้อกระทู้</span>
-              <span className="text-body-sm text-ink-500">ยังไม่มีการตอบกลับ</span>
-            </div>
-          </div>
-          <p className="mt-4 text-center text-body-sm text-ink-500">
-            กระทู้จะปรากฏขึ้นเมื่อสมาชิกเริ่มตั้งกระทู้
-          </p>
-        </section>
-
-        <nav className="mt-8" aria-label="กลับไปหน้าแรก">
-          <Link
-            href="/"
-            className="text-body-sm font-medium text-brand-700 underline-offset-4 transition duration-fast ease-standard motion-reduce:transition-none hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2"
-          >
-            &larr; กลับไปหน้าแรก
-          </Link>
-        </nav>
-      </article>
+      <WebboardHub />
     </AuthAwareShell>
   );
 }

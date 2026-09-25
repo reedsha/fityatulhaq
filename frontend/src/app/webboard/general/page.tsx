@@ -1,47 +1,26 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import type { ReactElement } from "react";
 
 import { AuthAwareShell } from "@/components/layout/AuthAwareShell";
+import { BoardThreadList } from "@/components/webboard/BoardThreadList";
+import { BOARD_META, BOARDS } from "@/lib/webboardApi";
 
 export const metadata: Metadata = {
-  title: "บอร์ดทั่วไป",
-  description: "ฟอรัมเปิดสำหรับหัวข้อชุมชนทั่วไป",
+  title: BOARD_META[BOARDS.GENERAL].title,
+  description: BOARD_META[BOARDS.GENERAL].description,
 };
 
 /**
- * `/webboard/general` stub — placeholder so the header dropdown and homepage
- * thread links resolve while the real board is built. Pure server component:
- * no hooks, no data fetching.
+ * `/webboard/general` — SRS §5.3.3. Post-moderation: threads appear immediately
+ * and the team acts on reports (§7.2), which is why this board carries tags and
+ * the latest/popular/most-replied sort rather than a status toggle.
  */
 export default function GeneralDiscussionPage(): ReactElement {
-  return (
-    <AuthAwareShell
-      title="บอร์ดทั่วไป"
-      description="ฟอรัมเปิดสำหรับหัวข้อชุมชนทั่วไป"
-    >
-      <article className="mx-auto max-w-prose">
-        <section className="mt-8 space-y-4">
-          <div className="rounded-xl border border-ink-200 bg-white p-4 shadow-card">
-            <div className="flex items-center justify-between gap-4">
-              <span className="text-heading-4 text-ink-900">ตัวอย่างหัวข้อกระทู้</span>
-              <span className="text-body-sm text-ink-500">ยังไม่มีการตอบกลับ</span>
-            </div>
-          </div>
-          <p className="mt-4 text-center text-body-sm text-ink-500">
-            กระทู้จะปรากฏขึ้นเมื่อสมาชิกเริ่มตั้งกระทู้
-          </p>
-        </section>
+  const meta = BOARD_META[BOARDS.GENERAL];
 
-        <nav className="mt-8" aria-label="กลับไปหน้าแรก">
-          <Link
-            href="/"
-            className="text-body-sm font-medium text-brand-700 underline-offset-4 transition duration-fast ease-standard motion-reduce:transition-none hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2"
-          >
-            &larr; กลับไปหน้าแรก
-          </Link>
-        </nav>
-      </article>
+  return (
+    <AuthAwareShell title={meta.title} description={meta.description}>
+      <BoardThreadList board={meta.key} />
     </AuthAwareShell>
   );
 }

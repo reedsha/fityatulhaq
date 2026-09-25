@@ -6,6 +6,7 @@ import type { ReactElement, ReactNode } from "react";
 import { PageShell } from "@/components/layout/PageShell";
 import { FOCUS_RING } from "@/components/layout/Header";
 import { useAuth } from "@/context/AuthContext";
+import { loginReturnHref } from "@/lib/memberGate";
 
 export interface AuthAwareShellProps {
   children: ReactNode;
@@ -21,6 +22,13 @@ export interface AuthAwareShellProps {
    * settled signed-out. Protected content is therefore never flashed.
    */
   requireAuth?: boolean;
+  /**
+   * Where a signed-out visitor should be returned after logging in. Omitted by
+   * pages whose only answer is the login screen itself; set by pages that were
+   * reached from an action, so the M1.5 `?next=` flow is not broken by an
+   * interrupted navigation.
+   */
+  returnTo?: string;
 }
 
 /**
@@ -33,7 +41,7 @@ export interface AuthAwareShellProps {
  * its Log in/Register and Dashboard states always agree.
  */
 export function AuthAwareShell(props: AuthAwareShellProps): ReactElement {
-  const { children, title, description, contained, requireAuth = false } = props;
+  const { children, title, description, contained, requireAuth = false, returnTo } = props;
   const { isAuthenticated, isLoading } = useAuth();
 
   let content: ReactNode = children;
@@ -59,7 +67,7 @@ export function AuthAwareShell(props: AuthAwareShellProps): ReactElement {
           </p>
 
           <Link
-            href="/login"
+            href={returnTo === undefined ? "/login" : loginReturnHref(returnTo)}
             className={`mt-6 inline-flex items-center justify-center rounded-lg bg-brand-600 px-6 py-2.5 text-body-sm font-semibold text-white transition duration-fast ease-standard motion-reduce:transition-none hover:bg-brand-500 ${FOCUS_RING}`}
           >
             เข้าสู่ระบบ
