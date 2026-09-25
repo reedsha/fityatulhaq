@@ -63,3 +63,6 @@ backend/skills-lock.json
 # Agent runtime state (the coordinator's `memory/` notes) — not project source.
 .openclaw/
 memory/
+.aider*
+# OpenClaw dream diary — agent-generated, not project source.
+DREAMS.md
