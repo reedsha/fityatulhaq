@@ -42,7 +42,7 @@ export function AuthAwareShell(props: AuthAwareShellProps): ReactElement {
     if (isLoading) {
       content = (
         <section
-          aria-label="Loading your session"
+          aria-label="กำลังโหลดเซสชันของคุณ"
           className="rounded-2xl border border-ink-200 bg-white p-8 shadow-card"
         >
           <div aria-hidden="true" className="h-7 w-2/3 animate-pulse rounded bg-ink-100" />
@@ -53,16 +53,16 @@ export function AuthAwareShell(props: AuthAwareShellProps): ReactElement {
     } else if (!isAuthenticated) {
       content = (
         <section className="rounded-2xl border border-ink-200 bg-white p-8 text-center shadow-card">
-          <h2 className="text-heading-3 text-ink-900">Please log in to continue</h2>
+          <h2 className="text-heading-3 text-ink-900">กรุณาเข้าสู่ระบบเพื่อดำเนินการต่อ</h2>
           <p className="mt-2 text-body-sm text-ink-600">
-            This page is for signed-in members of FityatulHaq.
+            หน้านี้สำหรับสมาชิกที่เข้าสู่ระบบแล้วของ FityatulHaq
           </p>
 
           <Link
             href="/login"
             className={`mt-6 inline-flex items-center justify-center rounded-lg bg-brand-600 px-6 py-2.5 text-body-sm font-semibold text-white transition duration-fast ease-standard motion-reduce:transition-none hover:bg-brand-500 ${FOCUS_RING}`}
           >
-            Log in
+            เข้าสู่ระบบ
           </Link>
         </section>
       );

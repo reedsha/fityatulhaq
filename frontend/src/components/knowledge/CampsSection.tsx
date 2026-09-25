@@ -6,6 +6,12 @@ import type { ReactElement } from "react";
 import { CAMPS, type CampItem } from "@/lib/knowledgeItemsData";
 import { formatDate } from "@/lib/validation";
 
+/** Thai labels for the season union — the union values stay machine keys. */
+const SEASON_LABEL: Record<CampItem["season"], string> = {
+  Summer: "ฤดูร้อน",
+  Winter: "ฤดูหนาว",
+};
+
 function CampRow({ camp }: { camp: CampItem }): ReactElement {
   return (
     <li className="relative pl-10">
@@ -24,7 +30,7 @@ function CampRow({ camp }: { camp: CampItem }): ReactElement {
       <article className="mb-8 rounded-2xl bg-white p-5 shadow-card">
         <div className="flex flex-wrap items-center gap-2">
           <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-[10px] font-semibold text-blue-700">
-            {camp.season} Camp
+            ค่าย{SEASON_LABEL[camp.season]}
           </span>
           <span className="text-caption font-medium text-ink-500">
             <time dateTime={camp.startDate}>{formatDate(camp.startDate)}</time>
@@ -56,7 +62,7 @@ function CampRow({ camp }: { camp: CampItem }): ReactElement {
 
 export default function CampsSection(): ReactElement {
   return (
-    <section aria-label="Camp archive">
+    <section aria-label="คลังค่าย">
       <ul className="max-w-3xl">
         {CAMPS.map((camp) => (
           <CampRow key={camp.id} camp={camp} />

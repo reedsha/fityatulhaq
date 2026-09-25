@@ -19,7 +19,7 @@ function VideoCard({ video }: { video: VideoItem }): ReactElement {
       className={`inline-flex items-center justify-center rounded-full bg-brand-600 px-4 py-2 text-caption font-bold text-white transition duration-fast ease-standard motion-reduce:transition-none hover:bg-brand-500 ${FOCUS_RING}`}
     >
       <Play aria-hidden="true" className="mr-1.5 h-3.5 w-3.5" />
-      Play
+      เล่น
     </button>
   );
 
@@ -64,14 +64,14 @@ function VideoCard({ video }: { video: VideoItem }): ReactElement {
             <a
               href={loginReturnHref(`/knowledge/videos?play=${encodeURIComponent(video.id)}`)}
               className={`inline-flex items-center justify-center rounded-full border border-brand-600 px-4 py-2 text-caption font-bold text-brand-700 transition duration-fast ease-standard motion-reduce:transition-none hover:bg-brand-600 hover:text-white ${FOCUS_RING}`}
-              aria-label={`Log in to play ${video.title}`}
+              aria-label={`เข้าสู่ระบบเพื่อเล่น ${video.title}`}
             >
               <Play aria-hidden="true" className="mr-1.5 h-3.5 w-3.5" />
-              Log in to play
+              เข้าสู่ระบบเพื่อเล่น
             </a>
           )}
           <span className="text-caption text-ink-500">
-            {isAuthenticated ? "Streaming from the member library." : "Members can play the recording."}
+            {isAuthenticated ? "กำลังสตรีมจากคลังสมาชิก" : "สมาชิกสามารถเล่นบันทึกนี้ได้"}
           </span>
         </div>
       </div>
@@ -81,7 +81,7 @@ function VideoCard({ video }: { video: VideoItem }): ReactElement {
 
 export default function VideosSection(): ReactElement {
   return (
-    <section aria-label="Video library">
+    <section aria-label="คลังวิดีโอ">
       <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {VIDEOS.map((video) => (
           <li key={video.id}>

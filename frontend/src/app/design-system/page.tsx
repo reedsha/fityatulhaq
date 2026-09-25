@@ -29,32 +29,32 @@ interface SwatchGroup {
 
 const SCALES: SwatchGroup[] = [
   {
-    title: "Brand",
-    description: "Primary royal blue. Actions, links, bands and focus states.",
+    title: "แบรนด์",
+    description: "สีน้ำเงินหลัก ใช้กับปุ่ม ลิงก์ แถบสี และสถานะโฟกัส",
     shades: tokenGroups.brand,
   },
   {
-    title: "Accent",
-    description: "Lime. Secondary highlights, sidebar panels and stat cards.",
+    title: "สีเน้น",
+    description: "สีเขียวมะนาว ใช้เน้นเป็นลำดับรอง แผงด้านข้าง และการ์ดสถิติ",
     shades: tokenGroups.accent,
   },
   {
-    title: "Tertiary",
-    description: "Pink. Feature cards and celebratory moments only.",
+    title: "สีตติยภูมิ",
+    description: "สีชมพู ใช้เฉพาะการ์ดจุดเด่นและโอกาสพิเศษ",
     shades: tokenGroups.tertiary,
   },
   {
-    title: "Ink",
-    description: "Neutral navy-grey scale for text, borders and dark bands.",
+    title: "สีหมึก",
+    description: "โทนเทาน้ำเงินกลาง ใช้กับข้อความ เส้นขอบ และแถบสีเข้ม",
     shades: tokenGroups.ink,
   },
 ];
 
 const STATE_COLORS: Array<{ name: string; hex: string; usage: string }> = [
-  { name: "Success", hex: tokenGroups.state.success, usage: "Confirmations, saved state" },
-  { name: "Warning", hex: tokenGroups.state.warning, usage: "Caution, pending review" },
-  { name: "Error", hex: tokenGroups.state.error, usage: "Validation failures, destructive acts" },
-  { name: "Info", hex: tokenGroups.state.info, usage: "Neutral notices" },
+  { name: "สำเร็จ", hex: tokenGroups.state.success, usage: "การยืนยัน สถานะที่บันทึกแล้ว" },
+  { name: "คำเตือน", hex: tokenGroups.state.warning, usage: "ข้อควรระวัง รอการตรวจสอบ" },
+  { name: "ข้อผิดพลาด", hex: tokenGroups.state.error, usage: "การตรวจสอบไม่ผ่าน การกระทำที่ทำลายข้อมูล" },
+  { name: "ข้อมูล", hex: tokenGroups.state.info, usage: "ข้อความแจ้งทั่วไป" },
 ];
 
 const SURFACES: Array<{ name: string; hex: string }> = Object.entries(tokenGroups.surface).map(
@@ -71,16 +71,16 @@ const BORDER_ROLES: Array<{ name: string; hex: string }> = Object.entries(tokenG
 
 /** Literal class strings so Tailwind's scanner can see each one. */
 const TYPE_STEPS: Array<{ step: FontSizeStep; className: string; usage: string }> = [
-  { step: "display-1", className: "text-display-1", usage: "Hero and footer wordmark" },
-  { step: "heading-1", className: "text-heading-1", usage: "Page title (H1)" },
-  { step: "heading-2", className: "text-heading-2", usage: "Section header (H2)" },
-  { step: "heading-3", className: "text-heading-3", usage: "Card title (H3)" },
-  { step: "heading-4", className: "text-heading-4", usage: "Sub-heading (H4)" },
-  { step: "body-lg", className: "text-body-lg", usage: "Lead paragraph" },
-  { step: "body", className: "text-body", usage: "Body copy" },
-  { step: "body-sm", className: "text-body-sm", usage: "Dense body, sidebar" },
-  { step: "caption", className: "text-caption", usage: "Metadata, timestamps" },
-  { step: "micro", className: "text-micro", usage: "Eyebrows, form labels" },
+  { step: "display-1", className: "text-display-1", usage: "ส่วนฮีโร่และลายชื่อส่วนท้าย" },
+  { step: "heading-1", className: "text-heading-1", usage: "ชื่อหน้า (H1)" },
+  { step: "heading-2", className: "text-heading-2", usage: "หัวข้อส่วน (H2)" },
+  { step: "heading-3", className: "text-heading-3", usage: "ชื่อการ์ด (H3)" },
+  { step: "heading-4", className: "text-heading-4", usage: "หัวข้อย่อย (H4)" },
+  { step: "body-lg", className: "text-body-lg", usage: "ย่อหน้านำ" },
+  { step: "body", className: "text-body", usage: "เนื้อความหลัก" },
+  { step: "body-sm", className: "text-body-sm", usage: "เนื้อความขนาดแน่น แถบด้านข้าง" },
+  { step: "caption", className: "text-caption", usage: "ข้อมูลประกอบ เวลาที่บันทึก" },
+  { step: "micro", className: "text-micro", usage: "ข้อความเหนือหัวข้อ ป้ายกำกับฟอร์ม" },
 ];
 
 const SPACING_STEPS = Object.keys(token.spacing) as SpacingStep[];
@@ -88,10 +88,10 @@ const SPACING_STEPS = Object.keys(token.spacing) as SpacingStep[];
 const RADIUS_STEPS = Object.keys(token.radius) as RadiusStep[];
 
 const SHADOW_STEPS: Array<{ step: ShadowStep; className: string; usage: string }> = [
-  { step: "card", className: "shadow-card", usage: "Resting card" },
-  { step: "cardHover", className: "shadow-card-hover", usage: "Hovered card" },
-  { step: "floating", className: "shadow-floating", usage: "Dropdown, popover" },
-  { step: "modal", className: "shadow-modal", usage: "Modal dialog" },
+  { step: "card", className: "shadow-card", usage: "การ์ดในสภาวะปกติ" },
+  { step: "cardHover", className: "shadow-card-hover", usage: "การ์ดเมื่อชี้" },
+  { step: "floating", className: "shadow-floating", usage: "เมนูแบบเลื่อนลง ป็อปโอเวอร์" },
+  { step: "modal", className: "shadow-modal", usage: "กล่องโต้ตอบแบบโมดัล" },
 ];
 
 const DURATIONS: Array<{ label: string; className: string; value: string }> = [
@@ -142,21 +142,21 @@ export default function DesignSystemPage(): ReactElement {
       <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
         <header>
           <p className="text-micro uppercase tracking-widest text-brand-700">FityatulHaq</p>
-          <h1 className="mt-2 text-heading-1 text-ink-900">Design System</h1>
+          <h1 className="mt-2 text-heading-1 text-ink-900">ดีไซน์ซิสเทม</h1>
           <p className="mt-3 max-w-2xl text-body-lg text-ink-600">
-            Every value on this page is read from{" "}
+            ทุกค่าบนหน้านี้อ่านมาจาก{" "}
             <code className="font-mono text-caption text-brand-700">
               src/styles/designTokens.ts
             </code>
-            , which feeds{" "}
-            <code className="font-mono text-caption text-brand-700">tailwind.config.ts</code>. This
-            guide is generated from the tokens, so it cannot drift from them.
+            ซึ่งป้อนให้{" "}
+            <code className="font-mono text-caption text-brand-700">tailwind.config.ts</code> คู่มือนี้
+            สร้างขึ้นจากโทเคน จึงไม่คลาดเคลื่อนจากค่าเหล่านั้น
           </p>
         </header>
 
         <Section
-          title="Colour scales"
-          description="The brand blue carries actions and bands; lime and pink are accents used sparingly; ink supplies every neutral."
+          title="ชุดสี"
+          description="สีน้ำเงินแบรนด์ใช้กับปุ่มและแถบสี สีเขียวมะนาวและสีชมพูเป็นสีเน้นที่ใช้อย่างจำกัด ส่วนสีหมึกใช้กับทุกโทนกลาง"
         >
           <div className="space-y-8">
             {SCALES.map((group) => (
@@ -174,7 +174,7 @@ export default function DesignSystemPage(): ReactElement {
           </div>
         </Section>
 
-        <Section title="State colours" description="Reserved for feedback. Never used as decoration.">
+        <Section title="สีสถานะ" description="ใช้เฉพาะกับการตอบรับเท่านั้น ไม่ใช้เป็นของตกแต่ง">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4">
             {STATE_COLORS.map((state) => (
               <div
@@ -194,12 +194,12 @@ export default function DesignSystemPage(): ReactElement {
         </Section>
 
         <Section
-          title="Surfaces, text and borders"
-          description="Roles rather than raw shades: components ask for the job, not the number."
+          title="พื้นผิว ข้อความ และเส้นขอบ"
+          description="ใช้ตามบทบาท ไม่ใช่เฉดสีดิบ: คอมโพเนนต์อ้างอิงตามหน้าที่ ไม่ใช่ตามตัวเลข"
         >
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
             <div>
-              <h3 className="text-heading-4 text-ink-900">Surfaces</h3>
+              <h3 className="text-heading-4 text-ink-900">พื้นผิว</h3>
               <ul className="mt-3 space-y-2">
                 {SURFACES.map((surface) => (
                   <li key={surface.name} className="flex items-center gap-3">
@@ -215,7 +215,7 @@ export default function DesignSystemPage(): ReactElement {
             </div>
 
             <div>
-              <h3 className="text-heading-4 text-ink-900">Text roles</h3>
+              <h3 className="text-heading-4 text-ink-900">บทบาทของข้อความ</h3>
               <ul className="mt-3 space-y-2">
                 {TEXT_ROLES.map((role) => (
                   <li key={role.name} className="flex items-center gap-3">
@@ -231,7 +231,7 @@ export default function DesignSystemPage(): ReactElement {
             </div>
 
             <div>
-              <h3 className="text-heading-4 text-ink-900">Borders</h3>
+              <h3 className="text-heading-4 text-ink-900">เส้นขอบ</h3>
               <ul className="mt-3 space-y-2">
                 {BORDER_ROLES.map((role) => (
                   <li key={role.name} className="flex items-center gap-3">
@@ -249,8 +249,8 @@ export default function DesignSystemPage(): ReactElement {
         </Section>
 
         <Section
-          title="Typography"
-          description="One class per role carries size, leading and weight together, so a heading cannot drift out of the hierarchy."
+          title="ตัวอักษร"
+          description="แต่ละบทบาทใช้คลาสเดียวที่รวมขนาด ระยะบรรทัด และน้ำหนักไว้ด้วยกัน หัวข้อจึงไม่หลุดออกจากลำดับชั้น"
         >
           <div className="divide-y divide-ink-200 rounded-lg border border-ink-200 bg-white shadow-card">
             {TYPE_STEPS.map((entry) => {
@@ -277,8 +277,8 @@ export default function DesignSystemPage(): ReactElement {
         </Section>
 
         <Section
-          title="Spacing"
-          description="Semantic steps from xs to xxl. Numeric Tailwind steps remain available and resolve to the same rhythm."
+          title="ระยะห่าง"
+          description="ขั้นระยะห่างเชิงความหมายตั้งแต่ xs ถึง xxl ขั้นแบบตัวเลขของ Tailwind ยังใช้ได้และให้จังหวะเดียวกัน"
         >
           <div className="space-y-3 rounded-lg border border-ink-200 bg-white p-6 shadow-card">
             {SPACING_STEPS.map((step) => (
@@ -299,7 +299,7 @@ export default function DesignSystemPage(): ReactElement {
           </div>
         </Section>
 
-        <Section title="Radius" description="Generous rounding is part of the reference look.">
+        <Section title="มุมโค้ง" description="การโค้งมุมอย่างกว้างเป็นส่วนหนึ่งของลุคอ้างอิง">
           <div className="flex flex-wrap items-end gap-6 rounded-lg border border-ink-200 bg-white p-6 shadow-card">
             {RADIUS_STEPS.map((step) => (
               <figure key={step} className="text-center">
@@ -317,7 +317,7 @@ export default function DesignSystemPage(): ReactElement {
           </div>
         </Section>
 
-        <Section title="Elevation" description="Four shadows only, so depth always reads consistently.">
+        <Section title="ระดับความลึก" description="มีเพียงสี่ระดับเงา ความลึกจึงสื่อสารได้อย่างสม่ำเสมอ">
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-4">
             {SHADOW_STEPS.map((entry) => (
               <figure key={entry.step} className={`${entry.className} rounded-lg bg-white p-4`}>
@@ -333,8 +333,8 @@ export default function DesignSystemPage(): ReactElement {
         </Section>
 
         <Section
-          title="Motion"
-          description="Three durations and two easings. Hover and focus use fast; entrances use normal; crossfades use slow."
+          title="การเคลื่อนไหว"
+          description="สามความเร็วและสองรูปแบบการผ่อนลื่น การชี้และการโฟกัสใช้ fast การเข้าฉากใช้ normal การเฟดสลับใช้ slow"
         >
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             {DURATIONS.map((entry) => (
@@ -357,41 +357,41 @@ export default function DesignSystemPage(): ReactElement {
         </Section>
 
         <Section
-          title="Components"
-          description="The shared vocabulary assembled from the tokens above."
+          title="คอมโพเนนต์"
+          description="คำศัพท์ที่ใช้ร่วมกัน ซึ่งประกอบขึ้นจากโทเคนด้านบน"
         >
           <div className="space-y-8 rounded-lg border border-ink-200 bg-white p-6 shadow-card">
             <div>
-              <h3 className="text-heading-4 text-ink-900">Buttons</h3>
+              <h3 className="text-heading-4 text-ink-900">ปุ่ม</h3>
               <div className="mt-3 flex flex-wrap items-center gap-3">
                 <button
                   type="button"
                   className="rounded-lg bg-brand-600 px-6 py-2.5 text-body-sm font-semibold text-white shadow-card transition duration-fast ease-standard hover:bg-brand-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2"
                 >
-                  Primary
+                  ปุ่มหลัก
                 </button>
                 <button
                   type="button"
                   className="rounded-lg border border-brand-600 px-6 py-2.5 text-body-sm font-semibold text-brand-700 transition duration-fast ease-standard hover:bg-brand-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2"
                 >
-                  Secondary
+                  ปุ่มรอง
                 </button>
                 <button
                   type="button"
                   className="rounded-full bg-accent-300 px-4 py-1 text-caption font-semibold text-ink-900 transition duration-fast ease-standard hover:bg-accent-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600"
                 >
-                  Membership
+                  สมาชิก
                 </button>
               </div>
             </div>
 
             <div>
-              <h3 className="text-heading-4 text-ink-900">Input</h3>
+              <h3 className="text-heading-4 text-ink-900">ช่องกรอกข้อมูล</h3>
               <label
                 htmlFor="ds-input"
                 className="mt-3 block text-micro uppercase tracking-wide text-ink-500"
               >
-                Email address
+                อีเมล
               </label>
               <input
                 id="ds-input"
@@ -402,38 +402,38 @@ export default function DesignSystemPage(): ReactElement {
             </div>
 
             <div>
-              <h3 className="text-heading-4 text-ink-900">Card</h3>
+              <h3 className="text-heading-4 text-ink-900">การ์ด</h3>
               <div className="mt-3 max-w-sm rounded-2xl border border-ink-200 bg-white p-6 shadow-card">
                 <span className="inline-flex items-center rounded-full bg-accent-300 px-3 py-1 text-micro uppercase tracking-wide text-ink-900">
-                  Featured
+                  จุดเด่น
                 </span>
-                <h4 className="mt-3 text-heading-3 text-ink-900">Card title</h4>
+                <h4 className="mt-3 text-heading-3 text-ink-900">ชื่อการ์ด</h4>
                 <p className="mt-2 text-body-sm text-ink-600">
-                  Supporting copy at the body-small step, muted to the ink-500 role.
+                  ข้อความประกอบที่ขั้น body-small ปรับโทนเป็นบทบาท ink-500
                 </p>
               </div>
             </div>
 
             <div>
-              <h3 className="text-heading-4 text-ink-900">Bands</h3>
+              <h3 className="text-heading-4 text-ink-900">แถบสี</h3>
               <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <div
                   className="rounded-lg p-4 text-body-sm font-semibold text-white"
                   style={{ backgroundColor: semantic.brandBand }}
                 >
-                  Brand band
+                  แถบสีแบรนด์
                 </div>
                 <div
                   className="rounded-lg p-4 text-body-sm font-semibold text-white"
                   style={{ backgroundColor: semantic.darkBand }}
                 >
-                  Dark band
+                  แถบสีเข้ม
                 </div>
                 <div
                   className="rounded-lg p-4 text-body-sm font-semibold text-ink-900"
                   style={{ backgroundColor: semantic.accentFill }}
                 >
-                  Accent fill
+                  พื้นสีเน้น
                 </div>
               </div>
             </div>
@@ -442,8 +442,8 @@ export default function DesignSystemPage(): ReactElement {
 
         <footer className="mt-16 border-t border-ink-200 pt-6">
           <p className="text-caption text-ink-400">
-            Reference designs: login, profile and homepage mock-ups. New values belong in
-            designTokens.ts first.
+            งานออกแบบอ้างอิง: ต้นแบบหน้าเข้าสู่ระบบ โปรไฟล์ และหน้าแรก ค่าใหม่ควรถูกเพิ่มใน
+            designTokens.ts ก่อน
           </p>
         </footer>
       </div>

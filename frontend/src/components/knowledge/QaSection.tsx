@@ -47,7 +47,7 @@ function QaItem({ entry }: { entry: QaEntry }): ReactElement {
           >
             <p className="text-body-sm leading-relaxed text-ink-600">{entry.answer}</p>
             <p className="mt-3 text-caption text-ink-400">
-              Answered <time dateTime={entry.answeredAt}>{formatDate(entry.answeredAt)}</time>
+              ตอบเมื่อ <time dateTime={entry.answeredAt}>{formatDate(entry.answeredAt)}</time>
             </p>
           </div>
         ) : null}
@@ -60,14 +60,14 @@ export default function QaSection(): ReactElement {
   const { isAuthenticated } = useAuth();
 
   const handleAsk = (): void => {
-    toast("Question logging arrives with the Youth Care board (M4) — meanwhile, ask on the webboard.", {
+    toast("การส่งคำถามจะมาเมื่อบอร์ดดูแลเยาวชนเปิด (M4) — ระหว่างนี้สามารถถามบนเว็บบอร์ดได้", {
       icon: "ℹ️",
       duration: 7000,
     });
   };
 
   return (
-    <section aria-label="Q&A corner">
+    <section aria-label="มุมถาม–ตอบ">
       <ul className="mx-auto max-w-4xl space-y-3">
         {QA_ENTRIES.map((entry) => (
           <QaItem key={entry.id} entry={entry} />
@@ -81,10 +81,10 @@ export default function QaSection(): ReactElement {
             <MessagesSquare aria-hidden="true" strokeWidth={1.75} className="h-5 w-5" />
           </div>
         </div>
-        <h3 className="mt-3 text-heading-4 text-ink-900">Have a question of your own?</h3>
+        <h3 className="mt-3 text-heading-4 text-ink-900">มีคำถามของคุณเองใช่ไหม</h3>
         <p className="mx-auto mt-2 max-w-md text-body-sm leading-relaxed text-ink-600">
-          Member questions are queued for the Youth Care board, where approved questions get
-          answers from the community.
+          คำถามของสมาชิกจะถูกจัดคิวไว้ที่บอร์ดดูแลเยาวชน ซึ่งคำถามที่ได้รับอนุมัติ
+          จะได้รับคำตอบจากชุมชน
         </p>
 
         {isAuthenticated ? (
@@ -93,26 +93,26 @@ export default function QaSection(): ReactElement {
             onClick={handleAsk}
             className={`mt-5 inline-flex items-center justify-center rounded-full bg-accent-300 px-5 py-2 text-caption font-bold text-brand-950 transition duration-fast ease-standard motion-reduce:transition-none hover:brightness-110 ${FOCUS_RING}`}
           >
-            Ask a question
+            ถามคำถาม
           </button>
         ) : (
           <Link
             href={loginReturnHref("/knowledge/qa")}
             className={`mt-5 inline-flex items-center justify-center rounded-full bg-accent-300 px-5 py-2 text-caption font-bold text-brand-950 transition duration-fast ease-standard motion-reduce:transition-none hover:brightness-110 ${FOCUS_RING}`}
           >
-            Log in to ask
+            เข้าสู่ระบบเพื่อถาม
           </Link>
         )}
 
         <p className="mt-4 text-caption text-ink-500">
-          Meanwhile, the{" "}
+          ระหว่างนี้{" "}
           <Link
             href="/webboard/youth-care"
             className={`font-semibold text-brand-700 underline underline-offset-2 hover:text-brand-600 ${FOCUS_RING}`}
           >
-            Youth Care board
+            บอร์ดดูแลเยาวชน
           </Link>{" "}
-          is open to members right now.
+          เปิดให้สมาชิกใช้แล้วตอนนี้
         </p>
       </div>
     </section>

@@ -15,9 +15,9 @@ import KnowledgeHubPage from "@/components/knowledge/KnowledgeHubPage";
  * skip-link target and the footer.
  */
 export const metadata: Metadata = {
-  title: "Knowledge Hub",
+  title: "คลังความรู้",
   description:
-    "Courses, camps, papers, books and videos for the FityatulHaq community — open to browse, with member-only downloads and playback.",
+    "คอร์สเรียน ค่าย งานวิชาการ หนังสือ และวิดีโอสำหรับชุมชน FityatulHaq — เปิดให้ทุกคนเรียกดู พร้อมการดาวน์โหลดและการเล่นที่สงวนไว้สำหรับสมาชิก",
 };
 
 export default function KnowledgeRoute(): ReactElement {

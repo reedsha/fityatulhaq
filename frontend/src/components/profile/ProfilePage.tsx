@@ -150,11 +150,11 @@ function ProfileForm({ user, onRefresh }: ProfileFormProps): ReactElement {
       } catch {
         // The save itself succeeded — only the cached profile is stale, and the
         // next navigation re-reads it.
-        toast.error("Saved, but we could not refresh your details. Please reload the page.");
+        toast.error("บันทึกแล้ว แต่เราไม่สามารถรีเฟรชข้อมูลของคุณได้ กรุณาโหลดหน้าใหม่");
       }
 
       setIsSaved(true);
-      toast.success("Your profile has been saved.");
+      toast.success("บันทึกโปรไฟล์ของคุณแล้ว");
     } catch (error) {
       // Routed by hand rather than via the hook's own handler: an error whose
       // field the form does not render (a read-only column, say) would otherwise
@@ -182,12 +182,12 @@ function ProfileForm({ user, onRefresh }: ProfileFormProps): ReactElement {
         <FormBanner message={formError} />
       ) : null}
 
-      {isSaved ? <FormSuccess message="Your profile has been saved." /> : null}
+      {isSaved ? <FormSuccess message="บันทึกโปรไฟล์ของคุณแล้ว" /> : null}
 
       <FormField
         id="profile-full-name"
         name="fullName"
-        label="Full Name"
+        label="ชื่อ-นามสกุล"
         type="text"
         value={readValue(form.fields, "fullName")}
         onChange={handleChange}
@@ -201,7 +201,7 @@ function ProfileForm({ user, onRefresh }: ProfileFormProps): ReactElement {
       <FormField
         id="profile-phone"
         name="phone"
-        label="Phone"
+        label="เบอร์โทรศัพท์"
         type="tel"
         inputMode="tel"
         value={readValue(form.fields, "phone")}
@@ -216,7 +216,7 @@ function ProfileForm({ user, onRefresh }: ProfileFormProps): ReactElement {
       <FormField
         id="profile-birth-date"
         name="birthDate"
-        label="Date of Birth"
+        label="วันเกิด"
         type="date"
         value={readValue(form.fields, "birthDate")}
         onChange={handleChange}
@@ -227,8 +227,8 @@ function ProfileForm({ user, onRefresh }: ProfileFormProps): ReactElement {
       />
 
       <SubmitButton
-        label="Save Changes"
-        loadingLabel="Saving"
+        label="บันทึกการเปลี่ยนแปลง"
+        loadingLabel="กำลังบันทึก"
         isSubmitting={form.isSubmitting}
       />
     </form>
@@ -260,11 +260,11 @@ export function ProfilePage(): ReactElement {
       <div className="flex min-h-screen justify-center bg-ink-50 px-4 py-10 sm:px-6">
         <main className="w-full max-w-md">
           <AuthCard
-            title="Your Profile"
-            subtitle="Please log in to access your profile."
-            footer={<AuthLink href="/">Back to the home page</AuthLink>}
+            title="โปรไฟล์ของคุณ"
+            subtitle="กรุณาเข้าสู่ระบบเพื่อดูโปรไฟล์ของคุณ"
+            footer={<AuthLink href="/">กลับไปหน้าแรก</AuthLink>}
           >
-            <AuthLink href="/login">Log in to your account</AuthLink>
+            <AuthLink href="/login">เข้าสู่ระบบบัญชีของคุณ</AuthLink>
           </AuthCard>
         </main>
       </div>
@@ -275,10 +275,10 @@ export function ProfilePage(): ReactElement {
     <div className="flex min-h-screen justify-center bg-ink-50 px-4 py-10 sm:px-6">
       <main className="w-full max-w-3xl">
         <AuthCard
-          title="Your Profile"
-          subtitle="Update your photo and personal details."
+          title="โปรไฟล์ของคุณ"
+          subtitle="อัปเดตรูปภาพและข้อมูลส่วนตัวของคุณ"
           maxWidthClassName="max-w-3xl"
-          footer={<AuthLink href="/">Back to the dashboard</AuthLink>}
+          footer={<AuthLink href="/">กลับไปหน้าแดชบอร์ด</AuthLink>}
         >
           <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
             {/* Lime panel — the reference's profile sidebar treatment. */}
@@ -295,8 +295,8 @@ export function ProfilePage(): ReactElement {
 
             <div className="min-w-0 flex-1">
               <dl className="mb-6">
-                <ReadOnlyRow label="Email" value={user.email} />
-                <ReadOnlyRow label="Username" value={user.username} />
+                <ReadOnlyRow label="อีเมล" value={user.email} />
+                <ReadOnlyRow label="ชื่อผู้ใช้" value={user.username} />
               </dl>
 
               <ProfileForm user={user} onRefresh={getMe} />

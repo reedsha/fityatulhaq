@@ -14,6 +14,13 @@ const DIFFICULTY_CHIP: Record<CourseItem["difficulty"], string> = {
   Advanced: "bg-tertiary-200 text-tertiary-800",
 };
 
+/** Thai labels for the difficulty union — the union values stay machine keys. */
+const DIFFICULTY_LABEL: Record<CourseItem["difficulty"], string> = {
+  Beginner: "เริ่มต้น",
+  Intermediate: "ปานกลาง",
+  Advanced: "ขั้นสูง",
+};
+
 function CourseCard({ course }: { course: CourseItem }): ReactElement {
   return (
     <article className="flex h-full flex-col rounded-2xl bg-white p-5 shadow-card">
@@ -24,7 +31,7 @@ function CourseCard({ course }: { course: CourseItem }): ReactElement {
         <span
           className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${DIFFICULTY_CHIP[course.difficulty]}`}
         >
-          {course.difficulty}
+          {DIFFICULTY_LABEL[course.difficulty]}
         </span>
       </div>
 
@@ -33,9 +40,9 @@ function CourseCard({ course }: { course: CourseItem }): ReactElement {
 
       <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-ink-200 pt-3 text-caption text-ink-500">
         <span>
-          Starts <time dateTime={course.startDate}>{formatDate(course.startDate)}</time>
+          เริ่ม <time dateTime={course.startDate}>{formatDate(course.startDate)}</time>
         </span>
-        <span>{`${String(course.lessons)} lessons`}</span>
+        <span>{`${String(course.lessons)} บทเรียน`}</span>
       </div>
     </article>
   );
@@ -43,7 +50,7 @@ function CourseCard({ course }: { course: CourseItem }): ReactElement {
 
 export default function CoursesSection(): ReactElement {
   return (
-    <section aria-label="Courses">
+    <section aria-label="คอร์สเรียน">
       <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {COURSES.map((course) => (
           <li key={course.id} className={FOCUS_RING}>

@@ -16,7 +16,7 @@ function EntryCard({ title, summary, tags }: { title: string; summary: string; t
       <p className="mt-2 flex-1 text-body-sm leading-relaxed text-ink-600">{summary}</p>
 
       {/* Display-only tags — filtering arrives with /search (M5). */}
-      <ul className="mt-4 flex flex-wrap gap-1.5" aria-label="Tags">
+      <ul className="mt-4 flex flex-wrap gap-1.5" aria-label="แท็ก">
         {tags.map((tag) => (
           <li
             key={tag}
@@ -32,7 +32,7 @@ function EntryCard({ title, summary, tags }: { title: string; summary: string; t
 
 export default function EncyclopediaSection(): ReactElement {
   return (
-    <section aria-label="Encyclopedia">
+    <section aria-label="สารานุกรม">
       <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {ENCYCLOPEDIA_ENTRIES.map((entry) => (
           <li key={entry.id}>

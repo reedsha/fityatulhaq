@@ -31,7 +31,7 @@ function BiographyCard({ biography, index }: { biography: (typeof BIOGRAPHIES)[n
 
 export default function BiographySection(): ReactElement {
   return (
-    <section aria-label="Biographies">
+    <section aria-label="ชีวประวัติ">
       <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {BIOGRAPHIES.map((biography, index) => (
           <li key={biography.id}>

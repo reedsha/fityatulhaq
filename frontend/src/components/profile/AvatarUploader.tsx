@@ -100,7 +100,7 @@ export function AvatarUploader(props: AvatarUploaderProps): ReactElement {
       await uploadAvatar(userId, selected);
 
       clearSelection();
-      toast.success("Your photo has been updated.");
+      toast.success("อัปเดตภาพของคุณแล้ว");
 
       // Re-reads the profile so the circle renders the URL the server actually
       // stored. Handled separately from the upload: the photo *is* saved, and
@@ -108,7 +108,7 @@ export function AvatarUploader(props: AvatarUploaderProps): ReactElement {
       try {
         await onUploaded();
       } catch {
-        toast.error("Saved, but we could not refresh your details. Please reload the page.");
+        toast.error("บันทึกแล้ว แต่เราไม่สามารถรีเฟรชข้อมูลของคุณได้ กรุณาโหลดหน้าใหม่");
       }
     } catch (error) {
       toast.error(resolveUnknownError(error).message);
@@ -137,7 +137,7 @@ export function AvatarUploader(props: AvatarUploaderProps): ReactElement {
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={imageSource}
-            alt={`${fullName}'s profile photo`}
+            alt={`ภาพโปรไฟล์ของ ${fullName}`}
             width={128}
             height={128}
             className="h-32 w-32 rounded-full border-2 border-ink-200 object-cover"
@@ -150,7 +150,7 @@ export function AvatarUploader(props: AvatarUploaderProps): ReactElement {
             className="absolute inset-0 flex flex-col items-center justify-center rounded-full bg-ink-900/60 text-white"
           >
             <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />
-            <span className="mt-1 text-caption font-medium">Uploading...</span>
+            <span className="mt-1 text-caption font-medium">กำลังอัปโหลด...</span>
           </div>
         ) : null}
       </div>
@@ -174,7 +174,7 @@ export function AvatarUploader(props: AvatarUploaderProps): ReactElement {
           disabled={isUploading}
           className="rounded-full bg-brand-600 px-4 py-2 text-body-sm font-semibold text-white transition duration-fast ease-standard hover:bg-brand-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          Change Photo
+          เปลี่ยนรูปภาพ
         </button>
       ) : (
         <div className="flex flex-col items-center gap-2">
@@ -191,7 +191,7 @@ export function AvatarUploader(props: AvatarUploaderProps): ReactElement {
               disabled={isUploading}
               className="rounded-full bg-brand-600 px-4 py-2 text-body-sm font-semibold text-white transition duration-fast ease-standard hover:bg-brand-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Upload
+              อัปโหลด
             </button>
 
             <button
@@ -200,14 +200,14 @@ export function AvatarUploader(props: AvatarUploaderProps): ReactElement {
               disabled={isUploading}
               className="rounded-full border border-ink-300 bg-white px-3 py-2 text-body-sm font-medium text-ink-700 transition duration-fast ease-standard hover:bg-ink-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Cancel
+              ยกเลิก
             </button>
           </div>
         </div>
       )}
 
       <p className="max-w-[14rem] text-center text-caption text-ink-600">
-        JPEG, PNG, GIF or WebP · up to 5 MB
+        JPEG, PNG, GIF หรือ WebP · ไม่เกิน 5 MB
       </p>
     </div>
   );

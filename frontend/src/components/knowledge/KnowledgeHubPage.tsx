@@ -61,7 +61,7 @@ function CategoryTile({ category }: { category: (typeof KNOWLEDGE_CATEGORIES)[nu
   return (
     <Link
       href={`/knowledge/${category.slug}`}
-      aria-label={`${category.name} collection`}
+      aria-label={`คอลเลกชัน${category.name}`}
       className={`group flex h-full flex-col rounded-2xl bg-white p-5 shadow-card transition duration-fast ease-standard motion-reduce:transition-none hover:shadow-card-hover ${FOCUS_RING}`}
     >
       <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-50 text-brand-700">
@@ -78,11 +78,11 @@ function CategoryTile({ category }: { category: (typeof KNOWLEDGE_CATEGORIES)[nu
         {category.membersOnly ? (
           <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-0.5 text-[10px] font-semibold text-blue-700">
             <Lock aria-hidden="true" className="h-3 w-3" />
-            Members-only
+            เฉพาะสมาชิก
           </span>
         ) : null}
         <span className="inline-flex items-center gap-1 rounded-full bg-ink-100 px-2.5 py-0.5 text-[10px] font-semibold text-ink-500">
-          Browse
+          เรียกดู
           <ArrowRight
             aria-hidden="true"
             className="h-3 w-3 transition-transform duration-fast ease-standard motion-reduce:transition-none group-hover:translate-x-0.5"
@@ -112,46 +112,46 @@ export default function KnowledgeHubPage(): ReactElement {
         />
 
         <div className="relative mx-auto max-w-6xl">
-          <nav aria-label="Breadcrumb" className="text-caption text-ink-400">
+          <nav aria-label="เส้นทางนำทาง" className="text-caption text-ink-400">
             <Link
               href="/"
               className={`rounded-sm transition duration-fast ease-standard motion-reduce:transition-none hover:text-ink-300 ${FOCUS_RING_DARK}`}
             >
-              Home
+              หน้าแรก
             </Link>
             <span aria-hidden="true" className="mx-2">
               /
             </span>
             <span aria-current="page" className="text-ink-200">
-              Knowledge
+              คลังความรู้
             </span>
           </nav>
 
           <h1 className="mt-2 text-3xl font-extrabold leading-tight text-white sm:text-4xl md:text-5xl">
-            Knowledge Hub
+            คลังความรู้
           </h1>
           <p className="mt-3 max-w-xl text-body text-ink-300">
-            Courses, camps, libraries and archives — open for every guest to browse.
-            Members unlock downloads, playback and asking.
+            คอร์สเรียน ค่าย ห้องสมุด และคลังเก็บ — เปิดให้ทุกคนเรียกดู
+            สมาชิกจะปลดล็อกการดาวน์โหลด การเล่น และการถาม
           </p>
         </div>
       </header>
 
       {/* ── Member note ──────────────────────────────────────────────── */}
-      <section aria-label="Membership note" className="px-4 pt-10 sm:px-6 lg:px-8">
+      <section aria-label="หมายเหตุสมาชิก" className="px-4 pt-10 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-6xl">
           <div className="flex items-start gap-3 rounded-2xl border-l-4 border-state-info-500 bg-white p-5 shadow-card">
             <Info aria-hidden="true" strokeWidth={1.75} className="h-5 w-5 shrink-0 text-state-info-600" />
             <p className="text-body-sm leading-relaxed text-ink-700">
-              Items marked Members-only unlock when you sign in. Guest access arrives with
-              the full hub.
+              รายการที่ทำเครื่องหมายว่าเฉพาะสมาชิกจะปลดล็อกเมื่อคุณเข้าสู่ระบบ
+              ส่วนการเข้าถึงสำหรับผู้เยี่ยมชมจะตามมาเมื่อคลังความรู้ฉบับเต็มเปิดให้ใช้
             </p>
           </div>
         </div>
       </section>
 
       {/* ── Category grid (non-interactive tiles) ────────────────────── */}
-      <section aria-label="Knowledge categories" className="px-4 pt-8 sm:px-6 lg:px-8">
+      <section aria-label="หมวดหมู่ความรู้" className="px-4 pt-8 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-6xl">
           <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {KNOWLEDGE_CATEGORIES.map((category) => (
@@ -164,9 +164,9 @@ export default function KnowledgeHubPage(): ReactElement {
       </section>
 
       {/* ── While you wait — cross-links to real routes ──────────────── */}
-      <section aria-label="While you wait" className="flex-1 px-4 pb-16 pt-10 sm:px-6 lg:px-8">
+      <section aria-label="ในระหว่างนี้" className="flex-1 px-4 pb-16 pt-10 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-6xl">
-          <h2 className="text-heading-3 text-white">While you wait</h2>
+          <h2 className="text-heading-3 text-white">ในระหว่างนี้</h2>
           <div className="mt-5 grid grid-cols-1 gap-6 sm:grid-cols-2">
             <Link
               href="/webboard/youth-care"
@@ -174,10 +174,10 @@ export default function KnowledgeHubPage(): ReactElement {
             >
               <span>
                 <span className="block text-body font-bold text-ink-900 group-hover:text-brand-700">
-                  Ask in Youth Care
+                  ถามในบอร์ดดูแลเยาวชน
                 </span>
                 <span className="mt-0.5 block text-caption text-ink-500">
-                  Get answers from members on the webboard.
+                  รับคำตอบจากสมาชิกบนเว็บบอร์ด
                 </span>
               </span>
               <ArrowRight
@@ -192,10 +192,10 @@ export default function KnowledgeHubPage(): ReactElement {
             >
               <span>
                 <span className="block text-body font-bold text-ink-900 group-hover:text-brand-700">
-                  Read the latest news
+                  อ่านข่าวสารล่าสุด
                 </span>
                 <span className="mt-0.5 block text-caption text-ink-500">
-                  Programme updates from across the organisation.
+                  ความคืบหน้าของโครงการจากทั่วทั้งองค์กร
                 </span>
               </span>
               <ArrowRight
@@ -210,10 +210,10 @@ export default function KnowledgeHubPage(): ReactElement {
             >
               <span>
                 <span className="block text-body font-bold text-ink-900 group-hover:text-brand-700">
-                  Curated picks
+                  รายการคัดสรร
                 </span>
                 <span className="mt-0.5 block text-caption text-ink-500">
-                  The committee's favourite reads, talks and recordings.
+                  หนังสือ คำบรรยาย และการบันทึกเสียงที่คณะกรรมการชื่นชอบ
                 </span>
               </span>
               <ArrowRight

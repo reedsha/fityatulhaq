@@ -27,13 +27,13 @@ function AdviceCard({ article }: { article: (typeof YOUTH_ADVICE_ARTICLES)[numbe
 
 export default function YouthAdviceSection(): ReactElement {
   return (
-    <section aria-label="Youth advice">
+    <section aria-label="คำแนะนำสำหรับเยาวชน">
       <div className="mb-6 flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent-300 text-brand-950">
           <Lightbulb aria-hidden="true" strokeWidth={1.75} className="h-5 w-5" />
         </div>
         <p className="max-w-lg text-body-sm text-ink-300">
-          Written by young members, for young members. Suggest a topic on the Youth Care board.
+          เขียนโดยเยาวชนเพื่อเยาวชน เสนอหัวข้อที่อยากอ่านได้บนบอร์ดดูแลเยาวชน
         </p>
       </div>
 

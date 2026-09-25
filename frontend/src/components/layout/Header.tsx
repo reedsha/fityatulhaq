@@ -344,7 +344,7 @@ export function Header(props: HeaderProps): ReactElement {
             by its session restore. */}
         <Link
           href="/"
-          aria-label="FityatulHaq — go to the homepage"
+          aria-label="FityatulHaq — ไปที่หน้าแรก"
           className={`flex items-center rounded ${FOCUS_RING_DARK}`}
         >
           <Image
@@ -355,7 +355,7 @@ export function Header(props: HeaderProps): ReactElement {
           />
         </Link>
 
-        <nav ref={desktopNavRef} aria-label="Primary" className="hidden lg:block">
+        <nav ref={desktopNavRef} aria-label="เมนูหลัก" className="hidden lg:block">
           <ul className="flex items-center gap-6">
             {navigation.map((entry) => {
               const isActive = isNavEntryActive(entry, pathname);
@@ -459,7 +459,7 @@ export function Header(props: HeaderProps): ReactElement {
           tabIndex={-1}
           className="border-t border-ink-800/40 bg-brand-950 focus:outline-none lg:hidden"
         >
-          <nav aria-label="Primary mobile" className="px-4 py-4 sm:px-6">
+          <nav aria-label="เมนูหลักบนมือถือ" className="px-4 py-4 sm:px-6">
             <ul className="space-y-1">
               {navigation.map((entry) => {
                 const isActive = isNavEntryActive(entry, pathname);

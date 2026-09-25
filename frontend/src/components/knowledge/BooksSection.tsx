@@ -40,7 +40,7 @@ function BookCard({ book }: { book: (typeof BOOKS)[number] }): ReactElement {
 
 export default function BooksSection(): ReactElement {
   return (
-    <section aria-label="Books library">
+    <section aria-label="ห้องสมุดหนังสือ">
       <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {BOOKS.map((book) => (
           <li key={book.id}>

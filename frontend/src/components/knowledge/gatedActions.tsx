@@ -61,13 +61,13 @@ export function DownloadButton({
     } catch (error) {
       if (error instanceof ApiError) {
         if (error.status === 401) {
-          toast.error("Your session has expired. Please sign in again.");
+          toast.error("เซสชันของคุณหมดอายุแล้ว กรุณาเข้าสู่ระบบอีกครั้ง");
           window.location.href = loginReturnHref(returnTo);
           return;
         }
 
         if (LIBRARY_PENDING_CODES.has(error.code)) {
-          toast("The digital library is being connected — downloads unlock when the archive sync lands.", {
+          toast("กำลังเชื่อมต่อคลังดิจิทัล — การดาวน์โหลดจะพร้อมใช้เมื่อการซิงก์คลังเก็บเสร็จสมบูรณ์", {
             icon: "ℹ️",
             duration: 6000,
           });
@@ -75,7 +75,7 @@ export function DownloadButton({
         }
       }
 
-      toast.error("Download failed. Please try again in a moment.");
+      toast.error("ดาวน์โหลดไม่สำเร็จ กรุณาลองอีกครั้งในสักครู่");
     } finally {
       setIsSigning(false);
     }
@@ -90,7 +90,7 @@ export function DownloadButton({
       disabled={isSigning}
       className={ACTION_BUTTON_CLASSES}
     >
-      {isSigning ? "Preparing…" : `Download (${fileType})`}
+      {isSigning ? "กำลังเตรียม..." : `ดาวน์โหลด (${fileType})`}
     </button>
   );
 }
@@ -102,7 +102,7 @@ export function LoginToDownloadLink({ returnTo }: { returnTo: string }): ReactEl
       href={loginReturnHref(returnTo)}
       className={`inline-flex items-center justify-center rounded-full border border-brand-600 px-4 py-2 text-caption font-bold text-brand-700 transition duration-fast ease-standard motion-reduce:transition-none hover:bg-brand-600 hover:text-white ${FOCUS_RING}`}
     >
-      Log in to download
+      เข้าสู่ระบบเพื่อดาวน์โหลด
     </a>
   );
 }

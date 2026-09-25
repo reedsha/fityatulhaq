@@ -43,7 +43,7 @@ export function DashboardPanel(): ReactElement {
 
       {/* ── 2. HERO BANNER ────────────────────────────────────────────── */}
       <section
-        aria-label="Hero banner"
+        aria-label="แบนเนอร์หลัก"
         className="relative isolate overflow-hidden"
         style={{ minHeight: "420px" }}
       >
@@ -124,7 +124,7 @@ export function DashboardPanel(): ReactElement {
 
       {/* ── 4. CATEGORY CARDS ─────────────────────────────────────────── */}
       <section
-        aria-label="Category cards"
+        aria-label="การ์ดหมวดหมู่"
         className="bg-brand-950 px-6 py-10"
       >
         <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 sm:grid-cols-3">
@@ -202,7 +202,7 @@ export function DashboardPanel(): ReactElement {
 
       {/* ── 5. NEWS + ANNOUNCEMENTS GRID ─────────────────────────────── */}
       <section
-        aria-label="News and announcements"
+        aria-label="ข่าวสารและประกาศ"
         className="bg-[#0c1017] px-6 pb-12"
       >
         <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
@@ -227,9 +227,9 @@ export function DashboardPanel(): ReactElement {
             {/* 3 news cards in a row */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               {[
-                { label: "Youth Programs", title: "กิจกรรมค่ายเยาวชนประจำปี 2567", days: "12 วันที่แล้ว" },
-                { label: "Community Events", title: "อาสาสมัครร่วมทาสีห้องสมุดชุมชน", days: "7 วันที่แล้ว" },
-                { label: "Education", title: "เปิดตัวสารานุกรมดิจิทัลฉบับใหม่", days: "13 วันที่แล้ว" },
+                { label: "โครงการเยาวชน", title: "กิจกรรมค่ายเยาวชนประจำปี 2567", days: "12 วันที่แล้ว" },
+                { label: "กิจกรรมชุมชน", title: "อาสาสมัครร่วมทาสีห้องสมุดชุมชน", days: "7 วันที่แล้ว" },
+                { label: "การศึกษา", title: "เปิดตัวสารานุกรมดิจิทัลฉบับใหม่", days: "13 วันที่แล้ว" },
               ].map((item) => (
                 <article
                   key={item.title}
@@ -300,13 +300,13 @@ export function DashboardPanel(): ReactElement {
 
       {/* ── 6. WEBBOARD SPEECH-BUBBLE SECTION ────────────────────────── */}
       <section
-        aria-label="Community discussions"
+        aria-label="การสนทนาของชุมชน"
         className="bg-[#0c1017] px-6 pb-12"
       >
         <div className="mx-auto max-w-6xl">
           {/* Header */}
           <div className="mb-5 flex items-center justify-between">
-            <h2 className="text-base font-extrabold text-white">กระดูเว็บบอร์ดยอดนิยม</h2>
+            <h2 className="text-base font-extrabold text-white">กระทู้เว็บบอร์ดยอดนิยม</h2>
             <a
               href="/webboard"
               className="rounded-full border border-white/20 px-4 py-1.5 text-xs font-semibold text-white transition hover:border-white/60 hover:bg-white/10"
@@ -327,10 +327,10 @@ export function DashboardPanel(): ReactElement {
                   style={{ filter: "drop-shadow(0 2px 8px rgba(178,243,94,0.25))" }}
                 >
                   <p className="text-xs font-semibold text-[#1a3a1a]">
-                    สวัสดีครับ ขอสอบถามเรื่องการสมัครโครงการพี่เลี้ยงปีนี้ครับ ต้องใช้เอกสารอะไรบ้างครับ?
+                    สวัสดี ขอสอบถามเรื่องการสมัครโครงการพี่เลี้ยงปีนี้ ต้องใช้เอกสารอะไรบ้าง?
                   </p>
                   <span className="mt-1 block text-right text-[10px] text-[#2a4a2a]">
-                    General · 7 ความคิดเห็น
+                    ทั่วไป · 7 ความคิดเห็น
                   </span>
                   {/* Tail */}
                   <div
@@ -352,7 +352,7 @@ export function DashboardPanel(): ReactElement {
                     แชร์ประสบการณ์ค่ายเยาวชนภาคเหนือ น้องๆ ทำกิจกรรมได้ดีมากเลย!
                   </p>
                   <span className="mt-1 block text-right text-[10px] text-blue-200">
-                    Youth Care · 12 ความคิดเห็น
+                    ดูแลเยาวชน · 12 ความคิดเห็น
                   </span>
                   {/* Tail */}
                   <div
@@ -368,10 +368,10 @@ export function DashboardPanel(): ReactElement {
                 <div className="h-8 w-8 shrink-0 rounded-full bg-[#b2f35e]/70" aria-hidden="true" />
                 <div className="relative max-w-[65%] rounded-2xl rounded-bl-sm bg-[#1e2d20] px-4 py-3 ring-1 ring-[#b2f35e]/30">
                   <p className="text-xs font-semibold text-[#b2f35e]">
-                    มีรถร่วมเดินทางจากสาขาภาคเหนือไปงานประชุมประจำปีไหมครับ?
+                    มีรถร่วมเดินทางจากสาขาภาคเหนือไปงานประชุมประจำปีไหม?
                   </p>
                   <span className="mt-1 block text-right text-[10px] text-slate-500">
-                    General · 4 ความคิดเห็น
+                    ทั่วไป · 4 ความคิดเห็น
                   </span>
                 </div>
               </div>
@@ -392,7 +392,7 @@ export function DashboardPanel(): ReactElement {
 
       {/* ── 7. STATS ROW ─────────────────────────────────────────────── */}
       <section
-        aria-label="Organisation statistics"
+        aria-label="สถิติขององค์กร"
         className="relative isolate overflow-hidden"
       >
         {/* Dark photographic backdrop (gradient stand-in) */}

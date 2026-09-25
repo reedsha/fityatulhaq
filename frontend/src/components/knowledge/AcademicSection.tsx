@@ -28,7 +28,7 @@ function PaperCard({ paper }: { paper: (typeof PAPERS)[number] }): ReactElement 
       <p className="mt-2 flex-1 text-body-sm leading-relaxed text-ink-600">{paper.abstract}</p>
 
       {/* Display-only tags — filtering arrives with /search (M5). */}
-      <ul className="mt-4 flex flex-wrap gap-1.5" aria-label="Tags">
+      <ul className="mt-4 flex flex-wrap gap-1.5" aria-label="แท็ก">
         {paper.tags.map((tag) => (
           <li
             key={tag}
@@ -52,7 +52,7 @@ function PaperCard({ paper }: { paper: (typeof PAPERS)[number] }): ReactElement 
 
 export default function AcademicSection(): ReactElement {
   return (
-    <section aria-label="Academic papers">
+    <section aria-label="งานวิชาการ">
       <ul className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {PAPERS.map((paper) => (
           <li key={paper.id}>

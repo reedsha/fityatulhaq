@@ -16,6 +16,15 @@ const TYPE_CHIP: Record<RecommendedItem["type"], string> = {
   Academic: "bg-brand-50 text-brand-700",
 };
 
+/** Thai labels for the type union — the union values stay machine keys. */
+const TYPE_LABEL: Record<RecommendedItem["type"], string> = {
+  News: "ข่าวสาร",
+  Announcement: "ประกาศ",
+  Book: "หนังสือ",
+  Video: "วิดีโอ",
+  Academic: "งานวิชาการ",
+};
+
 function RecommendedRow({ item }: { item: RecommendedItem }): ReactElement {
   return (
     <li>
@@ -35,7 +44,7 @@ function RecommendedRow({ item }: { item: RecommendedItem }): ReactElement {
               <span
                 className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${TYPE_CHIP[item.type]}`}
               >
-                {item.type}
+                {TYPE_LABEL[item.type]}
               </span>
               <span className="text-body font-bold text-ink-900 transition duration-fast ease-standard motion-reduce:transition-none group-hover:text-brand-700">
                 {item.title}
@@ -53,7 +62,7 @@ function RecommendedRow({ item }: { item: RecommendedItem }): ReactElement {
 
 export default function RecommendedSection(): ReactElement {
   return (
-    <section aria-label="Recommended picks">
+    <section aria-label="รายการคัดสรร">
       <ul className="mx-auto max-w-4xl space-y-3">
         {RECOMMENDED.map((item) => (
           <RecommendedRow key={item.id} item={item} />

@@ -79,22 +79,22 @@ export const API_BASE_URL = stripTrailingSlashes(
 
 function defaultMessageForStatus(status: number): string {
   if (status === 429) {
-    return "Too many attempts. Please wait a few minutes and try again.";
+    return "พยายามหลายครั้งเกินไป กรุณารอสักครู่แล้วลองอีกครั้ง";
   }
 
   if (status === 403) {
-    return "You do not have permission to perform this action.";
+    return "คุณไม่มีสิทธิ์ดำเนินการนี้";
   }
 
   if (status === 404) {
-    return "We could not find what you were looking for.";
+    return "เราไม่พบสิ่งที่คุณกำลังมองหา";
   }
 
   if (status >= 500) {
-    return "The server ran into a problem. Please try again shortly.";
+    return "เซิร์ฟเวอร์เกิดปัญหา กรุณาลองอีกครั้งในไม่ช้า";
   }
 
-  return "Something went wrong. Please try again.";
+  return "เกิดข้อผิดพลาดบางอย่าง กรุณาลองอีกครั้ง";
 }
 
 /**
@@ -128,7 +128,7 @@ async function send(fullUrl: string, options: RequestInit): Promise<Response> {
   } catch {
     throw new ApiError(
       CLIENT_ERROR.UNEXPECTED_ERROR,
-      "Unable to reach the server. Check your connection and try again.",
+      "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ ตรวจสอบการเชื่อมต่อแล้วลองอีกครั้ง",
       0,
     );
   }
@@ -164,7 +164,7 @@ async function unwrap<T>(response: Response): Promise<T> {
 
     throw new ApiError(
       CLIENT_ERROR.AUTHENTICATION_EXPIRED,
-      "Your session has expired. Please sign in again.",
+      "เซสชันของคุณหมดอายุแล้ว กรุณาเข้าสู่ระบบอีกครั้ง",
       401,
     );
   }
