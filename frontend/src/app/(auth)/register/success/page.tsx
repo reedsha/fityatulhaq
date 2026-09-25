@@ -5,8 +5,8 @@ import { AuthCardFallback } from "@/components/auth/AuthCard";
 import { VerifyEmailForm } from "@/components/auth/VerifyEmailForm";
 
 export const metadata: Metadata = {
-  title: "Verify your email",
-  description: "Enter the verification code we emailed you to finish setting up your account.",
+  title: "ยืนยันอีเมล",
+  description: "กรอกรหัสยืนยันที่เราส่งไปทางอีเมลเพื่อเปิดใช้งานบัญชีของคุณ",
 };
 
 /**

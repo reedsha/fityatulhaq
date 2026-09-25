@@ -5,8 +5,8 @@ import type { ReactElement } from "react";
 import { AuthAwareShell } from "@/components/layout/AuthAwareShell";
 
 export const metadata: Metadata = {
-  title: "General Discussion",
-  description: "Open forum for everyday community topics.",
+  title: "บอร์ดทั่วไป",
+  description: "ฟอรัมเปิดสำหรับหัวข้อชุมชนทั่วไป",
 };
 
 /**

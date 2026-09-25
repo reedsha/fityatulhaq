@@ -29,163 +29,163 @@ export interface FieldError {
  */
 const FIELD_ERRORS: Record<string, FieldError> = {
   EMAIL_ALREADY_EXISTS: {
-    message: "An account with this email already exists.",
+    message: "อีเมลนี้ถูกใช้สมัครสมาชิกแล้ว",
     field: "email",
   },
   USERNAME_ALREADY_EXISTS: {
-    message: "This username is already taken.",
+    message: "ชื่อผู้ใช้นี้ถูกใช้แล้ว",
     field: "username",
   },
   WEAK_PASSWORD: {
-    message: `Password must be at least ${MIN_PASSWORD_LENGTH} characters.`,
+    message: `รหัสผ่านต้องมีความยาวอย่างน้อย ${MIN_PASSWORD_LENGTH} ตัวอักษร`,
     field: "password",
   },
   INVALID_BIRTH_DATE: {
-    message: "Enter a valid date of birth.",
+    message: "กรุณากรอกวันเกิดให้ถูกต้อง",
     field: "birthDate",
   },
   DUPLICATE_RECORD: {
-    message: "An account with these details already exists.",
+    message: "มีบัญชีที่ใช้ข้อมูลเหล่านี้อยู่แล้ว",
     field: "form",
   },
   INVALID_CREDENTIALS: {
     // One message for both failure modes: never reveal which part was wrong.
-    message: "Incorrect email/username or password.",
+    message: "อีเมล/ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง",
     field: "form",
   },
   USER_NOT_FOUND: {
-    message: "We could not find an account for this email.",
+    message: "ไม่พบบัญชีที่ใช้อีเมลนี้",
     field: "email",
   },
   OTP_NOT_FOUND: {
-    message: "We could not find a reset request for this email. Please request a new code.",
+    message: "ไม่พบคำขอรีเซ็ตรหัสผ่านสำหรับอีเมลนี้ กรุณาขอรหัสใหม่",
     field: "code",
   },
   OTP_EXPIRED: {
-    message: "This code has expired. Please request a new one.",
+    message: "รหัสนี้หมดอายุแล้ว กรุณาขอรหัสใหม่",
     field: "code",
   },
   OTP_ALREADY_CONSUMED: {
-    message: "This code has already been used. Please request a new one.",
+    message: "รหัสนี้ถูกใช้ไปแล้ว กรุณาขอรหัสใหม่",
     field: "code",
   },
   OTP_ATTEMPTS_EXCEEDED: {
-    message: "Too many incorrect attempts. Please request a new code.",
+    message: "กรอกรหัสผิดหลายครั้งเกินไป กรุณาขอรหัสใหม่",
     field: "code",
   },
   INVALID_OTP: {
-    message: "That code is incorrect. Please check it and try again.",
+    message: "รหัสไม่ถูกต้อง กรุณาตรวจสอบและลองอีกครั้ง",
     field: "code",
   },
   VALIDATION_ERROR: {
-    message: "Some of the details are not valid. Please review them and try again.",
+    message: "ข้อมูลบางส่วนไม่ถูกต้อง กรุณาตรวจสอบและลองอีกครั้ง",
     field: "form",
   },
   TOKEN_EXPIRED: {
-    message: "Your session has expired. Please sign in again.",
+    message: "เซสชันของคุณหมดอายุแล้ว กรุณาเข้าสู่ระบบอีกครั้ง",
     field: "form",
   },
   TOKEN_REVOKED: {
-    message: "Your session has ended. Please sign in again.",
+    message: "เซสชันของคุณสิ้นสุดแล้ว กรุณาเข้าสู่ระบบอีกครั้ง",
     field: "form",
   },
   ROUTE_NOT_FOUND: {
-    message: "That action is not available yet.",
+    message: "ฟีเจอร์นี้ยังไม่เปิดใช้งาน",
     field: "form",
   },
   INTERNAL_ERROR: {
-    message: "The server ran into a problem. Please try again shortly.",
+    message: "เซิร์ฟเวอร์ขัดข้องชั่วคราว กรุณาลองอีกครั้งในภายหลัง",
     field: "form",
   },
   UNAUTHORIZED: {
-    message: "Your session has expired. Please sign in again.",
+    message: "เซสชันของคุณหมดอายุแล้ว กรุณาเข้าสู่ระบบอีกครั้ง",
     field: "form",
   },
   // Wrapper codes the service layer attaches when an operation fails outright:
   // the account may still be fine, so these read as "try again", never as
   // "what you typed is wrong".
   REGISTRATION_FAILED: {
-    message: "We could not create your account just now. Please try again.",
+    message: "สร้างบัญชีไม่สำเร็จในขณะนี้ กรุณาลองอีกครั้ง",
     field: "form",
   },
   LOGIN_FAILED: {
-    message: "We could not sign you in just now. Please try again.",
+    message: "เข้าสู่ระบบไม่สำเร็จในขณะนี้ กรุณาลองอีกครั้ง",
     field: "form",
   },
   OTP_REQUEST_FAILED: {
-    message: "We could not send a code just now. Please try again.",
+    message: "ส่งรหัสไม่สำเร็จในขณะนี้ กรุณาลองอีกครั้ง",
     field: "identifier",
   },
   PASSWORD_RESET_FAILED: {
-    message: "We could not reset your password just now. Please try again.",
+    message: "รีเซ็ตรหัสผ่านไม่สำเร็จในขณะนี้ กรุณาลองอีกครั้ง",
     field: "form",
   },
   PROFILE_LOOKUP_FAILED: {
-    message: "We could not load your account just now. Please try again.",
+    message: "โหลดบัญชีของคุณไม่สำเร็จในขณะนี้ กรุณาลองอีกครั้ง",
     field: "form",
   },
   TOKEN_REFRESH_FAILED: {
-    message: "Your session could not be renewed. Please sign in again.",
+    message: "ต่ออายุเซสชันไม่สำเร็จ กรุณาเข้าสู่ระบบอีกครั้ง",
     field: "form",
   },
   // Phase 3 — profile & avatar.
   FORBIDDEN: {
-    message: "You may only manage your own profile.",
+    message: "คุณสามารถจัดการโปรไฟล์ของตัวเองได้เท่านั้น",
     field: "form",
   },
   NO_UPDATE_FIELDS: {
-    message: "Change at least one field before saving.",
+    message: "กรุณาแก้ไขอย่างน้อยหนึ่งฟิลด์ก่อนบันทึก",
     field: "form",
   },
   PROFILE_UPDATE_FAILED: {
-    message: "We could not save your profile just now. Please try again.",
+    message: "บันทึกโปรไฟล์ไม่สำเร็จในขณะนี้ กรุณาลองอีกครั้ง",
     field: "form",
   },
   AVATAR_REQUIRED: {
-    message: "Choose an image to upload.",
+    message: "กรุณาเลือกรูปภาพที่ต้องการอัปโหลด",
     field: "form",
   },
   UNSUPPORTED_FILE_TYPE: {
-    message: "Choose a JPEG, PNG, GIF or WebP image.",
+    message: "กรุณาเลือกไฟล์รูปภาพนามสกุล JPEG, PNG, GIF หรือ WebP",
     field: "form",
   },
   INVALID_IMAGE: {
     message:
-      "That image could not be used. Choose a JPEG, PNG, GIF or WebP image between 100x100 and 2048x2048 pixels.",
+      "ใช้รูปภาพนี้ไม่ได้ กรุณาเลือกไฟล์ JPEG, PNG, GIF หรือ WebP ขนาดระหว่าง 100x100 ถึง 2048x2048 พิกเซล",
     field: "form",
   },
   INVALID_UPLOAD: {
-    message: "The upload was rejected. Please try again.",
+    message: "การอัปโหลดถูกปฏิเสธ กรุณาลองอีกครั้ง",
     field: "form",
   },
   AVATAR_TOO_LARGE: {
-    message: "Image must be 5 MB or smaller.",
+    message: "รูปภาพต้องมีขนาดไม่เกิน 5 MB",
     field: "form",
   },
   AVATAR_UPLOAD_FAILED: {
-    message: "We could not update your photo just now. Please try again.",
+    message: "อัปเดตรูปภาพไม่สำเร็จในขณะนี้ กรุณาลองอีกครั้ง",
     field: "form",
   },
   UPLOAD_FAILED: {
-    message: "We could not store your photo just now. Please try again.",
+    message: "จัดเก็บรูปภาพไม่สำเร็จในขณะนี้ กรุณาลองอีกครั้ง",
     field: "form",
   },
   [CLIENT_ERROR.AUTHENTICATION_EXPIRED]: {
-    message: "Your session has expired. Please sign in again.",
+    message: "เซสชันของคุณหมดอายุแล้ว กรุณาเข้าสู่ระบบอีกครั้ง",
     field: "form",
   },
   [CLIENT_ERROR.TOO_MANY_REQUESTS]: {
-    message: "Too many attempts. Please wait a few minutes and try again.",
+    message: "พยายามหลายครั้งเกินไป กรุณารอสักครู่แล้วลองอีกครั้ง",
     field: "form",
   },
   [CLIENT_ERROR.UNEXPECTED_ERROR]: {
-    message: "Something went wrong. Please try again.",
+    message: "เกิดข้อผิดพลาดบางอย่าง กรุณาลองอีกครั้ง",
     field: "form",
   },
 };
 
 const FALLBACK: FieldError = {
-  message: "Something went wrong. Please try again.",
+  message: "เกิดข้อผิดพลาดบางอย่าง กรุณาลองอีกครั้ง",
   field: "form",
 };
 

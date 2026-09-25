@@ -4,9 +4,9 @@ import type { ReactElement } from "react";
 import { RegisterForm } from "@/components/auth/RegisterForm";
 
 export const metadata: Metadata = {
-  title: "Create your account",
+  title: "สมัครสมาชิก",
   description:
-    "Register for a FityatulHaq account to follow announcements, events and community activities.",
+    "สมัครบัญชี FityatulHaq เพื่อติดตามประกาศ กิจกรรม และข่าวสารของชุมชน",
 };
 
 /** `/register` — server shell; the interactive part lives in `RegisterForm`. */

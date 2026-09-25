@@ -1,6 +1,6 @@
 # 📊 FityatulHaq Public Website (Web 1) — Progress & Survival Guide
 
-> **Last Updated:** 2026-09-24 · **Current Milestone:** M0 Complete (Steps 1–3 Done, committed & re-verified) — next: M1 · **Source of Truth:** `Requirement.pdf` (raw text at `requirement_raw.txt`)
+> **Last Updated:** 2026-09-24 · **Current Milestone:** M2.5 Thai localisation — Batches 1, 1.5, B2 Done, all gates green — next: Batch B3 · **Source of Truth:** `Requirement.pdf` (raw text at `requirement_raw.txt`)
 >
 > **⚠️ THIS FILE IS THE SURVIVAL GUIDE.** Every task, decision, deletion, and deviation must be recorded here. Before touching any file, read the full Milestones section, verify prerequisites, and confirm Definition-of-Done items are satisfied.
 >
@@ -280,7 +280,7 @@ FE `tsc --noEmit` · FE `npm run build` · BE `npm run build`. All three pass.
 
 ### M2.5: Thai Language & Brand Typography (site-wide; PRD context — Thai-language public site)
 
-**Status:** 📋 Planned — Batch 1 (M2.5-1 Foundation) ✅ Done 2026-09-23 · Batch 1.5 (M2.5-1.5 Logo integration) ✅ Done 2026-09-24, all gates green · Batches 2–3 pending  
+**Status:** 📋 Planned — Batch 1 (M2.5-1 Foundation) ✅ Done 2026-09-23 · Batch 1.5 (M2.5-1.5 Logo integration) ✅ Done 2026-09-24, all gates green · Batch B2 (M2.5-2 Auth flows) ✅ Done 2026-09-24, all gates green · Batch B3 pending  
 **Gate checks (Batch 1):** FE `npx tsc --noEmit` exit 0 · FE `npm run build` exit 0 (**route count 50 → 48** — `/community` + `/faq` deleted) · BE `npm run build` exit 0 · BE suites `assetSignRole` + `signUrlService` + auth smoke all pass · live matrix: `/` `/knowledge` `/login` → 200 · `/community` `/faq` → 404 · `--font-kanit` class on `<html>` (`__variable_f3269f`) · Kanit stack + 6 `@font-face` blocks in emitted CSS, 5 woff2 faces emitted to `/_next/static/media/` (sizes match the source files) · header shows 7 Thai nav entries, zero "Community" · Footer FAQ entry gone · `/login` title → `เข้าสู่ระบบ | FityatulHaq` · Thai dates render (`14 กันยายน 2568`)  
 **Sequencing rationale:** deliberately slotted BEFORE M3/M4/M5. The PRD is written in Thai and targets Thai youth; all English copy so far was build scaffolding. Running this now means M3 (header states), M4 (webboard) and M5 (search/legal) ship Thai natively instead of being translated afterwards — one sweep instead of two.
 
@@ -325,6 +325,9 @@ Batches (each ends with the three gates + a leftover-English spot check):
   - **Files modified:** `frontend/src/components/layout/Header.tsx` (icon-tile `<span>` + matching text span → one `next/image`, `h-8`, `priority`); `frontend/src/components/layout/Footer.tsx` (oversized `FITYATULHAQ` `<p>` → centred `next/image`, `h-10`); `frontend/src/app/(auth)/layout.tsx` (`fityatulhaq-white.png` inside the centred column, above the card, `h-12`, `priority`; redundant duplicate `AuthFeature` interface removed). **Assets:** the six PNGs copied from repo-root `logos/` → `frontend/src/assets/logos/`; `frontend/src/app/icon.png` + `frontend/src/app/apple-icon.png` are `f-white.png` via Next's file convention (no `metadata.icons` needed). Every image carries `alt="FityatulHaq"`; no hardcoded colours; no new dependencies.
   - **Gate checks:** FE `npx tsc --noEmit` exit 0 · FE `npm run build` exit 0 (50/50 routes prerendered, lint + type validity checked). No backend change → BE `npm run build` not run.
 - **Batch B2 (M2.5-2) — auth flows (M2.5-2 prompt):** the 8 auth forms + `AuthCard`, `FormField`, `SubmitButton`, `OtpVerification` (labels, placeholders, banners, success copy) + their route-shell metadata.
+  - **Completion note (2026-09-24):** the auth copy was already fully Thai in the tree (commit `5f9097a feat: translate auth flow copy to Thai`); the prompt's "eight forms" is actually **six** form components — every `useAuthForm` consumer under `@/components/auth`: `LoginForm`, `RegisterForm`, `ForgotPasswordForm`, `VerifyResetCodeForm`, `ResetPasswordForm`, `VerifyEmailForm`. Plus the four shared components and their route shells. Nothing needed re-translating, so this pass made **no source changes** (avoids regressing the already-Thai `errorMessages.ts` / `validation.ts`, per the prompt's warning).
+  - **Files verified (all Thai):** `frontend/src/components/auth/{LoginForm,RegisterForm,ForgotPasswordForm,VerifyResetCodeForm,ResetPasswordForm,VerifyEmailForm,AuthCard,FormField,SubmitButton,OtpVerification}.tsx`; route shells `frontend/src/app/(auth)/{layout,login,register,register/success,forgot-password,forgot-password/sent,reset-password}.tsx`. Only intentional non-Thai strings remain: `alt="FityatulHaq"` (brand) and the format-hint placeholders `you@example.com` / `Ahmad bin Abdullah`. `/terms` left untouched (already localised in `e10257f`).
+  - **Gate checks:** FE `npx tsc --noEmit` exit 0 · FE `npm run build` exit 0 (50/50 routes prerendered) · BE `npm run build` exit 0.
 - **Batch B3 (M2.5-2) — M1 public pages + their mock data (M2.5-2 prompt):** news list/detail (`newsData.ts` content incl. department names — the filter chips are data-driven), announcements, about + committee, donate (keep the frozen placeholder bank values), contact, partners (`partnerData.ts`), profile/webboard/terms shells.
 - **Batch B4 (M2.5-3) — M2 knowledge + closeout (M2.5-3 prompt):** hub + ten sections + `knowledgeItemsData.ts` content; site-wide leftover-English audit; M2.5 marked Done.
 - **Backend stays English** (deviation to record): error codes/messages and zod messages are machine-facing; `errorMessages.ts` is the human-translation layer. Exception: the OTP email template in `backend/src/utils/smtp.ts` is member-facing — translate to Thai (D-T3; harmless now even though SMTP is unconfigured, debt D0).
@@ -612,7 +615,7 @@ The original plan deleted the panel outright. Executed instead as **promotion**:
 
 1. Read this whole file (milestones section first, then debt register, then quick reference)
 2. Run the verification chain: `tsc --noEmit` (FE) → `npm run build` (FE) → `npm run build` (BE). If a deleted route raises a phantom `TS2307`, delete `.next` first — see HOW TO RUN
-3. Begin **M1** — M0 (Steps 1–3) is complete; the next work is the §5.1 public-pages follow-up, starting with the first real consumer of `requireRole.ts`
+3. Begin **M2.5 Batch B3** — M0–M2 and M2.5 Batches 1, 1.5 and B2 are complete; the next work is the M1 public pages + their mock data (news, announcements, about + committee, donate, contact, partners, profile/webboard/terms shells)
 4. After each step: update this file, update Last Updated timestamp, record gates passed
 5. Never claim done without all three gates passing
 6. This file is the only handover surface — the coordinator's `memory/` notes and `.zedignore` are gitignored machine state, not documentation

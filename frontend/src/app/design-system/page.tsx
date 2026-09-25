@@ -12,9 +12,9 @@ import {
 } from "@/styles/designTokens";
 
 export const metadata: Metadata = {
-  title: "Design System",
+  title: "ดีไซน์ซิสเทม",
   description:
-    "The FityatulHaq visual language: colour, type, spacing, radii, elevation and motion.",
+    "ภาษาภาพของ FityatulHaq: สี ตัวอักษร ระยะห่าง มุมโค้ง เงา และการเคลื่อนไหว",
 };
 
 // ------------------------------------------------------------

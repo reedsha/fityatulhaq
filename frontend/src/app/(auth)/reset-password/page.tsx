@@ -5,8 +5,8 @@ import { AuthCardFallback } from "@/components/auth/AuthCard";
 import { ResetPasswordForm } from "@/components/auth/ResetPasswordForm";
 
 export const metadata: Metadata = {
-  title: "Create a new password",
-  description: "Choose a new password for your FityatulHaq account.",
+  title: "ตั้งรหัสผ่านใหม่",
+  description: "เลือกรหัสผ่านใหม่สำหรับบัญชี FityatulHaq ของคุณ",
 };
 
 /**

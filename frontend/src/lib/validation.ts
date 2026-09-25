@@ -27,26 +27,26 @@ export const PHONE_PATTERN = /^[0-9+() -]{7,20}$/;
  */
 const emailField = z
   .string()
-  .min(1, "Email is required")
-  .email("Enter a valid email address");
+  .min(1, "กรุณากรอกอีเมล")
+  .email("กรุณากรอกอีเมลให้ถูกต้อง");
 
 const usernameField = z
   .string()
-  .min(MIN_USERNAME_LENGTH, `Username must be at least ${MIN_USERNAME_LENGTH} characters`)
-  .max(MAX_USERNAME_LENGTH, `Username must be at most ${MAX_USERNAME_LENGTH} characters`)
-  .regex(USERNAME_PATTERN, "Use letters, numbers and underscores only");
+  .min(MIN_USERNAME_LENGTH, `ชื่อผู้ใช้ต้องมีความยาวอย่างน้อย ${MIN_USERNAME_LENGTH} ตัวอักษร`)
+  .max(MAX_USERNAME_LENGTH, `ชื่อผู้ใช้ต้องมีความยาวไม่เกิน ${MAX_USERNAME_LENGTH} ตัวอักษร`)
+  .regex(USERNAME_PATTERN, "ใช้ได้เฉพาะตัวอักษรภาษาอังกฤษ ตัวเลข และขีดล่าง (_)");
 
 const passwordField = z
   .string()
-  .min(MIN_PASSWORD_LENGTH, `Password must be at least ${MIN_PASSWORD_LENGTH} characters`);
+  .min(MIN_PASSWORD_LENGTH, `รหัสผ่านต้องมีความยาวอย่างน้อย ${MIN_PASSWORD_LENGTH} ตัวอักษร`);
 
 const fullNameField = z
   .string()
   .trim()
-  .min(MIN_FULL_NAME_LENGTH, `Full name must be at least ${MIN_FULL_NAME_LENGTH} characters`)
-  .max(MAX_FULL_NAME_LENGTH, `Full name must be at most ${MAX_FULL_NAME_LENGTH} characters`);
+  .min(MIN_FULL_NAME_LENGTH, `ชื่อ-นามสกุลต้องมีความยาวอย่างน้อย ${MIN_FULL_NAME_LENGTH} ตัวอักษร`)
+  .max(MAX_FULL_NAME_LENGTH, `ชื่อ-นามสกุลต้องมีความยาวไม่เกิน ${MAX_FULL_NAME_LENGTH} ตัวอักษร`);
 
-const otpCodeField = z.string().regex(OTP_CODE_PATTERN, "The code is 6 digits");
+const otpCodeField = z.string().regex(OTP_CODE_PATTERN, "รหัสต้องเป็นตัวเลข 6 หลัก");
 
 export const registerSchema = z.object({
   email: emailField,
@@ -60,8 +60,8 @@ export const registerSchema = z.object({
 export type RegisterPayload = z.infer<typeof registerSchema>;
 
 export const loginSchema = z.object({
-  identifier: z.string().min(1, "Enter your email or username"),
-  password: z.string().min(1, "Enter your password"),
+  identifier: z.string().min(1, "กรุณากรอกอีเมลหรือชื่อผู้ใช้"),
+  password: z.string().min(1, "กรุณากรอกรหัสผ่าน"),
 });
 
 export type LoginPayload = z.infer<typeof loginSchema>;
@@ -103,23 +103,23 @@ function checkString(schema: z.ZodString, value: string, fallback: string): Vali
 }
 
 export function validateEmail(email: string): ValidationResult {
-  return checkString(emailField, email, "Enter a valid email address");
+  return checkString(emailField, email, "กรุณากรอกอีเมลให้ถูกต้อง");
 }
 
 export function validateUsername(username: string): ValidationResult {
-  return checkString(usernameField, username, "Enter a valid username");
+  return checkString(usernameField, username, "กรุณากรอกชื่อผู้ใช้");
 }
 
 export function validatePassword(password: string): ValidationResult {
-  return checkString(passwordField, password, "Enter a valid password");
+  return checkString(passwordField, password, "กรุณากรอกรหัสผ่าน");
 }
 
 export function validateFullName(fullName: string): ValidationResult {
-  return checkString(fullNameField, fullName, "Enter your full name");
+  return checkString(fullNameField, fullName, "กรุณากรอกชื่อ-นามสกุล");
 }
 
 export function validateOtpCode(code: string): ValidationResult {
-  return checkString(otpCodeField, code, "The code is 6 digits");
+  return checkString(otpCodeField, code, "รหัสต้องเป็นตัวเลข 6 หลัก");
 }
 
 /** Optional field: an empty value is valid. */
@@ -130,7 +130,7 @@ export function validatePhone(phone: string): ValidationResult {
     return VALID;
   }
 
-  return PHONE_PATTERN.test(trimmed) ? VALID : invalid("Enter a valid phone number");
+  return PHONE_PATTERN.test(trimmed) ? VALID : invalid("กรุณากรอกเบอร์โทรศัพท์ให้ถูกต้อง");
 }
 
 /** Optional field: an empty value is valid, as is any past date. */
@@ -144,11 +144,11 @@ export function validateBirthDate(birthDate: string): ValidationResult {
   const parsed = new Date(trimmed);
 
   if (Number.isNaN(parsed.getTime())) {
-    return invalid("Enter a valid date of birth");
+    return invalid("กรุณากรอกวันเกิดให้ถูกต้อง");
   }
 
   if (parsed.getTime() > Date.now()) {
-    return invalid("Date of birth cannot be in the future");
+    return invalid("วันเกิดไม่สามารถเป็นวันที่ในอนาคตได้");
   }
 
   return VALID;
@@ -156,14 +156,14 @@ export function validateBirthDate(birthDate: string): ValidationResult {
 
 export function validateConfirmPassword(password: string, confirmation: string): ValidationResult {
   if (confirmation.length === 0) {
-    return invalid("Confirm your password");
+    return invalid("กรุณายืนยันรหัสผ่าน");
   }
 
-  return password === confirmation ? VALID : invalid("Passwords do not match");
+  return password === confirmation ? VALID : invalid("รหัสผ่านทั้งสองช่องไม่ตรงกัน");
 }
 
 export function validateTermsAccepted(accepted: boolean): ValidationResult {
-  return accepted ? VALID : invalid("You must accept the terms to create an account");
+  return accepted ? VALID : invalid("กรุณายอมรับข้อกำหนดการใช้งานก่อนสมัครสมาชิก");
 }
 
 /** Drops control characters (C0 range plus DEL) without needing a regex. */
@@ -287,15 +287,15 @@ export function validateAvatarFile(file: File): ValidationResult {
   const mimeType = file.type.toLowerCase();
 
   if (!(ALLOWED_AVATAR_MIME_TYPES as readonly string[]).includes(mimeType)) {
-    return invalid("Choose a JPEG, PNG, GIF or WebP image");
+    return invalid("กรุณาเลือกไฟล์รูปภาพนามสกุล JPEG, PNG, GIF หรือ WebP");
   }
 
   if (file.size === 0) {
-    return invalid("That file is empty");
+    return invalid("ไฟล์นี้ว่างเปล่า");
   }
 
   if (file.size > MAX_AVATAR_BYTES) {
-    return invalid(`Image must be ${Math.round(MAX_AVATAR_BYTES / (1024 * 1024))} MB or smaller`);
+    return invalid(`รูปภาพต้องมีขนาดไม่เกิน ${Math.round(MAX_AVATAR_BYTES / (1024 * 1024))} MB`);
   }
 
   return VALID;
@@ -306,13 +306,14 @@ export function validateAvatarFile(file: File): ValidationResult {
 // ------------------------------------------------------------
 
 /**
- * Pinned to `en-US` rather than derived from the runtime locale: the site copy
- * is English, and a formatter that depends on the visitor's locale would format
- * differently on the server and the client, breaking hydration.
+ * Pinned to `th-TH` rather than derived from the runtime locale: the site copy
+ * is Thai (Buddhist-era years), and a formatter that depends on the visitor's
+ * locale would format differently on the server and the client, breaking
+ * hydration. `<time dateTime>` attributes keep the ISO value.
  */
-const DATE_FORMATTER = new Intl.DateTimeFormat("en-US", {
-  month: "long",
+const DATE_FORMATTER = new Intl.DateTimeFormat("th-TH", {
   day: "numeric",
+  month: "long",
   year: "numeric",
 });
 
@@ -323,7 +324,7 @@ const SECONDS_PER_WEEK = 7 * SECONDS_PER_DAY;
 const SECONDS_PER_MONTH = 30 * SECONDS_PER_DAY;
 const SECONDS_PER_YEAR = 365 * SECONDS_PER_DAY;
 
-/** Formats an ISO timestamp as `"January 15, 2026"`. Unparseable input yields `""`. */
+/** Formats an ISO timestamp as `"15 มกราคม 2569"`. Unparseable input yields `""`. */
 export function formatDate(dateString: string): string {
   const parsed = new Date(dateString);
 
@@ -335,16 +336,16 @@ export function formatDate(dateString: string): string {
 }
 
 function elapsedAgo(count: number, unit: string): string {
-  return `${count} ${unit}${count === 1 ? "" : "s"} ago`;
+  return `${count} ${unit}ที่แล้ว`;
 }
 
 /**
- * Relative time such as `"2 hours ago"`.
+ * Relative time such as `"2 ชั่วโมงที่แล้ว"`.
  *
  * Reads the clock, so it must only be rendered after mount on a statically
  * prerendered page — otherwise the server's answer is baked into the HTML and
  * disagrees with the client's. Unparseable input yields `""`, and a future
- * timestamp (clock skew, scheduled posts) reads as `"just now"` rather than a
+ * timestamp (clock skew, scheduled posts) reads as `"เมื่อสักครู่"` rather than a
  * negative count.
  */
 export function timeAgo(dateString: string): string {
@@ -357,28 +358,28 @@ export function timeAgo(dateString: string): string {
   const elapsedSeconds = Math.floor((Date.now() - parsed.getTime()) / 1000);
 
   if (elapsedSeconds < SECONDS_PER_MINUTE) {
-    return "just now";
+    return "เมื่อสักครู่";
   }
 
   if (elapsedSeconds < SECONDS_PER_HOUR) {
-    return elapsedAgo(Math.floor(elapsedSeconds / SECONDS_PER_MINUTE), "minute");
+    return elapsedAgo(Math.floor(elapsedSeconds / SECONDS_PER_MINUTE), "นาที");
   }
 
   if (elapsedSeconds < SECONDS_PER_DAY) {
-    return elapsedAgo(Math.floor(elapsedSeconds / SECONDS_PER_HOUR), "hour");
+    return elapsedAgo(Math.floor(elapsedSeconds / SECONDS_PER_HOUR), "ชั่วโมง");
   }
 
   if (elapsedSeconds < SECONDS_PER_WEEK) {
-    return elapsedAgo(Math.floor(elapsedSeconds / SECONDS_PER_DAY), "day");
+    return elapsedAgo(Math.floor(elapsedSeconds / SECONDS_PER_DAY), "วัน");
   }
 
   if (elapsedSeconds < SECONDS_PER_MONTH) {
-    return elapsedAgo(Math.floor(elapsedSeconds / SECONDS_PER_WEEK), "week");
+    return elapsedAgo(Math.floor(elapsedSeconds / SECONDS_PER_WEEK), "สัปดาห์");
   }
 
   if (elapsedSeconds < SECONDS_PER_YEAR) {
-    return elapsedAgo(Math.floor(elapsedSeconds / SECONDS_PER_MONTH), "month");
+    return elapsedAgo(Math.floor(elapsedSeconds / SECONDS_PER_MONTH), "เดือน");
   }
 
-  return elapsedAgo(Math.floor(elapsedSeconds / SECONDS_PER_YEAR), "year");
+  return elapsedAgo(Math.floor(elapsedSeconds / SECONDS_PER_YEAR), "ปี");
 }

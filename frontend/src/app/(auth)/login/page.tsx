@@ -4,8 +4,8 @@ import type { ReactElement } from "react";
 import { LoginForm } from "@/components/auth/LoginForm";
 
 export const metadata: Metadata = {
-  title: "Log in",
-  description: "Log in to your FityatulHaq account.",
+  title: "เข้าสู่ระบบ",
+  description: "เข้าสู่ระบบบัญชี FityatulHaq ของคุณ",
 };
 
 /** `/login` — server shell; the interactive part lives in `LoginForm`. */

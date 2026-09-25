@@ -6,7 +6,7 @@ import { AuthAwareShell } from "@/components/layout/AuthAwareShell";
 
 export const metadata: Metadata = {
   title: "FityatulHaq",
-  description: "Portal Komunitas dan Informasi Publik FityatulHaq.",
+  description: "พอร์ทัลข้อมูลข่าวสารและชุมชนของกลุ่มฟิตยะตุลฮัก",
 };
 
 /**

@@ -223,12 +223,12 @@ export const token = {
 
   fontFamily: {
     /**
-     * System stack on purpose: the reference's clean geometric sans is closely
-     * matched by the platform UI faces, and this keeps the build free of a
-     * network-fetched webfont. Swap in `next/font` here when a brand face is
-     * licensed — every consumer follows automatically.
+     * Kanit is the brand face, self-hosted through `next/font/local` in
+     * `app/layout.tsx` (weights 400–800 as real files) and exposed to CSS as
+     * the `--font-kanit` variable, which that layout puts on `<html>`. The
+     * system faces after it are fallbacks only.
      */
-    sans: 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+    sans: 'var(--font-kanit), system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
     /** Reference numbers and notice codes. */
     mono: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace',
   },

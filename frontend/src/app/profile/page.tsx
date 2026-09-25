@@ -4,8 +4,8 @@ import type { ReactElement } from "react";
 import { ProfilePage } from "@/components/profile/ProfilePage";
 
 export const metadata: Metadata = {
-  title: "Your Profile",
-  description: "Manage your FityatulHaq photo and personal details.",
+  title: "โปรไฟล์ของคุณ",
+  description: "จัดการรูปภาพและข้อมูลส่วนตัวของคุณใน FityatulHaq",
 };
 
 /**

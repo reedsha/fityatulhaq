@@ -5,8 +5,8 @@ import { AuthCardFallback } from "@/components/auth/AuthCard";
 import { VerifyResetCodeForm } from "@/components/auth/VerifyResetCodeForm";
 
 export const metadata: Metadata = {
-  title: "Enter your code",
-  description: "Enter the verification code we emailed you to reset your password.",
+  title: "กรอกรหัสยืนยัน",
+  description: "กรอกรหัสยืนยันที่เราส่งไปทางอีเมลเพื่อรีเซ็ตรหัสผ่าน",
 };
 
 /**

@@ -5,8 +5,8 @@ import type { ReactElement } from "react";
 import { AuthAwareShell } from "@/components/layout/AuthAwareShell";
 
 export const metadata: Metadata = {
-  title: "Webboard",
-  description: "Community discussion forums for FityatulHaq members.",
+  title: "เว็บบอร์ด",
+  description: "บอร์ดสนทนาชุมชนสำหรับสมาชิก FityatulHaq",
 };
 
 /**

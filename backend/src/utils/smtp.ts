@@ -205,8 +205,8 @@ export function sendOtpEmail(
   return sendEmail({
     to: [to],
     subject: isPasswordReset
-      ? "Reset your FityatulHaq password"
-      : "Verify your FityatulHaq email address",
+      ? "รีเซ็ตรหัสผ่าน FityatulHaq"
+      : "ยืนยันอีเมล FityatulHaq",
     html: createOtpEmailHtml(code, purpose),
     text: createOtpEmailText(code, purpose),
   });
@@ -217,10 +217,10 @@ function otpCopy(purpose: string): { heading: string; intro: string } {
   const isPasswordReset = purpose === "PASSWORD_RESET";
 
   return {
-    heading: isPasswordReset ? "Reset your password" : "Verify your email address",
+    heading: isPasswordReset ? "รีเซ็ตรหัสผ่าน" : "ยืนยันอีเมลของคุณ",
     intro: isPasswordReset
-      ? "Use the code below to finish resetting the password on your FityatulHaq account."
-      : "Use the code below to verify your email address and activate your FityatulHaq account.",
+      ? "ใช้รหัสด้านล่างนี้เพื่อตั้งรหัสผ่านใหม่สำหรับบัญชี FityatulHaq ของคุณ"
+      : "ใช้รหัสด้านล่างนี้เพื่อยืนยันอีเมลและเปิดใช้งานบัญชี FityatulHaq ของคุณ",
   };
 }
 
@@ -234,12 +234,12 @@ export function createOtpEmailHtml(code: string, purpose: string): string {
   const { heading, intro } = otpCopy(purpose);
 
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="th">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="x-apple-disable-message-reformatting" />
-    <title>FityatulHaq Verification Code</title>
+    <title>รหัสยืนยัน FityatulHaq</title>
   </head>
   <body style="margin:0;padding:0;background-color:#f3f4f6;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f3f4f6;padding:24px 12px;">
@@ -248,7 +248,7 @@ export function createOtpEmailHtml(code: string, purpose: string): string {
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:480px;background-color:#ffffff;border-radius:12px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#111827;">
             <tr>
               <td style="padding:32px 32px 0 32px;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:${BRAND_ACCENT};font-weight:700;">
-                FityatulHaq Verification Code
+                รหัสยืนยัน FityatulHaq
               </td>
             </tr>
             <tr>
@@ -274,7 +274,7 @@ export function createOtpEmailHtml(code: string, purpose: string): string {
             </tr>
             <tr>
               <td style="padding:24px 32px 0 32px;font-size:14px;line-height:22px;color:#374151;">
-                This code expires in 15 minutes.
+                รหัสนี้หมดอายุภายใน 15 นาที
               </td>
             </tr>
             <tr>
@@ -282,7 +282,7 @@ export function createOtpEmailHtml(code: string, purpose: string): string {
                 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
                   <tr>
                     <td style="border-top:1px solid #e5e7eb;padding-top:16px;font-size:12px;line-height:20px;color:#6b7280;">
-                      If you didn't request this code, please ignore this email &mdash; your account stays secure and no changes have been made.
+                      หากคุณไม่ได้เป็นผู้ขอรหัสนี้ กรุณาเพิกเฉยต่ออีเมลฉบับนี้ &mdash; บัญชีของคุณยังคงปลอดภัยและไม่มีการเปลี่ยนแปลงใดๆ
                     </td>
                   </tr>
                 </table>
@@ -290,7 +290,7 @@ export function createOtpEmailHtml(code: string, purpose: string): string {
             </tr>
             <tr>
               <td style="padding:16px 32px 32px 32px;font-size:12px;color:#9ca3af;">
-                FityatulHaq &middot; This is an automated message, please do not reply.
+                FityatulHaq &middot; นี่เป็นข้อความอัตโนมัติ กรุณาอย่าตอบกลับ
               </td>
             </tr>
           </table>
@@ -309,7 +309,7 @@ export function createOtpEmailText(code: string, purpose: string): string {
   const { heading, intro } = otpCopy(purpose);
 
   return [
-    "FityatulHaq Verification Code",
+    "รหัสยืนยัน FityatulHaq",
     "",
     heading,
     "",
@@ -317,11 +317,11 @@ export function createOtpEmailText(code: string, purpose: string): string {
     "",
     `    ${code}`,
     "",
-    "This code expires in 15 minutes.",
+    "รหัสนี้หมดอายุภายใน 15 นาที",
     "",
-    "If you didn't request this code, please ignore this email - your account",
-    "stays secure and no changes have been made.",
+    "หากคุณไม่ได้เป็นผู้ขอรหัสนี้ กรุณาเพิกเฉยต่ออีเมลฉบับนี้ - บัญชีของคุณ",
+    "ยังคงปลอดภัยและไม่มีการเปลี่ยนแปลงใดๆ",
     "",
-    "FityatulHaq - This is an automated message, please do not reply.",
+    "FityatulHaq - นี่เป็นข้อความอัตโนมัติ กรุณาอย่าตอบกลับ",
   ].join("\n");
 }
