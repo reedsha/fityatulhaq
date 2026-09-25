@@ -14,9 +14,9 @@ import ContactPage from "@/components/contact/ContactPage";
  * `#main-content` skip-link target and the footer.
  */
 export const metadata: Metadata = {
-  title: "Contact Us",
+  title: "ติดต่อเรา",
   description:
-    "Get in touch with FityatulHaq — general enquiries, member support, or visit us in Springfield.",
+    "ติดต่อ FityatulHaq — สอบถามทั่วไป ช่วยเหลือสมาชิก หรือเยี่ยมชมเราที่สปริงฟิลด์",
 };
 
 export default function ContactRoute(): ReactElement {

@@ -14,8 +14,8 @@ import NewsPage from "@/components/news/NewsPage";
  * the site chrome, the `#main-content` skip-link target and the footer.
  */
 export const metadata: Metadata = {
-  title: "News",
-  description: "Latest updates, stories and events from across FityatulHaq.",
+  title: "ข่าวสาร",
+  description: "ข่าวความเคลื่อนไหว เรื่องราว และกิจกรรมล่าสุดจาก FityatulHaq",
 };
 
 export default function NewsRoute(): ReactElement {

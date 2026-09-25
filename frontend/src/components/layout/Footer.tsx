@@ -30,22 +30,22 @@ const RESOURCE_LINKS: FooterLink[] = [
 
 const SOCIAL_LINKS: SocialLink[] = [
   {
-    label: "FityatulHaq on Facebook",
+    label: "FityatulHaq บน Facebook",
     href: "https://facebook.com/fityatulhaq",
     path: "M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z",
   },
   {
-    label: "FityatulHaq on TikTok",
+    label: "FityatulHaq บน TikTok",
     href: "https://tiktok.com/@fityatulhaq",
     path: "M9 12a4 4 0 104 4V4a5 5 0 005 5",
   },
   {
-    label: "FityatulHaq on Instagram",
+    label: "FityatulHaq บน Instagram",
     href: "https://instagram.com/fityatulhaq",
     path: "M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z M4 6a2 2 0 100-4 2 2 0 000 4z",
   },
   {
-    label: "FityatulHaq on YouTube",
+    label: "FityatulHaq บน YouTube",
     href: "https://youtube.com/@fityatulhaq",
     path: "M22.54 6.42a2.78 2.78 0 00-1.94-1.96C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 00-1.94 1.96A29 29 0 001 12a29 29 0 00.46 5.58A2.78 2.78 0 003.4 19.54C5.12 20 12 20 12 20s6.88 0 8.6-.46a2.78 2.78 0 001.94-1.96A29 29 0 0023 12a29 29 0 00-.46-5.58zM9.75 15.02V8.98L15.5 12l-5.75 3.02z",
   },
@@ -125,7 +125,7 @@ export function Footer(): ReactElement {
                 +1 (555) 012-3456
               </a>
             </p>
-            <p>12 Community Way, Springfield</p>
+            <p>เลขที่ 12 ถนนคอมมิวนิตี สปริงฟิลด์</p>
           </address>
 
           {/* Social icons */}

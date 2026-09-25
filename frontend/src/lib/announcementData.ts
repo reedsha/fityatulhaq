@@ -24,46 +24,46 @@ export interface AnnouncementItem {
   pdfUrl?: string;
 }
 
-export const ALL_CATEGORY = "All Categories";
+export const ALL_CATEGORY = "หมวดหมู่ทั้งหมด";
 
 export const ANNOUNCEMENTS: AnnouncementItem[] = [
   {
     id: "a-1",
     refNumber: "FH/ANN/2026/091",
-    title: "Notice of the annual general meeting and election of committee",
+    title: "ประกาศเชิญประชุมใหญ่สามัญประจำปีและเลือกตั้งคณะกรรมการ",
     date: "2026-09-18T12:00:00Z",
     pdfUrl: "/documents/announcements/fh-ann-2026-091.pdf",
   },
   {
     id: "a-2",
     refNumber: "FH/ANN/2026/090",
-    title: "Opening of applications: youth mentoring programme, autumn intake",
+    title: "เปิดรับสมัคร: โครงการพี่เลี้ยงเยาวชน รุ่นฤดูใบไม้ร่วง",
     date: "2026-09-15T09:00:00Z",
   },
   {
     id: "a-3",
     refNumber: "FH/ANN/2026/088",
-    title: "Revision of the member code of conduct, effective 1 October",
+    title: "ปรับปรุงข้อปฏิบัติของสมาชิก มีผลตั้งแต่วันที่ 1 ตุลาคม",
     date: "2026-09-05T15:30:00Z",
     pdfUrl: "/documents/announcements/fh-ann-2026-088.pdf",
   },
   {
     id: "a-4",
     refNumber: "FH/ANN/2026/085",
-    title: "Call for volunteer session leaders, weekend study clubs",
+    title: "เชิญชวนจิตอาสาเป็นผู้นำกิจกรรมชมรมเรียนวันเสาร์-อาทิตย์",
     date: "2026-08-24T10:00:00Z",
   },
   {
     id: "a-5",
     refNumber: "FH/ANN/2026/081",
-    title: "Approved minutes of the July committee meeting",
+    title: "บันทึกการประชุมคณะกรรมการเดือนกรกฎาคมที่ได้รับอนุมัติ",
     date: "2026-08-11T13:45:00Z",
     pdfUrl: "/documents/announcements/fh-ann-2026-081.pdf",
   },
   {
     id: "a-6",
     refNumber: "FH/ANN/2026/079",
-    title: "Publication of the 2025 audited financial statements",
+    title: "เผยแพร่งบการเงินปี 2568 ที่ผ่านการตรวจสอบแล้ว",
     date: "2026-08-02T09:20:00Z",
     pdfUrl: "/documents/announcements/fh-ann-2026-079.pdf",
   },

@@ -90,26 +90,26 @@ interface Pillar {
 const PILLARS: Pillar[] = [
   {
     icon: GraduationCap,
-    title: "Youth Development",
-    description: "Mentoring, camps and leadership training for members aged 11 to 25.",
+    title: "การพัฒนาเยาวชน",
+    description: "กิจกรรมพี่เลี้ยง ค่าย และการฝึกภาวะผู้นำสำหรับสมาชิกอายุ 11 ถึง 25 ปี",
     tone: "lime",
   },
   {
     icon: BookOpen,
-    title: "Education & Knowledge",
-    description: "Study clubs, a digital library and an encyclopaedia open to all members.",
+    title: "การศึกษาและความรู้",
+    description: "ชมรมเรียน ห้องสมุดดิจิทัล และสารานุกรมที่เปิดให้สมาชิกทุกคน",
     tone: "pale",
   },
   {
     icon: HeartHandshake,
-    title: "Community Service",
-    description: "Volunteer projects that put members to work for the neighbourhoods around them.",
+    title: "การบริการชุมชน",
+    description: "โครงการจิตอาสาที่นำสมาชิกไปทำงานเพื่อชุมชนรอบข้าง",
     tone: "white",
   },
   {
     icon: Megaphone,
-    title: "Communication & Outreach",
-    description: "News, official announcements and a webboard that keep the network connected.",
+    title: "การสื่อสารและเผยแพร่",
+    description: "ข่าวสาร ประกาศอย่างเป็นทางการ และเว็บบอร์ดที่เชื่อมเครือข่ายให้ใกล้ชิดกัน",
     tone: "pale",
   },
 ];
@@ -149,80 +149,77 @@ export default function AboutPage(): ReactElement {
 
         <div className="relative mx-auto max-w-6xl">
           {/* Breadcrumb */}
-          <nav aria-label="Breadcrumb" className="text-caption text-ink-400">
+          <nav aria-label="เส้นทางนำทาง" className="text-caption text-ink-400">
             <Link
               href="/"
               className={`rounded-sm transition duration-fast ease-standard motion-reduce:transition-none hover:text-ink-300 ${FOCUS_RING_DARK}`}
             >
-              Home
+              หน้าแรก
             </Link>
             <span aria-hidden="true" className="mx-2">
               /
             </span>
             <span aria-current="page" className="text-ink-200">
-              About
+              เกี่ยวกับเรา
             </span>
           </nav>
 
           <h1 className="mt-2 text-3xl font-extrabold leading-tight text-white sm:text-4xl md:text-5xl">
-            About Us
+            เกี่ยวกับเรา
           </h1>
           <p className="mt-3 max-w-xl text-body text-ink-300">
-            A youth development organisation supporting young people through learning,
-            community and service.
+            องค์กรพัฒนาเยาวชนที่สนับสนุนคนรุ่นใหม่ผ่านการเรียนรู้ ชุมชน และการรับใช้สังคม
           </p>
         </div>
       </header>
 
       {/* ── Mission & Vision ─────────────────────────────────────────── */}
-      <section aria-label="Mission and vision" className="px-4 pt-10 sm:px-6 lg:px-8">
+      <section aria-label="พันธกิจและวิสัยทัศน์" className="px-4 pt-10 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 md:grid-cols-2">
           <StatementCard
             icon={Target}
-            title="Our Mission"
-            body="To nurture disciplined, knowledgeable and service-minded young people — equipping every member with the character, skills and opportunities to lead in their community."
+            title="พันธกิจของเรา"
+            body="หล่อหลอมเยาวชนให้มีวินัย รู้รอบ และมีจิตสาธารณะ — เสริมสร้างอุปนิสัย ทักษะ และโอกาสให้สมาชิกทุกคนก้าวเป็นผู้นำในชุมชนของตน"
           />
           <StatementCard
             icon={Eye}
-            title="Our Vision"
-            body="A generation of graduates who stand for good: confident in their identity, generous in service, and recognised as a positive force in society."
+            title="วิสัยทัศน์ของเรา"
+            body="สร้างคนรุ่นใหม่ที่ยืนหยัดเพื่อความดี — มั่นใจในตัวตนของตนเอง เอื้อเฟื้อในการรับใช้ และได้รับการยอมรับว่าเป็นพลังบวกของสังคม"
           />
         </div>
       </section>
 
       {/* ── Our History ──────────────────────────────────────────────── */}
-      <section aria-label="Our history" className="px-4 pt-12 sm:px-6 lg:px-8">
+      <section aria-label="ประวัติของเรา" className="px-4 pt-12 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl">
-          <h2 className="text-heading-3 text-white">Our History</h2>
+          <h2 className="text-heading-3 text-white">ประวัติของเรา</h2>
 
           {/* Opening statement carries the lime accent bar. */}
           <p className="mt-5 border-l-4 border-accent-300 pl-6 text-lg leading-relaxed text-ink-100">
-            FityatulHaq began in 2011 as a small weekend study circle run by volunteer
-            teachers, meeting in a borrowed classroom with fifteen students.
+            ฟิตยะตุลฮักเริ่มต้นในปี 2554 จากวงเรียนช่วงสุดสัปดาห์เล็ก ๆ ที่ดำเนินการโดยครูจิตอาสา
+            ใช้ห้องเรียนที่ยืมมาร่วมกับนักเรียนสิบห้าคน
           </p>
 
           <p className="mt-5 text-body leading-relaxed text-ink-300">
-            Within three years the circle had grown into a registered youth association with
-            branches in four provinces, and the first summer camp brought two hundred young
-            people together for a week of study, sport and service.
+            ภายในสามปี วงเรียนนี้เติบโตเป็นสมาคมเยาวชนจดทะเบียนที่มีสาขาในสี่จังหวัด
+            และค่ายฤดูร้อนครั้งแรกได้รวมเยาวชนสองร้อยคนไว้ด้วยกันเป็นเวลาหนึ่งสัปดาห์
+            เพื่อเรียนรู้ เล่นกีฬา และบำเพ็ญประโยชน์
           </p>
           <p className="mt-4 text-body leading-relaxed text-ink-300">
-            Today the organisation operates the mentoring programme, the digital library and
-            the community service projects that members know — still volunteer-run at heart,
-            and still governed by a committee elected at the annual general meeting.
+            ปัจจุบันองค์กรดำเนินโครงการพี่เลี้ยง ห้องสมุดดิจิทัล และโครงการบริการชุมชนที่สมาชิกคุ้นเคย
+            — ยังคงขับเคลื่อนด้วยจิตอาสาเป็นหัวใจ และยังบริหารโดยคณะกรรมการที่มาจากการเลือกตั้งในที่ประชุมใหญ่สามัญประจำปี
           </p>
           <p className="mt-4 text-body leading-relaxed text-ink-300">
-            Fifteen years on, our purpose has not moved: to raise a generation that stands
-            for good, and to give every young person who joins us a place to learn, grow and
-            serve together.
+            สิบห้าปีผ่านไป จุดมุ่งหมายของเราไม่เคยเปลี่ยน: เพื่อสร้างคนรุ่นใหม่ที่ยืนหยัดเพื่อความดี
+            และมอบพื้นที่ให้เยาวชนทุกคนได้เรียนรู้ เติบโต และรับใช้สังคมร่วมกัน
           </p>
         </div>
       </section>
 
       {/* ── What We Do ───────────────────────────────────────────────── */}
-      <section aria-label="What we do" className="px-4 pt-12 sm:px-6 lg:px-8">
+      <section aria-label="สิ่งที่เราทำ" className="px-4 pt-12 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-6xl">
-          <h2 className="text-heading-3 text-white">What We Do</h2>
+          <h2 className="text-heading-3 text-white">สิ่งที่เราทำ</h2>
           <div className="mt-5 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {PILLARS.map((pillar) => (
               <PillarCard key={pillar.title} pillar={pillar} />
@@ -233,7 +230,7 @@ export default function AboutPage(): ReactElement {
 
       {/* ── Leadership CTA ───────────────────────────────────────────── */}
       <section
-        aria-label="Meet the committee"
+        aria-label="พบกับคณะกรรมการ"
         className="relative isolate mt-12 overflow-hidden bg-brand-950 px-4 py-12 sm:px-6 lg:px-8"
       >
         <div
@@ -246,16 +243,16 @@ export default function AboutPage(): ReactElement {
         />
 
         <div className="relative mx-auto max-w-6xl text-center">
-          <h2 className="text-heading-3 text-white">Our Leadership</h2>
+          <h2 className="text-heading-3 text-white">ผู้บริหารของเรา</h2>
           <p className="mx-auto mt-2 max-w-xl text-body text-ink-300">
-            The committee is elected by the membership at the annual general meeting and
-            serves a two-year term.
+            คณะกรรมการมาจากการเลือกตั้งของสมาชิกในที่ประชุมใหญ่สามัญประจำปี
+            และมีวาระการดำรงตำแหน่งสองปี
           </p>
           <Link
             href="/about/committee"
             className={`mt-6 inline-flex items-center justify-center rounded-full bg-accent-300 px-6 py-2.5 text-caption font-bold text-brand-950 transition duration-fast ease-standard motion-reduce:transition-none hover:brightness-110 ${FOCUS_RING_DARK}`}
           >
-            Meet the committee
+            พบกับคณะกรรมการ
           </Link>
         </div>
       </section>

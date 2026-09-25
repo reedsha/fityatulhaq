@@ -36,6 +36,11 @@ import { formatDate } from "@/lib/validation";
 // Category filter chips
 // ---------------------------------------------------------------
 
+// Filter values are derived from the data and compared by identity, so they
+// live in one place rather than as repeated string literals.
+const WITH_PDF = "มีไฟล์ PDF";
+const TEXT_ONLY = "ข้อความเท่านั้น";
+
 interface FilterChipsProps {
   filters: string[];
   active: string;
@@ -46,7 +51,7 @@ function FilterChips(props: FilterChipsProps): ReactElement {
   const { filters, active, onSelect } = props;
 
   return (
-    <nav aria-label="Filter announcements" className="hide-scrollbar overflow-x-auto">
+    <nav aria-label="กรองประกาศ" className="hide-scrollbar overflow-x-auto">
       <ul className="flex min-w-max items-center gap-2">
         {filters.map((filter) => {
           const isActive = filter === active;
@@ -122,7 +127,7 @@ export default function AnnouncementList(): ReactElement {
   const filters = useMemo((): string[] => {
     const seen = new Set<string>([ALL_CATEGORY]);
     for (const item of ANNOUNCEMENTS) {
-      seen.add(item.pdfUrl !== undefined ? "With PDF" : "Text only");
+      seen.add(item.pdfUrl !== undefined ? WITH_PDF : TEXT_ONLY);
     }
     return Array.from(seen);
   }, []);
@@ -133,7 +138,7 @@ export default function AnnouncementList(): ReactElement {
     if (activeFilter === ALL_CATEGORY) {
       return ANNOUNCEMENTS;
     }
-    if (activeFilter === "With PDF") {
+    if (activeFilter === WITH_PDF) {
       return ANNOUNCEMENTS.filter((item) => item.pdfUrl !== undefined);
     }
     return ANNOUNCEMENTS.filter((item) => item.pdfUrl === undefined);
@@ -158,27 +163,26 @@ export default function AnnouncementList(): ReactElement {
 
         <div className="relative mx-auto max-w-6xl">
           {/* Breadcrumb */}
-          <nav aria-label="Breadcrumb" className="text-caption text-ink-400">
+          <nav aria-label="เส้นทางนำทาง" className="text-caption text-ink-400">
             <Link
               href="/"
               className={`rounded-sm transition duration-fast ease-standard motion-reduce:transition-none hover:text-ink-300 ${FOCUS_RING_DARK}`}
             >
-              Home
+              หน้าแรก
             </Link>
             <span aria-hidden="true" className="mx-2">
               /
             </span>
             <span aria-current="page" className="text-ink-200">
-              Announcements
+              ประกาศ
             </span>
           </nav>
 
           <h1 className="mt-2 text-3xl font-extrabold leading-tight text-white sm:text-4xl md:text-5xl">
-            Announcements
+            ประกาศ
           </h1>
           <p className="mt-3 max-w-xl text-body text-ink-300">
-            Official notices, reference-numbered bulletins and published documents from the
-            committee.
+            ประกาศอย่างเป็นทางการ เอกสารประชาสัมพันธ์พร้อมเลขที่อ้างอิง และเอกสารที่เผยแพร่จากคณะกรรมการ
           </p>
         </div>
       </header>
@@ -191,25 +195,25 @@ export default function AnnouncementList(): ReactElement {
       </div>
 
       {/* ── Lime announcements panel ─────────────────────────────────── */}
-      <section aria-label="Announcement list" className="flex-1 px-4 pb-16 pt-8 sm:px-6 lg:px-8">
+      <section aria-label="รายการประกาศ" className="flex-1 px-4 pb-16 pt-8 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl">
           <div className="rounded-2xl bg-[#b2f35e] p-4 sm:p-5">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-sm font-extrabold text-ink-900">Official announcements</h2>
+              <h2 className="text-sm font-extrabold text-ink-900">ประกาศอย่างเป็นทางการ</h2>
               <span className="text-caption font-bold text-ink-900/60">
-                {`${String(visibleItems.length)} ${visibleItems.length === 1 ? "notice" : "notices"}`}
+                {`${String(visibleItems.length)} ประกาศ`}
               </span>
             </div>
 
             {/* Client-side filtering gives sighted users instant feedback; this
                 announces the same change to screen readers. */}
             <p aria-live="polite" className="sr-only">
-              {`${String(visibleItems.length)} announcement${visibleItems.length === 1 ? "" : "s"} shown under ${activeFilter}.`}
+              {`แสดง ${String(visibleItems.length)} ประกาศภายใต้ ${activeFilter}`}
             </p>
 
             {visibleItems.length === 0 ? (
               <p className="rounded-lg border border-dashed border-ink-300 bg-white px-6 py-10 text-center text-body-sm text-ink-500">
-                No announcements match this filter. Check back soon.
+                ไม่มีประกาศที่ตรงกับตัวกรองนี้ โปรดกลับมาอีกครั้ง
               </p>
             ) : (
               <ul className="flex flex-col gap-3">

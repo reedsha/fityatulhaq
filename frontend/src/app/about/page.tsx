@@ -14,9 +14,9 @@ import AboutPage from "@/components/about/AboutPage";
  * `#main-content` skip-link target and the footer.
  */
 export const metadata: Metadata = {
-  title: "About Us",
+  title: "เกี่ยวกับเรา",
   description:
-    "FityatulHaq — who we are: our mission, vision, history and the work we do for young people.",
+    "FityatulHaq — เราคือใคร พันธกิจ วิสัยทัศน์ ประวัติ และงานที่เราทำเพื่อเยาวชน",
 };
 
 export default function AboutRoute(): ReactElement {

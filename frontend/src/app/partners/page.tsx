@@ -14,9 +14,9 @@ import PartnersPage from "@/components/partners/PartnersPage";
  * `#main-content` skip-link target and the footer.
  */
 export const metadata: Metadata = {
-  title: "Our Partners",
+  title: "พันธมิตรของเรา",
   description:
-    "The schools, community organisations and youth networks FityatulHaq works with.",
+    "โรงเรียน องค์กรชุมชน และเครือข่ายเยาวชนที่ FityatulHaq ร่วมงานด้วย",
 };
 
 export default function PartnersRoute(): ReactElement {

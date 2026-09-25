@@ -15,8 +15,8 @@ import { AuthAwareShell } from "@/components/layout/AuthAwareShell";
  * target and the footer.
  */
 export const metadata: Metadata = {
-  title: "Announcements",
-  description: "Official notices and time-sensitive bulletins from the committee.",
+  title: "ประกาศ",
+  description: "ประกาศอย่างเป็นทางการและข่าวสารเร่งด่วนจากคณะกรรมการ",
 };
 
 export default function AnnouncementsRoute(): ReactElement {

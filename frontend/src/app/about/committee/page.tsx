@@ -14,8 +14,8 @@ import CommitteePage from "@/components/about/CommitteePage";
  * `#main-content` skip-link target and the footer.
  */
 export const metadata: Metadata = {
-  title: "Our Committee",
-  description: "The members elected to govern FityatulHaq for the current term.",
+  title: "คณะกรรมการของเรา",
+  description: "สมาชิกที่ได้รับเลือกให้บริหารงาน FityatulHaq ในวาระปัจจุบัน",
 };
 
 export default function CommitteeRoute(): ReactElement {

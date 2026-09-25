@@ -29,13 +29,13 @@ export async function generateMetadata({ params }: NewsArticleRouteProps): Promi
 
   if (article === undefined) {
     return {
-      title: "Article not found | News",
-      description: "This news article could not be found.",
+      title: "ไม่พบบทความ | ข่าวสาร",
+      description: "ไม่พบข่าวสารบทความนี้",
     };
   }
 
   return {
-    title: `${article.title} | News`,
+    title: `${article.title} | ข่าวสาร`,
     description: article.excerpt,
   };
 }
@@ -50,20 +50,20 @@ function ArticleNotFound(): ReactElement {
   return (
     <div className="flex min-h-[calc(100vh-4rem)] flex-col bg-brand-950">
       <section
-        aria-label="Article not found"
+        aria-label="ไม่พบบทความ"
         className="mx-auto flex w-full max-w-4xl flex-1 flex-col items-center justify-center px-4 py-16 text-center sm:px-6 lg:px-8"
       >
         <h1 className="text-3xl font-extrabold leading-tight text-white sm:text-4xl">
-          Article not found
+          ไม่พบบทความ
         </h1>
         <p className="mt-3 max-w-md text-body text-ink-300">
-          The article you are looking for does not exist or may have been moved.
+          บทความที่คุณกำลังมองหาไม่มีอยู่ หรืออาจถูกย้ายไปที่อื่นแล้ว
         </p>
         <Link
           href="/news"
           className={`mt-6 inline-flex items-center justify-center rounded-full bg-accent-300 px-5 py-2 text-caption font-bold text-brand-950 transition duration-fast ease-standard motion-reduce:transition-none hover:brightness-110 ${BAND_FOCUS_RING}`}
         >
-          ← Back to all news
+          ← กลับไปหน้าข่าวสารทั้งหมด
         </Link>
       </section>
     </div>

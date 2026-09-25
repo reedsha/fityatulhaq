@@ -52,10 +52,10 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function validateContactField(field: ContactField, value: string): string | undefined {
   if (value.trim() === "") {
-    return "This field is required.";
+    return "กรุณากรอกข้อมูลในช่องนี้";
   }
   if (field === "email" && !EMAIL_PATTERN.test(value.trim())) {
-    return "Enter a valid email address.";
+    return "กรุณากรอกอีเมลให้ถูกต้อง";
   }
   return undefined;
 }
@@ -209,20 +209,20 @@ function ContactForm(): ReactElement {
   if (submitted) {
     return (
       <article
-        aria-label="Message received"
+        aria-label="ได้รับข้อความแล้ว"
         className="flex flex-col items-center rounded-2xl bg-white p-8 text-center shadow-card sm:p-10"
       >
         <CheckCircle2 aria-hidden="true" strokeWidth={1.5} className="h-12 w-12 text-state-success-600" />
-        <h2 className="mt-4 text-heading-4 text-ink-900">Message queued</h2>
+        <h2 className="mt-4 text-heading-4 text-ink-900">ส่งข้อความเรียบร้อยแล้ว</h2>
         <p className="mt-2 max-w-sm text-body-sm leading-relaxed text-ink-600">
-          Thanks — your message has been queued. We aim to reply within two working days.
+          ขอบคุณ ข้อความของคุณถูกบันทึกเข้าระบบแล้ว เราจะพยายามตอบกลับภายในสองวันทำการ
         </p>
         <button
           type="button"
           onClick={handleReset}
           className={`mt-6 inline-flex items-center justify-center rounded-full bg-accent-300 px-5 py-2 text-caption font-bold text-brand-950 transition duration-fast ease-standard motion-reduce:transition-none hover:brightness-110 ${FOCUS_RING}`}
         >
-          Send another message
+          ส่งข้อความอีกครั้ง
         </button>
       </article>
     );
@@ -232,18 +232,18 @@ function ContactForm(): ReactElement {
     <form
       noValidate
       onSubmit={handleSubmit}
-      aria-label="Contact form"
+      aria-label="แบบฟอร์มติดต่อ"
       className="rounded-2xl bg-white p-6 shadow-card sm:p-8"
     >
-      <h2 className="text-heading-4 text-ink-900">Send us a message</h2>
+      <h2 className="text-heading-4 text-ink-900">ส่งข้อความถึงเรา</h2>
       <p className="mt-1 text-body-sm text-ink-500">
-        All fields are required. We usually reply within two working days.
+        กรุณากรอกข้อมูลให้ครบทุกช่อง เรามักตอบกลับภายในสองวันทำการ
       </p>
 
       <div className="mt-6 space-y-5">
         <TextField
           id="fullName"
-          label="Full name"
+          label="ชื่อ-นามสกุล"
           value={form.fullName}
           error={errors.fullName}
           touched={touched.fullName === true}
@@ -252,7 +252,7 @@ function ContactForm(): ReactElement {
         />
         <TextField
           id="email"
-          label="Email"
+          label="อีเมล"
           value={form.email}
           error={errors.email}
           touched={touched.email === true}
@@ -261,7 +261,7 @@ function ContactForm(): ReactElement {
         />
         <TextField
           id="subject"
-          label="Subject"
+          label="หัวข้อ"
           value={form.subject}
           error={errors.subject}
           touched={touched.subject === true}
@@ -270,7 +270,7 @@ function ContactForm(): ReactElement {
         />
         <MessageField
           id="message"
-          label="Message"
+          label="ข้อความ"
           value={form.message}
           error={errors.message}
           touched={touched.message === true}
@@ -284,7 +284,7 @@ function ContactForm(): ReactElement {
         disabled={submitted}
         className={`mt-6 inline-flex w-full items-center justify-center rounded-full bg-accent-300 px-6 py-2.5 text-caption font-bold text-brand-950 transition duration-fast ease-standard motion-reduce:transition-none hover:brightness-110 disabled:opacity-60 sm:w-auto ${FOCUS_RING}`}
       >
-        Send message
+        ส่งข้อความ
       </button>
     </form>
   );
@@ -317,22 +317,22 @@ function DetailCard(props: DetailCardProps): ReactElement {
 /** Keep in sync with SOCIAL_LINKS in `Footer.tsx` (same platforms & hrefs). */
 const SOCIAL_LINKS: Array<{ label: string; href: string; path: string }> = [
   {
-    label: "FityatulHaq on Facebook",
+    label: "FityatulHaq บน Facebook",
     href: "https://facebook.com/fityatulhaq",
     path: "M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z",
   },
   {
-    label: "FityatulHaq on TikTok",
+    label: "FityatulHaq บน TikTok",
     href: "https://tiktok.com/@fityatulhaq",
     path: "M9 12a4 4 0 104 4V4a5 5 0 005 5",
   },
   {
-    label: "FityatulHaq on Instagram",
+    label: "FityatulHaq บน Instagram",
     href: "https://instagram.com/fityatulhaq",
     path: "M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z M4 6a2 2 0 100-4 2 2 0 000 4z",
   },
   {
-    label: "FityatulHaq on YouTube",
+    label: "FityatulHaq บน YouTube",
     href: "https://youtube.com/@fityatulhaq",
     path: "M22.54 6.42a2.78 2.78 0 00-1.94-1.96C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 00-1.94 1.96A29 29 0 001 12a29 29 0 00.46 5.58A2.78 2.78 0 003.4 19.54C5.12 20 12 20 12 20s6.88 0 8.6-.46a2.78 2.78 0 001.94-1.96A29 29 0 0023 12a29 29 0 00-.46-5.58zM9.75 15.02V8.98L15.5 12l-5.75 3.02z",
   },
@@ -341,8 +341,8 @@ const SOCIAL_LINKS: Array<{ label: string; href: string; path: string }> = [
 function ContactDetails(): ReactElement {
   return (
     <div className="flex flex-col gap-6">
-      <h2 className="text-heading-4 text-white">Contact details</h2>
-      <DetailCard icon={Mail} title="General enquiries">
+      <h2 className="text-heading-4 text-white">ช่องทางติดต่อ</h2>
+      <DetailCard icon={Mail} title="สอบถามทั่วไป">
         <a
           href="mailto:hello@fityatulhaq.org"
           className={`rounded-sm font-medium text-brand-700 transition duration-fast ease-standard hover:text-brand-600 ${FOCUS_RING}`}
@@ -351,7 +351,7 @@ function ContactDetails(): ReactElement {
         </a>
       </DetailCard>
 
-      <DetailCard icon={LifeBuoy} title="Member support">
+      <DetailCard icon={LifeBuoy} title="ช่วยเหลือสมาชิก">
         <a
           href="mailto:support@fityatulhaq.org"
           className={`rounded-sm font-medium text-brand-700 transition duration-fast ease-standard hover:text-brand-600 ${FOCUS_RING}`}
@@ -360,11 +360,11 @@ function ContactDetails(): ReactElement {
         </a>
       </DetailCard>
 
-      <DetailCard icon={MapPin} title="Office">
-        <p>12 Community Way, Springfield</p>
+      <DetailCard icon={MapPin} title="ที่ทำการ">
+        <p>เลขที่ 12 ถนนคอมมิวนิตี สปริงฟิลด์</p>
       </DetailCard>
 
-      <DetailCard icon={Phone} title="Phone">
+      <DetailCard icon={Phone} title="โทรศัพท์">
         <a
           href="tel:+15550123456"
           className={`rounded-sm font-medium text-brand-700 transition duration-fast ease-standard hover:text-brand-600 ${FOCUS_RING}`}
@@ -376,11 +376,11 @@ function ContactDetails(): ReactElement {
       {/* Map placeholder — deliberately no embed or iframe. */}
       <div className="flex items-center gap-3 rounded-2xl border border-dashed border-ink-500/40 bg-white/5 p-5 text-ink-300">
         <MapPin aria-hidden="true" strokeWidth={1.75} className="h-6 w-6 shrink-0 text-accent-300" />
-        <p className="text-body-sm">Map coming soon</p>
+        <p className="text-body-sm">แผนที่จะแสดงในเร็ว ๆ นี้</p>
       </div>
 
       <article className="rounded-2xl bg-white p-5 shadow-card">
-        <h3 className="text-body font-bold text-ink-900">Follow FityatulHaq</h3>
+        <h3 className="text-body font-bold text-ink-900">ติดตาม FityatulHaq</h3>
         <ul className="mt-3 flex gap-2">
           {SOCIAL_LINKS.map((social) => (
             <li key={social.label}>
@@ -388,7 +388,7 @@ function ContactDetails(): ReactElement {
                 href={social.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label={`${social.label} — opens in a new tab`}
+                aria-label={`${social.label} — เปิดในแท็บใหม่`}
                 className={`flex h-9 w-9 items-center justify-center rounded-md bg-brand-50 text-brand-700 transition duration-fast ease-standard hover:bg-brand-100 ${FOCUS_RING}`}
               >
                 <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current stroke-2" aria-hidden="true">
@@ -422,33 +422,32 @@ export default function ContactPage(): ReactElement {
         />
 
         <div className="relative mx-auto max-w-6xl">
-          <nav aria-label="Breadcrumb" className="text-caption text-ink-400">
+          <nav aria-label="เส้นทางนำทาง" className="text-caption text-ink-400">
             <Link
               href="/"
               className={`rounded-sm transition duration-fast ease-standard motion-reduce:transition-none hover:text-ink-300 ${FOCUS_RING_DARK}`}
             >
-              Home
+              หน้าแรก
             </Link>
             <span aria-hidden="true" className="mx-2">
               /
             </span>
             <span aria-current="page" className="text-ink-200">
-              Contact
+              ติดต่อเรา
             </span>
           </nav>
 
           <h1 className="mt-2 text-3xl font-extrabold leading-tight text-white sm:text-4xl md:text-5xl">
-            Contact Us
+            ติดต่อเรา
           </h1>
           <p className="mt-3 max-w-xl text-body text-ink-300">
-            Questions about membership, programmes or partnerships — we would love to hear
-            from you.
+            คำถามเกี่ยวกับการเป็นสมาชิก โครงการ หรือความร่วมมือ เรายินดีรับฟังจากคุณ
           </p>
         </div>
       </header>
 
       {/* ── Two-column body ──────────────────────────────────────────── */}
-      <section aria-label="Contact options" className="flex-1 px-4 pb-16 pt-10 sm:px-6 lg:px-8">
+      <section aria-label="ช่องทางการติดต่อ" className="flex-1 px-4 pb-16 pt-10 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 lg:grid-cols-2">
           <ContactForm />
           <ContactDetails />

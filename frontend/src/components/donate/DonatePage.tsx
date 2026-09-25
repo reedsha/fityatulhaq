@@ -34,9 +34,9 @@ import { FOCUS_RING, FOCUS_RING_DARK } from "@/components/layout/Header";
 // ---------------------------------------------------------------
 
 const IMPACT_TILES: Array<{ value: string; label: string }> = [
-  { value: "£25", label: "funds a term of study materials for one member" },
-  { value: "£100", label: "sends a young member to the annual summer camp" },
-  { value: "£500", label: "stocks the digital library for a whole year" },
+  { value: "£25", label: "สนับสนุนอุปกรณ์การเรียนหนึ่งภาคการศึกษาสำหรับสมาชิกหนึ่งคน" },
+  { value: "£100", label: "ส่งสมาชิกเยาวชนเข้าร่วมค่ายฤดูร้อนประจำปี" },
+  { value: "£500", label: "จัดหาหนังสือให้ห้องสมุดดิจิทัลตลอดทั้งปี" },
 ];
 
 // ---------------------------------------------------------------
@@ -46,10 +46,10 @@ const IMPACT_TILES: Array<{ value: string; label: string }> = [
 type BankDetailKey = "accountName" | "sortCode" | "accountNumber" | "reference";
 
 const BANK_DETAILS: Array<{ key: BankDetailKey; label: string; value: string }> = [
-  { key: "accountName", label: "Account name", value: "FityatulHaq Foundation" },
-  { key: "sortCode", label: "Sort code", value: "00-00-00" },
-  { key: "accountNumber", label: "Account no.", value: "00000000" },
-  { key: "reference", label: "Reference", value: "Please use your membership number" },
+  { key: "accountName", label: "ชื่อบัญชี", value: "FityatulHaq Foundation" },
+  { key: "sortCode", label: "รหัสสาขา", value: "00-00-00" },
+  { key: "accountNumber", label: "เลขที่บัญชี", value: "00000000" },
+  { key: "reference", label: "รหัสอ้างอิง", value: "โปรดระบุหมายเลขสมาชิกของคุณ" },
 ];
 
 function BankTransferCard(): ReactElement {
@@ -85,9 +85,9 @@ function BankTransferCard(): ReactElement {
 
   return (
     <article className="rounded-2xl bg-white p-6 shadow-card sm:p-8">
-      <h3 className="text-heading-4 text-ink-900">Bank transfer</h3>
+      <h3 className="text-heading-4 text-ink-900">โอนเงินผ่านธนาคาร</h3>
       <p className="mt-1 text-body-sm text-ink-500">
-        Transfer directly, then submit the proof form below so we can thank you.
+        โอนเงินโดยตรง แล้วส่งแบบฟอร์มหลักฐานการโอนด้านล่าง เพื่อให้เราขอบคุณคุณได้
       </p>
 
       <dl className="mt-6 space-y-4">
@@ -110,7 +110,7 @@ function BankTransferCard(): ReactElement {
               <button
                 type="button"
                 onClick={(): void => handleCopy(detail.key, detail.value)}
-                aria-label={`Copy ${detail.label.toLowerCase()}`}
+                aria-label={`คัดลอก${detail.label}`}
                 className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border border-ink-200 px-3 py-1.5 text-caption font-semibold text-brand-700 transition duration-fast ease-standard motion-reduce:transition-none hover:bg-brand-50 ${FOCUS_RING}`}
               >
                 {isCopied ? (
@@ -118,7 +118,7 @@ function BankTransferCard(): ReactElement {
                 ) : (
                   <Copy aria-hidden="true" className="h-3.5 w-3.5" />
                 )}
-                {isCopied ? "Copied" : "Copy"}
+                {isCopied ? "คัดลอกแล้ว" : "คัดลอก"}
               </button>
             </div>
           );
@@ -127,7 +127,7 @@ function BankTransferCard(): ReactElement {
 
       {/* Announces the copy result to screen readers. */}
       <p aria-live="polite" className="sr-only">
-        {copiedKey !== null ? "Copied to clipboard." : ""}
+        {copiedKey !== null ? "คัดลอกไปยังคลิปบอร์ดแล้ว" : ""}
       </p>
     </article>
   );
@@ -140,12 +140,12 @@ function BankTransferCard(): ReactElement {
 function QrCard(): ReactElement {
   return (
     <article className="flex flex-col items-center rounded-2xl bg-brand-50 p-6 text-center shadow-card sm:p-8">
-      <h3 className="text-heading-4 text-brand-800">Scan to give</h3>
+      <h3 className="text-heading-4 text-brand-800">สแกนเพื่อบริจาค</h3>
       <div className="mt-5 flex h-48 w-48 items-center justify-center rounded-xl border border-brand-200 bg-white">
         <QrCode aria-hidden="true" strokeWidth={1.25} className="h-16 w-16 text-ink-400" />
       </div>
       <p className="mt-4 max-w-xs text-caption leading-relaxed text-brand-700">
-        QR code placeholder — supplied by the treasurer before launch.
+        ตัวอย่างคิวอาร์โค้ด — เหรัญญิกจะจัดส่งก่อนเปิดใช้งานจริง
       </p>
     </article>
   );
@@ -178,15 +178,15 @@ const MAX_RECEIPT_BYTES = 5 * 1024 * 1024;
 
 function validateProofField(field: ProofField, value: string): string | undefined {
   if (value.trim() === "") {
-    return "This field is required.";
+    return "กรุณากรอกข้อมูลในช่องนี้";
   }
   if (field === "email" && !EMAIL_PATTERN.test(value.trim())) {
-    return "Enter a valid email address.";
+    return "กรุณากรอกอีเมลให้ถูกต้อง";
   }
   if (field === "amount") {
     const parsed = Number(value);
     if (!Number.isFinite(parsed) || parsed <= 0) {
-      return "Enter an amount greater than zero.";
+      return "กรุณากรอกจำนวนเงินที่มากกว่าศูนย์";
     }
   }
   return undefined;
@@ -237,14 +237,14 @@ function ProofForm(): ReactElement {
 
     if (!ALLOWED_RECEIPT_TYPES.includes(file.type)) {
       setReceipt(null);
-      setReceiptError("The receipt must be a PNG, JPEG or PDF file.");
+      setReceiptError("ไฟล์หลักฐานต้องเป็น PNG, JPEG หรือ PDF เท่านั้น");
       event.target.value = "";
       return;
     }
 
     if (file.size > MAX_RECEIPT_BYTES) {
       setReceipt(null);
-      setReceiptError("The receipt must be 5 MB or smaller.");
+      setReceiptError("ไฟล์หลักฐานต้องมีขนาดไม่เกิน 5 MB");
       event.target.value = "";
       return;
     }
@@ -293,21 +293,21 @@ function ProofForm(): ReactElement {
   if (submitted) {
     return (
       <article
-        aria-label="Proof of transfer received"
+        aria-label="ได้รับหลักฐานการโอนแล้ว"
         className="flex flex-col items-center rounded-2xl bg-white p-8 text-center shadow-card sm:p-10"
       >
         <CheckCircle2 aria-hidden="true" strokeWidth={1.5} className="h-12 w-12 text-state-success-600" />
-        <h2 className="mt-4 text-heading-4 text-ink-900">Proof received</h2>
+        <h2 className="mt-4 text-heading-4 text-ink-900">ได้รับหลักฐานแล้ว</h2>
         <p className="mt-2 max-w-sm text-body-sm leading-relaxed text-ink-600">
-          Thank you, {form.donorName.trim()}. Your proof of transfer has been queued for the
-          treasurer to confirm. A receipt will be sent to {form.email.trim()}.
+          ขอบคุณ {form.donorName.trim()} หลักฐานการโอนของคุณถูกส่งให้เหรัญญิกตรวจสอบแล้ว
+          ใบเสร็จจะถูกส่งไปที่ {form.email.trim()}
         </p>
         <button
           type="button"
           onClick={handleReset}
           className={`mt-6 inline-flex items-center justify-center rounded-full bg-accent-300 px-5 py-2 text-caption font-bold text-brand-950 transition duration-fast ease-standard motion-reduce:transition-none hover:brightness-110 ${FOCUS_RING}`}
         >
-          Submit another receipt
+          ส่งหลักฐานอีกครั้ง
         </button>
       </article>
     );
@@ -323,18 +323,18 @@ function ProofForm(): ReactElement {
     <form
       noValidate
       onSubmit={handleSubmit}
-      aria-label="Proof of transfer form"
+      aria-label="แบบฟอร์มหลักฐานการโอน"
       className="rounded-2xl bg-white p-6 shadow-card sm:p-8"
     >
-      <h2 className="text-heading-4 text-ink-900">Submit your proof of transfer</h2>
+      <h2 className="text-heading-4 text-ink-900">ส่งหลักฐานการโอนของคุณ</h2>
       <p className="mt-1 text-body-sm text-ink-500">
-        Already given? Send us the details so the treasurer can confirm your donation.
+        โอนแล้วใช่ไหม ส่งรายละเอียดให้เรา เพื่อให้เหรัญญิกยืนยันการบริจาคของคุณ
       </p>
 
       <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2">
         <div>
           <label htmlFor="proof-name" className="block text-caption font-semibold text-ink-700">
-            Donor name
+            ชื่อผู้บริจาค
           </label>
           <input
             id="proof-name"
@@ -360,7 +360,7 @@ function ProofForm(): ReactElement {
 
         <div>
           <label htmlFor="proof-email" className="block text-caption font-semibold text-ink-700">
-            Email
+            อีเมล
           </label>
           <input
             id="proof-email"
@@ -384,7 +384,7 @@ function ProofForm(): ReactElement {
 
         <div>
           <label htmlFor="proof-amount" className="block text-caption font-semibold text-ink-700">
-            Amount
+            จำนวนเงิน
           </label>
           <input
             id="proof-amount"
@@ -415,7 +415,7 @@ function ProofForm(): ReactElement {
             htmlFor="proof-reference"
             className="block text-caption font-semibold text-ink-700"
           >
-            Reference / membership number <span className="font-normal text-ink-400">(optional)</span>
+            รหัสอ้างอิง / หมายเลขสมาชิก <span className="font-normal text-ink-400">(ไม่บังคับ)</span>
           </label>
           <input
             id="proof-reference"
@@ -433,7 +433,7 @@ function ProofForm(): ReactElement {
           htmlFor="proof-receipt"
           className="block text-caption font-semibold text-ink-700"
         >
-          Receipt <span className="font-normal text-ink-400">(optional — PNG, JPEG or PDF, up to 5 MB)</span>
+          หลักฐานการโอน <span className="font-normal text-ink-400">(ไม่บังคับ — PNG, JPEG หรือ PDF ขนาดไม่เกิน 5 MB)</span>
         </label>
         <input
           id="proof-receipt"
@@ -449,7 +449,7 @@ function ProofForm(): ReactElement {
           } ${FOCUS_RING}`}
         />
         <p id="proof-receipt-hint" className="mt-1.5 text-caption text-ink-500">
-          {receipt !== null ? `Attached: ${receipt.name}` : "No file attached yet."}
+          {receipt !== null ? `แนบไฟล์แล้ว: ${receipt.name}` : "ยังไม่ได้แนบไฟล์"}
         </p>
         {receiptError !== undefined ? (
           <p id="proof-receipt-error" className="mt-1.5 text-caption text-state-error-600">
@@ -463,7 +463,7 @@ function ProofForm(): ReactElement {
         disabled={submitted}
         className={`mt-6 inline-flex w-full items-center justify-center rounded-full bg-accent-300 px-6 py-2.5 text-caption font-bold text-brand-950 transition duration-fast ease-standard motion-reduce:transition-none hover:brightness-110 disabled:opacity-60 sm:w-auto ${FOCUS_RING}`}
       >
-        Submit proof of transfer
+        ส่งหลักฐานการโอน
       </button>
     </form>
   );
@@ -488,33 +488,33 @@ export default function DonatePage(): ReactElement {
         />
 
         <div className="relative mx-auto max-w-6xl">
-          <nav aria-label="Breadcrumb" className="text-caption text-ink-400">
+          <nav aria-label="เส้นทางนำทาง" className="text-caption text-ink-400">
             <Link
               href="/"
               className={`rounded-sm transition duration-fast ease-standard motion-reduce:transition-none hover:text-ink-300 ${FOCUS_RING_DARK}`}
             >
-              Home
+              หน้าแรก
             </Link>
             <span aria-hidden="true" className="mx-2">
               /
             </span>
             <span aria-current="page" className="text-ink-200">
-              Donate
+              บริจาค
             </span>
           </nav>
 
           <h1 className="mt-2 text-3xl font-extrabold leading-tight text-white sm:text-4xl md:text-5xl">
-            Support Our Work
+            สนับสนุนงานของเรา
           </h1>
           <p className="mt-3 max-w-xl text-body text-ink-300">
-            Every donation goes straight into programmes for young members — study materials,
-            camps, mentoring and community service. Gifts of every size matter.
+            ทุกการบริจาคจะถูกนำไปใช้กับโครงการสำหรับสมาชิกเยาวชนโดยตรง ทั้งอุปกรณ์การเรียน
+            ค่าย กิจกรรมพี่เลี้ยง และการบริการชุมชน ไม่ว่าจะมากหรือน้อย ล้วนมีความหมาย
           </p>
         </div>
       </header>
 
       {/* ── Impact strip ─────────────────────────────────────────────── */}
-      <section aria-label="What your gift funds" className="px-4 pt-10 sm:px-6 lg:px-8">
+      <section aria-label="การบริจาคของคุณสนับสนุนอะไร" className="px-4 pt-10 sm:px-6 lg:px-8">
         <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 sm:grid-cols-3">
           {IMPACT_TILES.map((tile) => (
             <article key={tile.value} className="rounded-2xl bg-white p-6 shadow-card">
@@ -527,9 +527,9 @@ export default function DonatePage(): ReactElement {
       </section>
 
       {/* ── Giving methods ───────────────────────────────────────────── */}
-      <section aria-label="Ways to give" className="px-4 pt-12 sm:px-6 lg:px-8">
+      <section aria-label="ช่องทางการบริจาค" className="px-4 pt-12 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-6xl">
-          <h2 className="text-heading-3 text-white">Ways to give</h2>
+          <h2 className="text-heading-3 text-white">ช่องทางการบริจาค</h2>
           <div className="mt-5 grid grid-cols-1 gap-6 lg:grid-cols-2">
             <BankTransferCard />
             <QrCard />
@@ -538,7 +538,7 @@ export default function DonatePage(): ReactElement {
       </section>
 
       {/* ── Proof of transfer ────────────────────────────────────────── */}
-      <section aria-label="Proof of transfer" className="px-4 pt-12 sm:px-6 lg:px-8">
+      <section aria-label="หลักฐานการโอน" className="px-4 pt-12 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl">
           <ProofForm />
         </div>
@@ -546,20 +546,19 @@ export default function DonatePage(): ReactElement {
 
       {/* ── Closing note ─────────────────────────────────────────────── */}
       <section
-        aria-label="Thank you"
+        aria-label="ขอบคุณ"
         className="mt-12 bg-accent-300 px-4 py-10 sm:px-6 lg:px-8"
       >
         <div className="mx-auto max-w-4xl text-center">
-          <h2 className="text-heading-4 text-ink-900">Thank you for standing with our youth</h2>
+          <h2 className="text-heading-4 text-ink-900">ขอบคุณที่ร่วมยืนเคียงข้างเยาวชนของเรา</h2>
           <p className="mx-auto mt-2 max-w-xl text-body-sm leading-relaxed text-brand-950/80">
-            Every gift is recorded in the treasurer's books and acknowledged within two
-            working days.
+            ทุกการบริจาคจะถูกบันทึกในบัญชีของเหรัญญิก และได้รับการตอบรับภายในสองวันทำการ
           </p>
           <Link
             href="/about"
             className={`mt-5 inline-flex items-center justify-center rounded-full bg-brand-950 px-5 py-2 text-caption font-bold text-accent-300 transition duration-fast ease-standard motion-reduce:transition-none hover:bg-brand-800 ${FOCUS_RING}`}
           >
-            Learn more about our work
+            เรียนรู้เพิ่มเติมเกี่ยวกับงานของเรา
           </Link>
         </div>
       </section>

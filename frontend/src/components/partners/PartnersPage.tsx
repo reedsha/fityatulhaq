@@ -42,7 +42,7 @@ function PartnerTile({ partner }: { partner: Partner }): ReactElement {
         href={partner.href}
         target="_blank"
         rel="noopener noreferrer"
-        aria-label={`${partner.name} — opens in a new tab`}
+        aria-label={`${partner.name} — เปิดในแท็บใหม่`}
         className={`group relative flex h-full flex-col rounded-2xl bg-white p-5 shadow-card transition duration-fast ease-standard motion-reduce:transition-none hover:-translate-y-0.5 hover:shadow-card-hover motion-reduce:hover:translate-y-0 ${FOCUS_RING}`}
       >
         <ArrowUpRight
@@ -112,27 +112,26 @@ export default function PartnersPage(): ReactElement {
         />
 
         <div className="relative mx-auto max-w-6xl">
-          <nav aria-label="Breadcrumb" className="text-caption text-ink-400">
+          <nav aria-label="เส้นทางนำทาง" className="text-caption text-ink-400">
             <Link
               href="/"
               className={`rounded-sm transition duration-fast ease-standard motion-reduce:transition-none hover:text-ink-300 ${FOCUS_RING_DARK}`}
             >
-              Home
+              หน้าแรก
             </Link>
             <span aria-hidden="true" className="mx-2">
               /
             </span>
             <span aria-current="page" className="text-ink-200">
-              Partners
+              พันธมิตร
             </span>
           </nav>
 
           <h1 className="mt-2 text-3xl font-extrabold leading-tight text-white sm:text-4xl md:text-5xl">
-            Our Partners
+            พันธมิตรของเรา
           </h1>
           <p className="mt-3 max-w-xl text-body text-ink-300">
-            Schools, community organisations and youth networks we work alongside to reach
-            more young people.
+            โรงเรียน องค์กรชุมชน และเครือข่ายเยาวชนที่เราร่วมงานด้วย เพื่อเข้าถึงเยาวชนให้มากยิ่งขึ้น
           </p>
         </div>
       </header>
@@ -141,7 +140,7 @@ export default function PartnersPage(): ReactElement {
       {categories.map((category) => (
         <section
           key={category}
-          aria-label={`${category} partners`}
+          aria-label={`${category} — พันธมิตร`}
           className="px-4 pt-12 sm:px-6 lg:px-8"
         >
           <div className="mx-auto max-w-6xl">
@@ -159,7 +158,7 @@ export default function PartnersPage(): ReactElement {
 
       {/* ── Become a partner CTA ─────────────────────────────────────── */}
       <section
-        aria-label="Become a partner"
+        aria-label="ร่วมเป็นพันธมิตร"
         className="relative isolate mt-12 flex-1 overflow-hidden bg-brand-950 px-4 py-12 sm:px-6 lg:px-8"
       >
         <div
@@ -172,16 +171,16 @@ export default function PartnersPage(): ReactElement {
         />
 
         <div className="relative mx-auto max-w-6xl text-center">
-          <h2 className="text-heading-3 text-white">Become a partner</h2>
+          <h2 className="text-heading-3 text-white">ร่วมเป็นพันธมิตรกับเรา</h2>
           <p className="mx-auto mt-2 max-w-xl text-body text-ink-300">
-            If your organisation works with young people, we would love to explore what we
-            can build together.
+            หากองค์กรของคุณทำงานร่วมกับเยาวชน เรายินดีอย่างยิ่งที่จะร่วมกันสร้างสรรค์สิ่งดี ๆ
+            ไปด้วยกัน
           </p>
           <Link
             href="/contact"
             className={`mt-6 inline-flex items-center justify-center rounded-full bg-accent-300 px-6 py-2.5 text-caption font-bold text-brand-950 transition duration-fast ease-standard motion-reduce:transition-none hover:brightness-110 ${FOCUS_RING_DARK}`}
           >
-            Discuss a partnership
+            พูดคุยเรื่องความร่วมมือ
           </Link>
         </div>
       </section>

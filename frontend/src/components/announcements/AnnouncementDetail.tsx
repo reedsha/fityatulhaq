@@ -87,7 +87,7 @@ export default function AnnouncementDetail(
           <p className="mt-3 text-body-sm text-ink-400">
             <time dateTime={announcement.date}>{formatDate(announcement.date)}</time>
             {" · "}
-            Ref: {announcement.refNumber}
+            เลขที่ {announcement.refNumber}
           </p>
         </div>
       </div>

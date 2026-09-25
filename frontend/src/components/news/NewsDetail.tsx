@@ -24,7 +24,7 @@ interface NewsDetailProps {
   article: NewsItem;
 }
 
-const SHARE_PLATFORMS = ["Facebook", "Twitter", "Copy Link"] as const;
+const SHARE_PLATFORMS = ["Facebook", "Twitter", "คัดลอกลิงก์"] as const;
 type SharePlatform = (typeof SHARE_PLATFORMS)[number];
 
 export default function NewsDetail(props: NewsDetailProps): ReactElement {
@@ -55,7 +55,7 @@ export default function NewsDetail(props: NewsDetailProps): ReactElement {
   );
 
   const shareLabel = useCallback((platform: SharePlatform): string => {
-    return platform === "Copy Link"
+    return platform === "คัดลอกลิงก์"
       ? "คัดลอกลิงก์บทความนี้"
       : `แบ่งปันบทความนี้บน ${platform}`;
   }, []);
@@ -114,13 +114,13 @@ export default function NewsDetail(props: NewsDetailProps): ReactElement {
           <p className="mt-3 text-body-sm text-ink-400">
             <time dateTime={article.publishedAt}>{formatDate(article.publishedAt)}</time>
             {" · "}
-            by {article.authorName}
+            โดย {article.authorName}
           </p>
         </div>
       </div>
 
       {/* ── Article body ─────────────────────────────────────────────── */}
-      <section aria-label="Full article" className="flex-1 px-4 pb-16 pt-10 sm:px-6 lg:px-8">
+      <section aria-label="เนื้อหาบทความฉบับเต็ม" className="flex-1 px-4 pb-16 pt-10 sm:px-6 lg:px-8">
         <article className="mx-auto max-w-4xl rounded-2xl bg-white p-6 shadow-card sm:p-10">
           {/* Cover image — shown only when the article carries one. Mock data
               currently ships without covers, so the gradient header band and

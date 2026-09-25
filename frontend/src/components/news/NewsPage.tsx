@@ -28,7 +28,7 @@ import { formatDate } from "@/lib/validation";
    only, so it must not introduce a second `<main>`.
    ==================================================================== */
 
-const ALL_DEPARTMENT = "All Departments";
+const ALL_DEPARTMENT = "ทุกหน่วยงาน";
 
 // ---------------------------------------------------------------
 // Department filter chips
@@ -44,7 +44,7 @@ function DepartmentChips(props: DepartmentChipsProps): ReactElement {
   const { departments, active, onSelect } = props;
 
   return (
-    <nav aria-label="Filter news by department" className="hide-scrollbar overflow-x-auto">
+    <nav aria-label="กรองข่าวตามหน่วยงาน" className="hide-scrollbar overflow-x-auto">
       <ul className="flex min-w-max items-center gap-2">
         {departments.map((dept) => {
           const isActive = dept === active;
@@ -87,7 +87,7 @@ function NewsCard({ item }: { item: NewsItem }): ReactElement {
         {coverUrl !== undefined && !coverUrl.startsWith("linear-gradient") ? (
           <img
             src={coverUrl}
-            alt={`Cover image for ${item.title}`}
+            alt={`ภาพหน้าปกของ ${item.title}`}
             loading="lazy"
             className="h-full w-full object-cover transition-transform duration-slow ease-entrance group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
           />
@@ -95,7 +95,7 @@ function NewsCard({ item }: { item: NewsItem }): ReactElement {
           <div
             className="flex h-full w-full items-center justify-center bg-gradient-to-br from-blue-100 to-slate-200"
             role="img"
-            aria-label={`Placeholder illustration for ${item.title}`}
+            aria-label={`ภาพประกอบตัวอย่างสำหรับ ${item.title}`}
           >
             <Newspaper aria-hidden="true" strokeWidth={1.5} className="h-10 w-10 text-blue-300" />
           </div>
@@ -180,26 +180,26 @@ export default function NewsPage(): ReactElement {
 
         <div className="relative mx-auto max-w-6xl">
           {/* Breadcrumb */}
-          <nav aria-label="Breadcrumb" className="text-caption text-ink-400">
+          <nav aria-label="เส้นทางนำทาง" className="text-caption text-ink-400">
             <Link
               href="/"
               className={`rounded-sm transition duration-fast ease-standard motion-reduce:transition-none hover:text-ink-300 ${FOCUS_RING_DARK}`}
             >
-              Home
+              หน้าแรก
             </Link>
             <span aria-hidden="true" className="mx-2">
               /
             </span>
             <span aria-current="page" className="text-ink-200">
-              News
+              ข่าวสาร
             </span>
           </nav>
 
           <h1 className="mt-2 text-3xl font-extrabold leading-tight text-white sm:text-4xl md:text-5xl">
-            News &amp; Updates
+            ข่าวสารและความเคลื่อนไหว
           </h1>
           <p className="mt-3 max-w-xl text-body text-ink-300">
-            Latest updates, stories and events from across every department of the organisation.
+            ข่าวความเคลื่อนไหว เรื่องราว และกิจกรรมล่าสุดจากทุกหน่วยงานขององค์กร
           </p>
         </div>
       </header>
@@ -219,18 +219,18 @@ export default function NewsPage(): ReactElement {
 
       {/* ── Card grid ────────────────────────────────────────────────── */}
       <section
-        aria-label="News articles"
+        aria-label="ข่าวสาร"
         className="flex-1 px-4 pb-16 pt-8 sm:px-6 lg:px-8"
       >
         <div className="mx-auto max-w-6xl">
           {/* Section label — the blue pill the dashboard's news grid carries. */}
           <div className="flex flex-wrap items-center justify-between gap-3">
             <span className="rounded-full bg-blue-600 px-4 py-1.5 text-xs font-bold text-white">
-              Latest news
+              ข่าวล่าสุด
             </span>
 
             {/* Article counts per department (insertion order = chip order). */}
-            <ul className="flex flex-wrap items-center gap-2" aria-label="Articles per department">
+            <ul className="flex flex-wrap items-center gap-2" aria-label="จำนวนบทความแต่ละหน่วยงาน">
               {departments
                 .filter((dept) => dept !== ALL_DEPARTMENT)
                 .map((dept) => (
@@ -250,12 +250,12 @@ export default function NewsPage(): ReactElement {
           {/* Client-side filtering gives sighted users instant feedback; this
               announces the same change to screen readers. */}
           <p aria-live="polite" className="sr-only">
-            {`${String(visibleItems.length)} article${visibleItems.length === 1 ? "" : "s"} shown under ${activeDepartment}.`}
+            {`แสดง ${String(visibleItems.length)} บทความภายใต้ ${activeDepartment}`}
           </p>
 
           {visibleItems.length === 0 ? (
             <p className="mt-6 rounded-lg border border-dashed border-ink-300 bg-white px-6 py-10 text-center text-body-sm text-ink-500">
-              No news in this department yet. Check back soon.
+              ยังไม่มีข่าวในหน่วยงานนี้ โปรดกลับมาอีกครั้ง
             </p>
           ) : (
             <ul className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

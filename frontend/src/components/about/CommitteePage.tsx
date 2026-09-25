@@ -30,33 +30,33 @@ interface CommitteeMember {
 const COMMITTEE_MEMBERS: CommitteeMember[] = [
   {
     name: "Ahmad Fauzi",
-    role: "Chairperson",
-    responsibility: "Leads the committee and chairs the annual general meeting.",
+    role: "ประธาน",
+    responsibility: "นำคณะกรรมการและเป็นประธานที่ประชุมใหญ่สามัญประจำปี",
   },
   {
     name: "Nurul Hidayah",
-    role: "Vice-Chairperson",
-    responsibility: "Deputises for the chair and oversees programme delivery.",
+    role: "รองประธาน",
+    responsibility: "ทำหน้าที่แทนประธานและกำกับดูแลการดำเนินโครงการ",
   },
   {
     name: "Yusuf Abdullah",
-    role: "Secretary",
-    responsibility: "Keeps the minutes, records and official correspondence.",
+    role: "เลขาธิการ",
+    responsibility: "จัดเก็บบันทึกการประชุม เอกสาร และการติดต่ออย่างเป็นทางการ",
   },
   {
     name: "Maryam Salleh",
-    role: "Treasurer",
-    responsibility: "Manages budgets, accounts and the annual audit.",
+    role: "เหรัญญิก",
+    responsibility: "ดูแลงบประมาณ บัญชี และการตรวจสอบประจำปี",
   },
   {
     name: "Ibrahim Musa",
-    role: "Youth Representative",
-    responsibility: "Represents the member branches and youth programmes.",
+    role: "ผู้แทนเยาวชน",
+    responsibility: "เป็นตัวแทนสาขาของสมาชิกและโครงการเยาวชน",
   },
   {
     name: "Aisha Rahman",
-    role: "Women's Affairs Representative",
-    responsibility: "Liaises with the women's office and its programmes.",
+    role: "ผู้แทนฝ่ายสตรี",
+    responsibility: "ประสานงานกับฝ่ายสตรีและโครงการที่เกี่ยวข้อง",
   },
 ];
 
@@ -103,12 +103,12 @@ export default function CommitteePage(): ReactElement {
 
         <div className="relative mx-auto max-w-6xl">
           {/* Breadcrumb */}
-          <nav aria-label="Breadcrumb" className="text-caption text-ink-400">
+          <nav aria-label="เส้นทางนำทาง" className="text-caption text-ink-400">
             <Link
               href="/"
               className={`rounded-sm transition duration-fast ease-standard motion-reduce:transition-none hover:text-ink-300 ${FOCUS_RING_DARK}`}
             >
-              Home
+              หน้าแรก
             </Link>
             <span aria-hidden="true" className="mx-2">
               /
@@ -117,27 +117,27 @@ export default function CommitteePage(): ReactElement {
               href="/about"
               className={`rounded-sm transition duration-fast ease-standard motion-reduce:transition-none hover:text-ink-300 ${FOCUS_RING_DARK}`}
             >
-              About
+              เกี่ยวกับเรา
             </Link>
             <span aria-hidden="true" className="mx-2">
               /
             </span>
             <span aria-current="page" className="text-ink-200">
-              Committee
+              คณะกรรมการ
             </span>
           </nav>
 
           <h1 className="mt-2 text-3xl font-extrabold leading-tight text-white sm:text-4xl md:text-5xl">
-            Our Committee
+            คณะกรรมการของเรา
           </h1>
           <p className="mt-3 max-w-xl text-body text-ink-300">
-            The members elected to govern FityatulHaq for the current term.
+            สมาชิกที่ได้รับเลือกตั้งให้บริหารฟิตยะตุลฮักในวาระปัจจุบัน
           </p>
         </div>
       </header>
 
       {/* ── Member grid ──────────────────────────────────────────────── */}
-      <section aria-label="Committee members" className="flex-1 px-4 pb-16 pt-10 sm:px-6 lg:px-8">
+      <section aria-label="คณะกรรมการ" className="flex-1 px-4 pb-16 pt-10 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-6xl">
           <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {COMMITTEE_MEMBERS.map((member, index) => (
@@ -148,15 +148,15 @@ export default function CommitteePage(): ReactElement {
           </ul>
 
           <p className="mt-8 text-center text-caption text-ink-400">
-            The committee is elected at the annual general meeting for a two-year term.
+            คณะกรรมการมาจากการเลือกตั้งในที่ประชุมใหญ่สามัญประจำปี โดยมีวาระสองปี
           </p>
 
-          <nav aria-label="Back to about" className="mt-6 text-center">
+          <nav aria-label="กลับไปหน้าเกี่ยวกับเรา" className="mt-6 text-center">
             <Link
               href="/about"
               className={`inline-flex items-center gap-1 rounded-sm text-caption font-medium text-brand-300 transition duration-fast ease-standard motion-reduce:transition-none hover:text-accent-300 ${FOCUS_RING_DARK}`}
             >
-              ← Back to About
+              ← กลับไปหน้าเกี่ยวกับเรา
             </Link>
           </nav>
         </div>
