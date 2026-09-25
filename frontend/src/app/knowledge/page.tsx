@@ -17,7 +17,7 @@ import KnowledgeHubPage from "@/components/knowledge/KnowledgeHubPage";
 export const metadata: Metadata = {
   title: "Knowledge Hub",
   description:
-    "Courses, camps, papers, books and videos for FityatulHaq members — the full hub opens in the next phase.",
+    "Courses, camps, papers, books and videos for the FityatulHaq community — open to browse, with member-only downloads and playback.",
 };
 
 export default function KnowledgeRoute(): ReactElement {

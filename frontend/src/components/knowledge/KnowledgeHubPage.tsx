@@ -22,16 +22,15 @@ import { FOCUS_RING, FOCUS_RING_DARK } from "@/components/layout/Header";
 import { KNOWLEDGE_CATEGORIES } from "@/lib/knowledgeData";
 
 /* ====================================================================
-   KNOWLEDGE HUB — /knowledge (Phase 6 preview)
+   KNOWLEDGE HUB — /knowledge
    ====================================================================
 
    Visual language: the shared page frame — dark band header, white
    `shadow-card` tiles on the `#0c1017` band, lime cross-links.
 
-   CRITICAL: the category tiles are NON-interactive `<article>` elements —
-   the sub-routes arrive in Phase 6, so there are no hrefs, no buttons, no
-   onClick handlers and the cursor stays default. Members-only collections
-   show a badge only; no lock/unlock behaviour is simulated.
+   Since M2 the tiles are real links into the ten sub-routes: guests browse
+   every collection, and the members-only badge marks the three libraries
+   whose download/playback/ask actions need a signed-in member (§6.4).
    ==================================================================== */
 
 // ---------------------------------------------------------------
@@ -60,15 +59,21 @@ function CategoryTile({ category }: { category: (typeof KNOWLEDGE_CATEGORIES)[nu
   const Icon = CATEGORY_ICONS[category.icon] ?? FALLBACK_ICON;
 
   return (
-    <article className="flex h-full flex-col rounded-2xl bg-white p-5 shadow-card">
+    <Link
+      href={`/knowledge/${category.slug}`}
+      aria-label={`${category.name} collection`}
+      className={`group flex h-full flex-col rounded-2xl bg-white p-5 shadow-card transition duration-fast ease-standard motion-reduce:transition-none hover:shadow-card-hover ${FOCUS_RING}`}
+    >
       <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-50 text-brand-700">
         <Icon aria-hidden="true" strokeWidth={1.75} className="h-5 w-5" />
       </div>
 
-      <h3 className="mt-4 text-heading-4 text-ink-900">{category.name}</h3>
+      <h3 className="mt-4 text-heading-4 text-ink-900 transition duration-fast ease-standard motion-reduce:transition-none group-hover:text-brand-700">
+        {category.name}
+      </h3>
       <p className="mt-2 text-body-sm leading-relaxed text-ink-600">{category.blurb}</p>
 
-      {/* Footer row — members-only badge (when applicable) + coming-soon chip. */}
+      {/* Footer row — members-only badge (when applicable) + browse affordance. */}
       <div className="mt-auto flex flex-wrap items-center gap-2 pt-4">
         {category.membersOnly ? (
           <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-0.5 text-[10px] font-semibold text-blue-700">
@@ -76,11 +81,15 @@ function CategoryTile({ category }: { category: (typeof KNOWLEDGE_CATEGORIES)[nu
             Members-only
           </span>
         ) : null}
-        <span className="inline-flex items-center rounded-full bg-ink-100 px-2.5 py-0.5 text-[10px] font-semibold text-ink-500">
-          Coming soon
+        <span className="inline-flex items-center gap-1 rounded-full bg-ink-100 px-2.5 py-0.5 text-[10px] font-semibold text-ink-500">
+          Browse
+          <ArrowRight
+            aria-hidden="true"
+            className="h-3 w-3 transition-transform duration-fast ease-standard motion-reduce:transition-none group-hover:translate-x-0.5"
+          />
         </span>
       </div>
-    </article>
+    </Link>
   );
 }
 
@@ -122,8 +131,8 @@ export default function KnowledgeHubPage(): ReactElement {
             Knowledge Hub
           </h1>
           <p className="mt-3 max-w-xl text-body text-ink-300">
-            Courses, libraries and archives for members — the hub opens fully in the next
-            phase.
+            Courses, camps, libraries and archives — open for every guest to browse.
+            Members unlock downloads, playback and asking.
           </p>
         </div>
       </header>
@@ -187,6 +196,24 @@ export default function KnowledgeHubPage(): ReactElement {
                 </span>
                 <span className="mt-0.5 block text-caption text-ink-500">
                   Programme updates from across the organisation.
+                </span>
+              </span>
+              <ArrowRight
+                aria-hidden="true"
+                className="h-4 w-4 shrink-0 text-ink-400 transition duration-fast ease-standard group-hover:text-brand-600 motion-reduce:transition-none"
+              />
+            </Link>
+
+            <Link
+              href="/knowledge/recommended"
+              className={`group flex items-center justify-between gap-3 rounded-2xl bg-white p-5 shadow-card transition duration-fast ease-standard motion-reduce:transition-none hover:shadow-card-hover ${FOCUS_RING}`}
+            >
+              <span>
+                <span className="block text-body font-bold text-ink-900 group-hover:text-brand-700">
+                  Curated picks
+                </span>
+                <span className="mt-0.5 block text-caption text-ink-500">
+                  The committee's favourite reads, talks and recordings.
                 </span>
               </span>
               <ArrowRight
