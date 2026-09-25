@@ -139,7 +139,7 @@ Every milestone cites its PRD sections as source of truth. Follow this order str
 - **Gate checks:** All three green. FE `npx tsc --noEmit` clean · FE `npx --no-install next build` 41/41 pages · BE `npm run build` exit 0 (`dist/index.js` 5,822 B).
 - **PRD §6.2 defines:** Three roles — `GUEST` (view-browse only), `MEMBER` (full site access), `CONTENT_MODERATOR` (approve/reject webboard posts in Youth Care board).
 - **Actions completed:**
-  - Migration `20260923012900_change_roles_enum` applied — renames old enum, creates `UserRole_new`, migrates data, renames back.
+  - Migration `20260923012900_change_roles_enum` — renames old enum, creates `UserRole_new`, migrates data, renames back. Its **effect was already present in the live DB**, but the migration was never recorded in `_prisma_migrations`; discovered and reconciled on 2026-09-26 (see **D11**). The 2026-09-23 claim that it had been "applied" was only ever true of the database's shape, not of Prisma's migration history.
   - `schema.prisma` updated from stale `@default(MEMBER)` → `@default(GUEST)` to match PRD semantics + DB column default. Registration still assigns `role = 'MEMBER'` explicitly in `authService.ts` (no behavioral change).
   - Prisma client regenerated (`7.10.0`) after the schema edit, so the generated client no longer disagrees with the column default.
   - Enum agreement verified across all four surfaces: DB column default (`migration.sql` L19 `SET DEFAULT 'GUEST'`), generated client, `schema.prisma` L53, and `types/index.ts`.
@@ -592,7 +592,7 @@ The original plan deleted the panel outright. Executed instead as **promotion**:
 | D8 | Search endpoint missing | Global unified search absent (§5.2.12). | Open — M5 |
 | D9 | Profile activities missing | `/profile/activities` absent (§5.4.5). | Open — M5 |
 | D10 | Privacy policy missing | `/privacy-policy` absent (§5.5.1). | Open — M5 |
-| D11 | Role enum mismatch | `MEMBER|ADMIN|SUPERADMIN` ≠ PRD's `GUEST|MEMBER|CONTENT_MODERATOR`. Schema column exists but enum values wrong. | Open — M0-1 fixes this |
+| D11 | Role enum unrecorded | ✅ Resolved 2026-09-26 — the original description was stale: `schema.prisma`, the generated Prisma client, `types/index.ts`, `requireRole.ts` and the live DB enum were **all** already `GUEST|MEMBER|CONTENT_MODERATOR`. The real fault was bookkeeping: migration `20260923012900_change_roles_enum` was never **recorded** in `_prisma_migrations`, so `migrate status` reported it pending and any `migrate deploy` would have re-run the rename/cast. Reconciled with `prisma migrate resolve --applied` after `prisma migrate diff --from-config-datasource --to-schema` confirmed **zero drift**. | ✅ Resolved (2026-09-26) |
 | D18 | Notifications API missing | The header bell's unread badge is mock (`PLACEHOLDER_UNREAD_NOTIFICATION_COUNT = 2` in `lib/notificationData.ts`, §3.3). No `/notifications` endpoint exists, so the red dot is a placeholder until the activity feed / Web 2 supply real items. | Open — M5 (activity tabs) / M6 (Web 2) |
 
 ### 🟡 MEDIUM — Non-functional gating
