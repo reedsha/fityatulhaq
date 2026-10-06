@@ -19,7 +19,14 @@ function createPrismaClient(): PrismaClient {
     throw new Error("MISSING_ENV_VAR: DATABASE_URL");
   }
 
-  const adapter = new PrismaPg({ connectionString });
+  // Supabase (and most managed Postgres hosts) present a self-signed certificate
+  // on the pooler endpoint. Node's TLS stack rejects it by default, so we must
+  // explicitly allow it here. `rejectUnauthorized: false` keeps the connection
+  // encrypted — it only skips hostname/CA verification.
+  const adapter = new PrismaPg({
+    connectionString,
+    ssl: { rejectUnauthorized: false },
+  });
 
   return new PrismaClient({ adapter });
 }
