@@ -176,11 +176,13 @@ function startServer(): void {
   registerShutdownHandlers(server);
 }
 
+// Start the HTTP server immediately so Render detects the open port without delay.
+startServer();
+
 initPrisma()
   .then((): void => {
-    startServer();
+    logger.info("Database connection established successfully");
   })
   .catch((error: unknown): void => {
-    logger.error(`Failed to start the API: ${toErrorMessage(error)}`);
-    process.exit(1);
+    logger.error(`Database connection failed: ${toErrorMessage(error)}`);
   });
