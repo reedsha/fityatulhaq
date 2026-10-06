@@ -169,8 +169,8 @@ function registerShutdownHandlers(server: ReturnType<Express["listen"]>): void {
 }
 
 function startServer(): void {
-  const server = app.listen(PORT, (): void => {
-    logger.info(`Server running on http://localhost:${PORT}`);
+  const server = app.listen(PORT, "0.0.0.0", (): void => {
+    logger.info(`Server running on http://0.0.0.0:${PORT} (port ${PORT})`);
   });
 
   registerShutdownHandlers(server);
