@@ -122,10 +122,19 @@ export const transporter = createTransport(smtpTransportOptions);
 transporter
   .verify()
   .then(() => {
-    logger.info(`[SMTP] Transport verified for ${SMTP_HOST}:${SMTP_PORT}`);
+    logger.info(
+      `[SMTP] Transport verified for ${SMTP_HOST}:${SMTP_PORT} (secure=${resolveSecureFlag(SMTP_PORT)}, user=${SMTP_USER})`,
+    );
   })
   .catch((error: unknown) => {
-    logger.error(`[SMTP] Verification failed: ${toErrorMessage(error)}`);
+    logger.error(
+      `[SMTP] Verification failed for ${SMTP_HOST}:${SMTP_PORT} (secure=${resolveSecureFlag(SMTP_PORT)}, user=${SMTP_USER}): ${toErrorMessage(error)}`,
+    );
+    if (SMTP_HOST === "localhost" || SMTP_HOST === "127.0.0.1") {
+      logger.warn(
+        "[SMTP] SMTP_HOST is set to localhost — check that your .env file defines SMTP_HOST to a reachable mail relay.",
+      );
+    }
   });
 
 export interface EmailTemplate {
