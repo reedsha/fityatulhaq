@@ -51,7 +51,35 @@ function requirePort(): number {
   return port;
 }
 
-export const SMTP_HOST: string = optionalEnvVar("SMTP_HOST", DEFAULT_SMTP_HOST);
+/**
+ * Derives a sensible SMTP relay from what's available.
+ *
+ * Priority:
+ *   1. Explicit `SMTP_HOST` from the environment (anything that isn't empty or
+ *      `localhost`).
+ *   2. If the `SUPABASE_URL` is set, the hostname that Supabase exposes for its
+ *      managed SMTP relay (`smtp.<project-ref>.supabase.co`).
+ *   3. The default fallback (`localhost`), which causes a connection refused
+ *      during `verify()` and makes the real problem obvious in the logs.
+ */
+function deriveSmtpHost(): string {
+  const explicit = optionalEnvVar("SMTP_HOST", "");
+  if (explicit && explicit !== "localhost") {
+    return explicit;
+  }
+
+  const supabaseUrl = process.env.SUPABASE_URL;
+  if (supabaseUrl) {
+    const match = supabaseUrl.match(/^https?:\/\/([^.]+)\.supabase\.co$/);
+    if (match && match[1]) {
+      return `smtp.${match[1]}.supabase.co`;
+    }
+  }
+
+  return DEFAULT_SMTP_HOST;
+}
+
+export const SMTP_HOST: string = deriveSmtpHost();
 export const SMTP_PORT: number = requirePort();
 
 /** Credentials are required: an unauthenticated relay is never the intent here. */
