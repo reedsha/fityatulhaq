@@ -1,5 +1,7 @@
 import { PrismaPg } from "@prisma/adapter-pg";
 
+import { Pool } from "pg";
+
 // Entry point of the generated Prisma 7 client (`src/generated/prisma/client.ts`).
 import { PrismaClient } from "../generated/prisma/client";
 
@@ -19,14 +21,19 @@ function createPrismaClient(): PrismaClient {
     throw new Error("MISSING_ENV_VAR: DATABASE_URL");
   }
 
-  // Supabase (and most managed Postgres hosts) present a self-signed certificate
-  // on the pooler endpoint. Node's TLS stack rejects it by default, so we must
-  // explicitly allow it here. `rejectUnauthorized: false` keeps the connection
-  // encrypted — it only skips hostname/CA verification.
-  const adapter = new PrismaPg({
-    connectionString,
+  // Supabase presents a self-signed certificate on the connection pooler.
+  // pg-connection-string treats `sslmode=require` as `verify-full` by default,
+  // overriding any top-level ssl settings. We clean `sslmode` out of the URL
+  // and pass an explicit pool with `rejectUnauthorized: false` so that the
+  // connection remains encrypted without failing certificate chain validation.
+  const cleanUrl = connectionString.replace(/[?&]sslmode=[^&]+/g, "");
+
+  const pool = new Pool({
+    connectionString: cleanUrl,
     ssl: { rejectUnauthorized: false },
   });
+
+  const adapter = new PrismaPg(pool);
 
   return new PrismaClient({ adapter });
 }
