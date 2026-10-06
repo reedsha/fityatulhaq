@@ -1,3 +1,4 @@
+import { Resend } from "resend";
 import { createTransport, type SendMailOptions } from "nodemailer";
 
 import { toErrorMessage } from "../middleware/errorFormatter";
@@ -79,18 +80,38 @@ function deriveSmtpHost(): string {
   return DEFAULT_SMTP_HOST;
 }
 
+// Check for Resend credentials. If present or if SMTP_PASS is a Resend API key (starts with re_),
+// use the Resend HTTPS REST API (port 443) instead of SMTP to avoid cloud host SMTP port blocks.
+const explicitResendKey = process.env.RESEND_API_KEY?.trim();
+const rawSmtpPass = process.env.SMTP_PASS?.trim();
+const detectedResendKey =
+  explicitResendKey ||
+  (rawSmtpPass?.startsWith("re_") ? rawSmtpPass : undefined);
+
+export const RESEND_API_KEY: string | undefined = detectedResendKey;
+export const USE_RESEND_HTTP: boolean = Boolean(RESEND_API_KEY);
+
 export const SMTP_HOST: string = deriveSmtpHost();
 export const SMTP_PORT: number = requirePort();
 
-/** Credentials are required: an unauthenticated relay is never the intent here. */
-export const SMTP_USER: string = requireEnvVar("SMTP_USER");
-export const SMTP_PASS: string = requireEnvVar("SMTP_PASS");
+export const SMTP_USER: string = USE_RESEND_HTTP
+  ? (process.env.SMTP_USER?.trim() || "resend")
+  : requireEnvVar("SMTP_USER");
+
+export const SMTP_PASS: string = USE_RESEND_HTTP
+  ? (rawSmtpPass || RESEND_API_KEY || "")
+  : requireEnvVar("SMTP_PASS");
+
 export const SMTP_SENDER_EMAIL: string = optionalEnvVar(
-  "SMTP_SENDER_EMAIL",
-  DEFAULT_SENDER_EMAIL,
+  USE_RESEND_HTTP ? "RESEND_SENDER_EMAIL" : "SMTP_SENDER_EMAIL",
+  optionalEnvVar("SMTP_SENDER_EMAIL", DEFAULT_SENDER_EMAIL),
 );
 
 export const SMTP_FROM: string = `${SENDER_NAME} <${SMTP_SENDER_EMAIL}>`;
+
+export const resendClient: Resend | null = USE_RESEND_HTTP && RESEND_API_KEY
+  ? new Resend(RESEND_API_KEY)
+  : null;
 
 /**
  * Shape handed straight to nodemailer. Exported so the transport contract can
@@ -142,37 +163,41 @@ export const smtpTransportOptions: SmtpTransportOptions = {
 
 export const transporter = createTransport(smtpTransportOptions);
 
-/**
- * Fire-and-forget configuration probe. Deliberately not awaited: a relay that
- * is slow or unreachable at boot must still let the API come up, because email
- * is non-fatal to every flow that uses it.
- */
-transporter
-  .verify()
-  .then(() => {
-    logger.info(
-      `[SMTP] Transport verified for ${SMTP_HOST}:${SMTP_PORT} (secure=${resolveSecureFlag(SMTP_PORT)}, user=${SMTP_USER})`,
-    );
-  })
-  .catch((error: unknown) => {
-    logger.error(
-      `[SMTP] Verification failed for ${SMTP_HOST}:${SMTP_PORT} (secure=${resolveSecureFlag(SMTP_PORT)}, user=${SMTP_USER}): ${toErrorMessage(error)}`,
-    );
-    if (SMTP_HOST === "localhost" || SMTP_HOST === "127.0.0.1") {
-      logger.warn(
-        "[SMTP] SMTP_HOST is set to localhost — check that your .env file defines SMTP_HOST to a reachable mail relay.",
+if (USE_RESEND_HTTP) {
+  logger.info(
+    `[EMAIL] Using Resend REST API via HTTPS port 443 (from=${SMTP_FROM}). SMTP port restrictions bypassed.`,
+  );
+} else {
+  /**
+   * Fire-and-forget configuration probe for traditional SMTP.
+   */
+  transporter
+    .verify()
+    .then(() => {
+      logger.info(
+        `[SMTP] Transport verified for ${SMTP_HOST}:${SMTP_PORT} (secure=${resolveSecureFlag(SMTP_PORT)}, user=${SMTP_USER})`,
       );
-    } else {
-      logger.warn(
-        "[SMTP] If you are using managed email (Supabase), the hostname should look like smtp.<your-project-ref>.supabase.co, not a bare domain.",
+    })
+    .catch((error: unknown) => {
+      logger.error(
+        `[SMTP] Verification failed for ${SMTP_HOST}:${SMTP_PORT} (secure=${resolveSecureFlag(SMTP_PORT)}, user=${SMTP_USER}): ${toErrorMessage(error)}`,
       );
-      if (SMTP_PORT === 587) {
+      if (SMTP_HOST === "localhost" || SMTP_HOST === "127.0.0.1") {
         logger.warn(
-          "[SMTP] Port 587 with secure=false requires STARTTLS. If the server expects TLS from the first byte, try SMTP_PORT=465 instead.",
+          "[SMTP] SMTP_HOST is set to localhost — check that your .env file defines SMTP_HOST to a reachable mail relay.",
         );
+      } else {
+        logger.warn(
+          "[SMTP] If you are using managed email (Supabase), the hostname should look like smtp.<your-project-ref>.supabase.co, not a bare domain.",
+        );
+        if (SMTP_PORT === 587) {
+          logger.warn(
+            "[SMTP] Port 587 with secure=false requires STARTTLS. If the server expects TLS from the first byte, try SMTP_PORT=465 instead.",
+          );
+        }
       }
-    }
-  });
+    });
+}
 
 export interface EmailTemplate {
   to: string[];
@@ -211,6 +236,28 @@ function readMessageId(info: unknown): string | undefined {
  * take down registration or password reset.
  */
 export async function sendEmail(template: EmailTemplate): Promise<SendResult> {
+  if (USE_RESEND_HTTP && resendClient) {
+    try {
+      const response = await resendClient.emails.send({
+        from: SMTP_FROM,
+        to: template.to,
+        subject: template.subject,
+        html: template.html,
+        text: template.text,
+      });
+
+      if (response.error) {
+        logger.debug(`[RESEND_SEND_ERROR] ${response.error.message}`);
+        return { success: false, error: response.error.message };
+      }
+
+      return { success: true, messageId: response.data?.id };
+    } catch (error) {
+      logger.debug(`[RESEND_SEND_ERROR] ${toErrorMessage(error)}`);
+      return { success: false, error: toErrorMessage(error) };
+    }
+  }
+
   try {
     const mailOptions: SendMailOptions = {
       from: SMTP_FROM,
