@@ -134,6 +134,15 @@ transporter
       logger.warn(
         "[SMTP] SMTP_HOST is set to localhost — check that your .env file defines SMTP_HOST to a reachable mail relay.",
       );
+    } else {
+      logger.warn(
+        "[SMTP] If you are using managed email (Supabase), the hostname should look like smtp.<your-project-ref>.supabase.co, not a bare domain.",
+      );
+      if (SMTP_PORT === 587) {
+        logger.warn(
+          "[SMTP] Port 587 with secure=false requires STARTTLS. If the server expects TLS from the first byte, try SMTP_PORT=465 instead.",
+        );
+      }
     }
   });
 
