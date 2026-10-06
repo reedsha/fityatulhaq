@@ -23,10 +23,17 @@ function createPrismaClient(): PrismaClient {
 
   // Supabase presents a self-signed certificate on the connection pooler.
   // pg-connection-string treats `sslmode=require` as `verify-full` by default,
-  // overriding any top-level ssl settings. We clean `sslmode` out of the URL
-  // and pass an explicit pool with `rejectUnauthorized: false` so that the
-  // connection remains encrypted without failing certificate chain validation.
-  const cleanUrl = connectionString.replace(/[?&]sslmode=[^&]+/g, "");
+  // overriding any top-level ssl settings. We safely delete the `sslmode`
+  // search parameter using standard URL parsing and pass an explicit pool
+  // with `rejectUnauthorized: false`.
+  let cleanUrl = connectionString;
+  try {
+    const parsed = new URL(connectionString);
+    parsed.searchParams.delete("sslmode");
+    cleanUrl = parsed.toString();
+  } catch {
+    cleanUrl = connectionString.replace(/[?&]sslmode=[^&]+/g, "").replace(/\/\?&/, "/?");
+  }
 
   const pool = new Pool({
     connectionString: cleanUrl,
