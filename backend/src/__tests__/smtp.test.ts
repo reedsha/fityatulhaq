@@ -123,14 +123,14 @@ async function run(): Promise<void> {
   const verificationHtml = smtp.createOtpEmailHtml("428913", "EMAIL_VERIFICATION");
   const resetHtml = smtp.createOtpEmailHtml("519204", "PASSWORD_RESET");
 
-  check("HTML renders the verification heading", verificationHtml.includes("Verify your email address"));
-  check("HTML renders the reset heading", resetHtml.includes("Reset your password"));
+  check("HTML renders the verification heading", verificationHtml.includes("ยืนยันอีเมลของคุณ"));
+  check("HTML renders the reset heading", resetHtml.includes("รีเซ็ตรหัสผ่าน"));
   check("HTML renders the code", verificationHtml.includes("428913"));
-  check("HTML states the 15 minute expiry", verificationHtml.includes("expires in 15 minutes"));
+  check("HTML states the 15 minute expiry", verificationHtml.includes("รหัสนี้หมดอายุภายใน 15 นาที"));
   check("HTML uses the brand accent", verificationHtml.includes("#059669"));
   check("HTML is Outlook-safe table layout", verificationHtml.includes('role="presentation"') && verificationHtml.includes('cellpadding="0"'));
   check("HTML keeps styles inline", !verificationHtml.includes("<style"));
-  check("HTML includes the ignored-request notice", verificationHtml.includes("If you didn't request this code"));
+  check("HTML includes the ignored-request notice", verificationHtml.includes("หากคุณไม่ได้เป็นผู้ขอรหัสนี้"));
   check("HTML is marked up as a document", verificationHtml.startsWith("<!DOCTYPE html>"));
 
   // --- Plain-text alternative ---------------------------------------------
@@ -138,11 +138,11 @@ async function run(): Promise<void> {
   const verificationText = smtp.createOtpEmailText("428913", "EMAIL_VERIFICATION");
   const resetText = smtp.createOtpEmailText("519204", "PASSWORD_RESET");
 
-  check("text part renders the verification heading", verificationText.includes("Verify your email address"));
-  check("text part renders the reset heading", resetText.includes("Reset your password"));
+  check("text part renders the verification heading", verificationText.includes("ยืนยันอีเมลของคุณ"));
+  check("text part renders the reset heading", resetText.includes("รีเซ็ตรหัสผ่าน"));
   check("text part renders the code", verificationText.includes("428913"));
-  check("text part states the 15 minute expiry", verificationText.includes("expires in 15 minutes"));
-  check("text part includes the ignored-request notice", verificationText.includes("If you didn't request this code"));
+  check("text part states the 15 minute expiry", verificationText.includes("รหัสนี้หมดอายุภายใน 15 นาที"));
+  check("text part includes the ignored-request notice", verificationText.includes("หากคุณไม่ได้เป็นผู้ขอรหัสนี้"));
   check("text part contains no HTML markup", !verificationText.includes("<"));
 
   // --- sendEmail success path ---------------------------------------------
@@ -167,14 +167,14 @@ async function run(): Promise<void> {
   const otpMessage = state.sent[0];
 
   check("sendOtpEmail reports success", otpResult.success);
-  check("sendOtpEmail sets the verification subject", otpMessage?.subject === "Verify your FityatulHaq email address");
+  check("sendOtpEmail sets the verification subject", otpMessage?.subject === "ยืนยันอีเมล FityatulHaq");
   check("sendOtpEmail delivers the code in the HTML part", readBody(otpMessage?.html).includes("428913"));
   check("sendOtpEmail delivers the code in the text part", readBody(otpMessage?.text).includes("428913"));
 
   state.sent.length = 0;
 
   await smtp.sendOtpEmail("member@fityatulhaq.test", "519204", "PASSWORD_RESET");
-  check("sendOtpEmail sets the reset subject", state.sent[0]?.subject === "Reset your FityatulHaq password");
+  check("sendOtpEmail sets the reset subject", state.sent[0]?.subject === "รีเซ็ตรหัสผ่าน FityatulHaq");
 
   // --- sendEmail failure path ---------------------------------------------
 
