@@ -1,8 +1,12 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import type { ReactElement } from "react";
 
+import banatImg from "@/assets/image/banat.jpg";
+import fitfamilyImg from "@/assets/image/fitfamily.jpg";
+import tmydaImg from "@/assets/image/tmyda.png";
 import { FOCUS_RING_DARK } from "@/components/layout/Header";
 import { useAuth } from "@/context/AuthContext";
 
@@ -138,11 +142,14 @@ export function DashboardPanel(): ReactElement {
             <p className="mt-2 text-body-sm leading-relaxed text-brand-950/80">
               ครอบครัวฟิตยะตุลหัก — เรียนรู้ เติบโต และรับใช้ชุมชนร่วมกัน
             </p>
-            {/* Image placeholder */}
-            <div className="mt-4 h-28 w-full overflow-hidden rounded-xl bg-brand-950/20">
-              <div className="flex h-full items-center justify-center">
-                <span className="text-3xl opacity-40">🤝</span>
-              </div>
+            <div className="relative mt-4 h-36 w-full overflow-hidden rounded-xl bg-brand-950/20">
+              <Image
+                src={fitfamilyImg}
+                alt="FIT FAMILY"
+                fill
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 360px"
+                className="object-cover"
+              />
             </div>
             <a
               href="/about"
@@ -161,11 +168,14 @@ export function DashboardPanel(): ReactElement {
             <p className="mt-2 text-body-sm leading-relaxed text-brand-700">
               สมาคมพัฒนาการมุสลิมแห่งประเทศไทย — ร่วมสร้างอนาคตที่ดีกว่า
             </p>
-            {/* Image placeholder */}
-            <div className="mt-4 h-28 w-full overflow-hidden rounded-xl bg-brand-200/50">
-              <div className="flex h-full items-center justify-center">
-                <span className="text-3xl opacity-40">📚</span>
-              </div>
+            <div className="relative mt-4 h-36 w-full overflow-hidden rounded-xl bg-brand-200/50">
+              <Image
+                src={tmydaImg}
+                alt="TMYDA"
+                fill
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 360px"
+                className="object-cover"
+              />
             </div>
             <a
               href="/knowledge"
@@ -185,10 +195,14 @@ export function DashboardPanel(): ReactElement {
             <p className="mt-2 text-body-sm leading-relaxed text-ink-600">
               ส่งเสริมบทบาทสตรีมุสลิมในสังคม พัฒนาศักยภาพและความเป็นผู้นำ
             </p>
-            {/* Photo grid */}
-            <div className="mt-4 grid grid-cols-2 gap-1.5">
-              <div className="h-12 rounded-lg bg-tertiary-200/60" />
-              <div className="h-12 rounded-lg bg-tertiary-300/40" />
+            <div className="relative mt-4 h-36 w-full overflow-hidden rounded-xl bg-tertiary-300/40">
+              <Image
+                src={banatImg}
+                alt="สำนักงานการสตรี"
+                fill
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 360px"
+                className="object-cover"
+              />
             </div>
             <a
               href="/about"
